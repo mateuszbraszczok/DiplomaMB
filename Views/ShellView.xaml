@@ -36,20 +36,20 @@
                 <StackPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Cursor" Value="Hand"/>
                     </Style>
                     <Style TargetType="StackPanel">
                         <Setter Property="Margin" Value="2"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Content="Connect Spectrometer" Command="{Binding ConnectSpectrometerCommand}" Cursor="Hand"/>
-                <Button Content="Reset Device" Command="{Binding ResetDeviceCommand}" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand"/>
+                <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
+                <Button x:Name="ResetSpectrometer">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
                     <TextBox Text="{Binding IntegrationTime}" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
                     <Label Content="{Binding Spectrometer.IntegrationTimeUnit}"/>
                 </StackPanel>
-                <Button Content="Set integration time" Command="{Binding SetIntegrationTimeCommand}" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand"/>
-                <Button Content="Exit program" Command="{Binding ExitProgramCommand}" Cursor="Hand"/>
-
+                <Button x:Name="SetIntegrationTime" IsEnabled="{Binding Spectrometer.Connected}" >Set integration time</Button>
+                <Button x:Name="ExitProgram" Content="Exit program" />
             </StackPanel>
         </Border>
 
@@ -59,17 +59,18 @@
                 <StackPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Cursor" Value="Hand"/>
                     </Style>
                     <Style TargetType="StackPanel">
                         <Setter Property="Margin" Value="2"/>
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Text="{Binding FramesToAcquire}" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <TextBox x:Name="FramesToAcquire" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
-                <Button Content="Get Spectrum" Command="{Binding GetSpectrumCommand}" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand"/>
-                <Button Content="Get Dark Scan" Command="{Binding GetDarkScanCommand}" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand"/>
+                <Button x:Name="GetSpectrum">Get Spectrum</Button>
+                <Button x:Name="GetDarkScan">Get Dark Scan</Button>
             </StackPanel>
         </Border>
 
@@ -79,6 +80,7 @@
                 <StackPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Cursor" Value="Hand"/>
                     </Style>
                     <Style TargetType="StackPanel">
                         <Setter Property="Margin" Value="2"/>
@@ -89,9 +91,9 @@
                     <Label Content="Number of scans to be averaged"/>
                 </StackPanel>
 
-                <CheckBox Content="Smoothing enabled" IsChecked="{Binding Smoothing}" IsEnabled="{Binding Spectrometer.Connected}"/>
-                <CheckBox Content="Dark compensate enabled" IsChecked="{Binding DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}"/>
-                <Button Content="Get Spectrum" Command="{Binding GetSpectrumSmartCommand}" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand"/>
+                <CheckBox IsChecked="{Binding Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
+                <CheckBox IsChecked="{Binding DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">"Dark compensate enabled</CheckBox>
+                <Button Command="{Binding GetSpectrumSmartCommand}" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
             </StackPanel>
         </Border>
 
@@ -104,11 +106,11 @@
                         <Setter Property="Cursor" Value="Hand"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Content="Delete all spectrums" Command="{Binding DeleteAllSpectrumsCommand}"/>
-                <Button Content="Delete selected spectrum" Command="{Binding DeleteSelectedRowCommand}"/>
-                <Button Content="Save selected spectrum"   Command="{Binding SaveSelectedRowCommand}"/>
-                <Button Content="Load spectrum from file"  Command="{Binding LoadSpectrumCommand}"/>
-                <Button Content="Edit"  Command="{Binding EditCommand}"/>
+                <Button Command="{Binding DeleteAllSpectrumsCommand}">Delete all spectrums</Button>
+                <Button Command="{Binding DeleteSelectedRowCommand}">Delete selected spectrum</Button>
+                <Button Command="{Binding SaveSelectedRowCommand}">Save selected spectrum</Button>
+                <Button Command="{Binding LoadSpectrumCommand}">Load spectrum from file</Button>
+                <Button Command="{Binding EditCommand}">Edit Data</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />

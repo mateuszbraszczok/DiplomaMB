@@ -28,24 +28,31 @@ namespace DiplomaMB.ViewModels
 		public Spectrometer Spectrometer
         {
 			get { return spectrometer; }
-			set { spectrometer = value; }
+			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
 		}
 
 		private int selected_spectrum;
-		public int SelectedPectrum
+		public int SelectedSpectrum
 		{
 			get { return selected_spectrum; }
-			set { selected_spectrum = value; }
-		}
-        private BindableCollection<Spectrum> spectrums;
+			set { selected_spectrum = value; NotifyOfPropertyChange(() => SelectedSpectrum); }
+        }
 
+        private BindableCollection<Spectrum> spectrums;
         public BindableCollection<Spectrum> Spectrums
         {
             get { return spectrums; }
-            set { spectrums = value; }
+            set { spectrums = value; NotifyOfPropertyChange(() => Spectrums); }
         }
 
+        private int frames_to_acquire;
+        public int FramesToAcquire
+        {
+            get { return frames_to_acquire; }
+            set { frames_to_acquire = value; NotifyOfPropertyChange(() => FramesToAcquire); }
+        }
 
+        private int last_id = 0;
         public ShellViewModel()
         {
             PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
@@ -137,6 +144,71 @@ namespace DiplomaMB.ViewModels
             PlotModel.Axes.Add(Yaxis);
 
             PlotModel.InvalidatePlot(true);
+        }
+
+        public void ExitProgram()
+        {
+            Spectrometer.Disconnect();
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        public void ConnectSpectrometer()
+        {
+            NotifyOfPropertyChange(() => Spectrometer);
+            Spectrometer.Connect();
+            if (Spectrometer.Connected == true)
+            {
+                //IntegrationTime = Spectrometer.IntegrationTime.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Can't connect with spectrometer", "Can't connect with spectrometer", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+        }
+
+        public bool CanResetSpectrometer()
+        {
+            return Spectrometer.Connected;
+        }
+        public void ResetSpectrometer()
+        {
+            Spectrometer.ResetDevice();
+        }
+
+        public void SetIntegrationTime()
+        {
+            if (Spectrometer.Connected)
+            {
+                //Spectrometer.SetIntegrationTime(IntegrationTime);
+            }
+            //IntegrationTime = spectrometer.IntegrationTime.ToString();
+        }
+
+        public bool CanGetSpectrum()
+        {
+            return Spectrometer.Connected;
+        }
+        public void GetSpectrum()
+        {
+            List<Spectrum> spectrum_list = Spectrometer.ReadData(FramesToAcquire);
+
+            foreach (Spectrum spectrum in spectrum_list)
+            {
+                spectrum.Id = last_id;
+                spectrum.Name = "Spectrum " + last_id.ToString();
+                last_id += 1;
+                spectrums.Add(spectrum);
+            }
+            UpdatePlot();
+        }
+
+        public bool CanGetDarkScan()
+        {
+            return Spectrometer.Connected;
+        }
+        public void GetDarkScan()
+        {
+            Spectrometer.GetDarkScan();
         }
 
 
