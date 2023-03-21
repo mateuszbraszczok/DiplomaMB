@@ -249,7 +249,7 @@ namespace DiplomaMB.Models
             int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
             if (ret < 0)
             {
-                throw new Exception("Not received data");
+                throw new Exception("Smoothing failed");
             }
         }
 
