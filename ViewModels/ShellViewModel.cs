@@ -12,6 +12,9 @@ using OxyPlot.Series;
 using OxyPlot.Wpf;
 using DiplomaMB.Models;
 using System.ComponentModel;
+using Microsoft.Win32;
+using System.Globalization;
+using System.IO;
 
 namespace DiplomaMB.ViewModels
 {
@@ -31,8 +34,8 @@ namespace DiplomaMB.ViewModels
 			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
 		}
 
-		private int selected_spectrum;
-		public int SelectedSpectrum
+		private Spectrum selected_spectrum;
+		public Spectrum SelectedSpectrum
 		{
 			get { return selected_spectrum; }
 			set { selected_spectrum = value; NotifyOfPropertyChange(() => SelectedSpectrum); }
@@ -42,7 +45,7 @@ namespace DiplomaMB.ViewModels
         public BindableCollection<Spectrum> Spectrums
         {
             get { return spectrums; }
-            set { spectrums = value; NotifyOfPropertyChange(() => Spectrums); }
+            set { spectrums = value; NotifyOfPropertyChange(() => Spectrums);}
         }
 
         private int frames_to_acquire;
@@ -52,12 +55,23 @@ namespace DiplomaMB.ViewModels
             set { frames_to_acquire = value; NotifyOfPropertyChange(() => FramesToAcquire); }
         }
 
+        private SmartRead smart_read;
+
+        public SmartRead SmartRead
+        {
+            get { return smart_read; }
+            set { smart_read = value; }
+        }
+
+
         private int last_id = 0;
         public ShellViewModel()
         {
             PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
             Spectrometer = new Spectrometer();
             Spectrums = new BindableCollection<Spectrum> { };
+
+            Spectrums.CollectionChanged += (e, v) => UpdatePlot();
 
             InitializePlot();
         }
@@ -79,6 +93,7 @@ namespace DiplomaMB.ViewModels
 
         private void UpdatePlot()
         {
+            MessageBox.Show("Plot update");
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
             double max_x_value = double.MinValue;
@@ -186,7 +201,7 @@ namespace DiplomaMB.ViewModels
 
         public bool CanGetSpectrum()
         {
-            return Spectrometer.Connected;
+            return IsSpectrometerConnected();
         }
         public void GetSpectrum()
         {
@@ -202,13 +217,112 @@ namespace DiplomaMB.ViewModels
             UpdatePlot();
         }
 
+        public bool CanGetSpectrumSmart()
+        {
+            return IsSpectrometerConnected();
+        }
+        public void GetSpectrumSmart()
+        {
+            Spectrum spectrum = Spectrometer.ReadDataSmart(SmartRead);
+            spectrum.Id = last_id;
+            spectrum.Name = "Spectrum " + last_id.ToString();
+            last_id += 1;
+
+            if (spectrum.dataArray != null)
+            {
+                spectrums.Add(spectrum);
+                UpdatePlot();
+            }
+        }
+
         public bool CanGetDarkScan()
         {
-            return Spectrometer.Connected;
+            return IsSpectrometerConnected();
         }
         public void GetDarkScan()
         {
             Spectrometer.GetDarkScan();
+        }
+
+        public void LoadSpectrum()
+        {
+            OpenFileDialog dialog = new()
+            {
+                Title = "Open CSV File",
+                Filter = "CSV Files (*.csv)|*.csv"
+            };
+            string filename;
+            if (dialog.ShowDialog() == true)
+            {
+                filename = dialog.FileName;
+            }
+            else
+            {
+                return;
+            }
+
+            using var reader = new StreamReader(filename);
+            List<double> wavelengths = new();
+            List<ushort> data = new();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                var values = line.Split(',');
+
+                wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
+                data.Add(Convert.ToUInt16(values[1]));
+            }
+            string name = Path.GetFileNameWithoutExtension(filename);
+            Spectrum spectrum = new Spectrum(wavelengths, data, name)
+            {
+                Id = last_id
+            };
+            last_id++;
+            spectrums.Add(spectrum);
+
+            UpdatePlot();
+        }
+
+        public void DeleteSelectedSpectrum()
+        {
+            if (spectrums.Count > 0 && SelectedSpectrum != null)
+            {
+                Spectrums.Remove(SelectedSpectrum);
+                SelectedSpectrum = null;
+                UpdatePlot();
+            }
+        }
+
+        public void DeleteAllSpectrums()
+        {
+            Spectrums.Clear();
+            SelectedSpectrum = null;
+            UpdatePlot();
+        }
+
+        public void SaveSelectedSpectrum()
+        {
+            if (spectrums.Count > 0 && SelectedSpectrum != null)
+            {
+                SelectedSpectrum.SaveToFile();
+            }
+            else
+            {
+                MessageBox.Show("No available spectrum to save", "Spectrum save error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void OnChecked()
+        {
+            MessageBox.Show("Clicked checkbox");
+            UpdatePlot();
+        }
+
+
+        private bool IsSpectrometerConnected()
+        {
+            if (!Spectrometer.Connected) { MessageBox.Show("Spectrometer is not connected"); }
+            return Spectrometer.Connected;
         }
 
 

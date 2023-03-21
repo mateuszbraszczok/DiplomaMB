@@ -198,10 +198,10 @@ namespace DiplomaMB.Models
 
 
 
-        public Spectrum ReadDataSmart(int spectrums_to_average, bool smoothing, bool dark_compensation)
+        public Spectrum ReadDataSmart(SmartRead smart_read)
         {
             ushort[] pArray = new ushort[pixel_number];
-            int ret = BwtekAPIWrapper.bwtekDSPDataReadUSB(spectrums_to_average, Convert.ToInt32(smoothing), Convert.ToInt32(dark_compensation), 0, pArray, channel);
+            int ret = BwtekAPIWrapper.bwtekDSPDataReadUSB(smart_read.SpectrumsToAverage, Convert.ToInt32(smart_read.Smoothing), Convert.ToInt32(smart_read.DarkCompensation), 0, pArray, channel);
 
             if (ret == pixel_number)
             {
@@ -240,6 +240,17 @@ namespace DiplomaMB.Models
             darkScan = pArray.ToList();
 
             dark_scan_taken = true;
+        }
+
+        public void Smoothing(Smoothing smoothing, Spectrum spectrum)
+        {
+            ushort[] pArray = spectrum.dataArray.ToArray();
+
+            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
+            if (ret < 0)
+            {
+                throw new Exception("Not received data");
+            }
         }
 
         public void SetIntegrationTime(string integration_time)

@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiplomaMB.Views"
-        xmlns:oxy="http://oxyplot.org/wpf" 
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:viewmodels="clr-namespace:DiplomaMB.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
         Title="ShellView" Height="800" Width="1200">
+
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
@@ -30,7 +34,19 @@
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Content="Settings" Grid.Row="1" Grid.Column="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <Menu>
+            <MenuItem x:Name="FileMenu" Header="File" IsEnabled="{Binding CanFileMenu}"/>
+            <MenuItem Header="Edit"/>
+            <MenuItem Header="Settings">
+                <MenuItem x:Name="EditCategories" Header="Edit Categories"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Manual"/>
+                <MenuItem x:Name="About" Header="About"/>
+            </MenuItem>
+        </Menu>
+
+        <!--<Label Content="Settings" Grid.Row="1" Grid.Column="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>-->
         <Border BorderBrush="Black" BorderThickness="1" Grid.Row="2" Grid.Column="1" Margin="10">
             <StackPanel Margin="5">
                 <StackPanel.Resources>
@@ -45,16 +61,16 @@
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
                 <Button x:Name="ResetSpectrometer">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Text="{Binding IntegrationTime}" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
-                    <Label Content="{Binding Spectrometer.IntegrationTimeUnit}"/>
+                    <TextBox x:Name="IntegrationTime" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
+                    <Label x:Name="Spectrometer_IntegrationTimeUnit"/>
                 </StackPanel>
-                <Button x:Name="SetIntegrationTime" IsEnabled="{Binding Spectrometer.Connected}" >Set integration time</Button>
-                <Button x:Name="ExitProgram" Content="Exit program" />
+                <Button x:Name="SetIntegrationTime" IsEnabled="{Binding Spectrometer.Connected}">Set integration time</Button>
+                <Button x:Name="ExitProgram">Exit program</Button>
             </StackPanel>
         </Border>
 
         <Label Content="Normal Mode" Grid.Row="1" Grid.Column="2" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-        <Border BorderBrush="Black" BorderThickness="1" Grid.Row="2" Grid.Column="2"  Margin="10">
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Row="2" Grid.Column="2" Margin="10">
             <StackPanel Margin="5" >
                 <StackPanel.Resources>
                     <Style TargetType="Button">
@@ -87,13 +103,13 @@
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Text="{Binding SpectrumsToAverage}" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <TextBox x:Name="SmartRead_SpectrumsToAverage" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of scans to be averaged"/>
                 </StackPanel>
 
-                <CheckBox IsChecked="{Binding Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
-                <CheckBox IsChecked="{Binding DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">"Dark compensate enabled</CheckBox>
-                <Button Command="{Binding GetSpectrumSmartCommand}" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
+                <CheckBox IsChecked="{Binding SmartRead.Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
+                <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">"Dark compensate enabled</CheckBox>
+                <Button x:Name="GetSpectrumSmart" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
             </StackPanel>
         </Border>
 
@@ -106,27 +122,36 @@
                         <Setter Property="Cursor" Value="Hand"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Command="{Binding DeleteAllSpectrumsCommand}">Delete all spectrums</Button>
-                <Button Command="{Binding DeleteSelectedRowCommand}">Delete selected spectrum</Button>
-                <Button Command="{Binding SaveSelectedRowCommand}">Save selected spectrum</Button>
-                <Button Command="{Binding LoadSpectrumCommand}">Load spectrum from file</Button>
-                <Button Command="{Binding EditCommand}">Edit Data</Button>
+                <Button x:Name="SaveSelectedSpectrum">Save selected spectrum</Button>
+                <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
+                <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
+                <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
+                <Button x:Name="Edit">Edit Data</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />
 
-        <DataGrid Grid.Column="4" Grid.Row="3" ItemsSource="{Binding Spectrums}" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" AutoGenerateColumns="False" SelectedIndex="{Binding SelectedRow}" CanUserResizeColumns="False">
+        <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" AutoGenerateColumns="False" SelectedValue="{Binding SelectedSpectrum}" CanUserResizeColumns="False" >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                <DataGridTemplateColumn Header="Visible">
+                <DataGridCheckBoxColumn Header="Visible" Binding="{Binding Enabled}">
+                    <!--<DataGridCheckBoxColumn.CellStyle>
+                        <Style>
+                            <EventSetter Event="CheckBox.Checked" Handler="{Binding OnChecked}"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.CellStyle>-->
+                </DataGridCheckBoxColumn>
+                
+
+                <!--<DataGridTemplateColumn Header="Visible">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType= {x:Type Window}}, Path=DataContext.OnCheckedCommand}"/>
+                            <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType= {x:Type Window}}, Path=DataContext.OnChecked}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                </DataGridTemplateColumn>-->
             </DataGrid.Columns>
         </DataGrid>
 
@@ -137,7 +162,7 @@
                     <Label Content="Status:"></Label>
                 </StatusBarItem>
                 <StatusBarItem>
-                    <Label Content="{Binding Spectrometer.Status}"></Label>
+                    <Label x:Name="Spectrometer_Status"></Label>
                 </StatusBarItem>
 
                 <Separator/>
@@ -146,7 +171,7 @@
                     <Label Content="Dark Scan Taken:"></Label>
                 </StatusBarItem>
                 <StatusBarItem>
-                    <Label Content="{Binding Spectrometer.DarkScanTaken}"></Label>
+                    <Label x:Name="Spectrometer_DarkScanTaken"></Label>
                 </StatusBarItem>
             </StatusBar>
         </StackPanel>
