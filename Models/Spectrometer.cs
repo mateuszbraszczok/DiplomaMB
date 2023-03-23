@@ -82,8 +82,8 @@ namespace DiplomaMB.Models
         }
 
         private List<double> wavelengths = new List<double>();
-        private List<ushort> dataArray = new List<ushort>();
-        private List<ushort> darkScan = new List<ushort>();
+        private List<double> dataArray = new List<double>();
+        private List<double> darkScan = new List<double>();
 
         private bool dark_scan_taken;
         public bool DarkScanTaken
@@ -183,7 +183,7 @@ namespace DiplomaMB.Models
                 if (i == pixel_number)
                 {
                     i = 1;
-                    dataArray = data_array.ToList();
+                    dataArray = data_array.ToList().ConvertAll(x => (double)x);
                     SubtractDarkScan();
                     spectrum_list.Add(new Spectrum(wavelengths, dataArray));
                     data_array = new ushort[pixel_number];
@@ -208,8 +208,7 @@ namespace DiplomaMB.Models
                 throw new Exception("Not received data");
             }
             ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
-
-            dataArray = pArray.ToList();
+            dataArray = pArray.ToList().ConvertAll(x => (double)x);
             SubtractDarkScan();
 
             return new Spectrum(wavelengths, dataArray);
@@ -237,20 +236,20 @@ namespace DiplomaMB.Models
             }
             ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            darkScan = pArray.ToList();
+            darkScan = pArray.ToList().ConvertAll(x => (double)x);
 
             dark_scan_taken = true;
         }
 
         public void Smoothing(Smoothing smoothing, Spectrum spectrum)
         {
-            ushort[] pArray = spectrum.dataArray.ToArray();
+            double[] pArray = spectrum.dataArray.ToArray();
 
-            //int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
-            //if (ret < 0)
-            //{
-            //    throw new Exception("Smoothing failed");
-            //}
+            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
+            if (ret < 0)
+            {
+                throw new Exception("Smoothing failed");
+            }
         }
 
         public void SetIntegrationTime(string integration_time)

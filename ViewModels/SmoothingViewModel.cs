@@ -1,4 +1,5 @@
-﻿using DiplomaMB.Models;
+﻿using Caliburn.Micro;
+using DiplomaMB.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,8 @@ using System.Threading.Tasks;
 
 namespace DiplomaMB.ViewModels
 {
-    public class SmoothingViewModel
+    public class SmoothingViewModel : Screen
     {
-        private int year;
-
-        public int Year
-        {
-            get { return year; }
-            set { year = value; }
-        }
 
         private Smoothing smoothing;
 
@@ -28,7 +22,12 @@ namespace DiplomaMB.ViewModels
         public SmoothingViewModel()
         {
             smoothing = new Smoothing();
-            Year = 20;
+            smoothing.BoxcarSmoothing = true;
+        }
+
+        public void CloseWindow()
+        {
+            TryCloseAsync();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace DiplomaMB.Models
     public class Spectrum
     {
         public List<double> wavelengths = new List<double>();
-        public List<ushort> dataArray = new List<ushort>();
+        public List<double> dataArray = new List<double>();
 
         private int id;
         public int Id
@@ -37,7 +37,7 @@ namespace DiplomaMB.Models
         }
 
 
-        public Spectrum(List<double> _wavelengths, List<ushort> _dataArray, string _name = "", int _id = 0)
+        public Spectrum(List<double> _wavelengths, List<double> _dataArray, string _name = "", int _id = 0)
         {
             wavelengths = _wavelengths;
             dataArray = _dataArray;

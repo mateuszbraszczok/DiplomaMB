@@ -5,13 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiplomaMB.Views"
         mc:Ignorable="d"
-        Title="SmoothingView" Height="450" Width="800">
+        Title="SmoothingView" Height="250" Width="400">
     <Grid>
         <StackPanel>
-            <TextBox x:Name="Smoothing_BoxCarWindow"></TextBox>
-            <TextBox x:Name="Smoothing_SavGolayWindow"></TextBox>
-            <TextBox x:Name="Smoothing_FftSmoothingDegree"></TextBox>
+            <RadioButton IsChecked="True" x:Name="Smoothing_BoxcarSmoothing" Content="Boxcar Smoothing"></RadioButton>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.BoxcarSmoothing}">
+                <Label Content="Boxcar Window Size(2*w+1)"/>
+                <TextBox x:Name="Smoothing_FftSmoothingDegree" Width="20"></TextBox>
+            </StackPanel>
+
+            <RadioButton x:Name="Smoothing_FftSmoothing" Content="FFT (Fast Fourier Transform)"></RadioButton>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.FftSmoothing}">
+                <Label Content="FFT Smoothing Degree"/>
+                <TextBox x:Name="Smoothing_BoxCarWindow" Width="20"></TextBox>
+            </StackPanel>
+
+            <RadioButton x:Name="Smoothing_SavGolaySmoothing" Content="Savitzky-Golay Smoothing"></RadioButton>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.SavGolaySmoothing}">
+                <Label Content="Sav-Golay Window Size(2*w+1)"/>
+                <TextBox x:Name="Smoothing_SavGolayWindow" Width="20"></TextBox>
+            </StackPanel>
+            <Button x:Name="CloseWindow" Content="Accept Smoothing"/>
         </StackPanel>
-        
+
     </Grid>
 </Window>

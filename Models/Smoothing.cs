@@ -32,26 +32,44 @@ namespace DiplomaMB.Models
 			set { fft_smoothing_degree = value; }
 		}
 
-		private int type;
 
-		public int Type
+		private bool fft_smoothing;
+
+		public bool FftSmoothing
 		{
-			get { return type; }
-			set { type = value; }
+			get { return fft_smoothing; }
+			set { fft_smoothing = value; }
 		}
+
+		private bool sav_golay_smoothing;
+
+		public bool SavGolaySmoothing
+		{
+			get { return sav_golay_smoothing; }
+			set { sav_golay_smoothing = value; }
+		}
+
+		private bool boxcar_smoothing;
+
+		public bool BoxcarSmoothing
+		{
+			get { return boxcar_smoothing; }
+			set { boxcar_smoothing = value; }
+		}
+
 
 		public int Parameter
 		{
 			get { 
-				if (Type == 0)
+				if (BoxcarSmoothing)
 				{
 					return BoxCarWindow;
 				}
-				else if (Type == 1) 
+				else if (SavGolaySmoothing) 
 				{
 					return SavGolayWindow;
 				}
-				else if (Type == 2)
+				else if (FftSmoothing)
 				{
 					return FftSmoothingDegree;
 				}
@@ -62,5 +80,28 @@ namespace DiplomaMB.Models
 			}
 		}
 
-	}
+        public int Type
+        {
+            get
+            {
+                if (BoxcarSmoothing)
+                {
+                    return 0;
+                }
+                else if (FftSmoothing)
+                {
+                    return 1;
+                }
+                else if (SavGolaySmoothing)
+                {
+                    return 2;
+                } 
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+    }
 }

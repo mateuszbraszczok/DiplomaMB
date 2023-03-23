@@ -97,8 +97,8 @@ namespace DiplomaMB.ViewModels
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
             double max_x_value = double.MinValue;
-            ushort min_y_value = ushort.MaxValue;
-            ushort max_y_value = ushort.MinValue;
+            double min_y_value = ushort.MaxValue;
+            double max_y_value = ushort.MinValue;
             foreach (var spectrum in Spectrums)
             {
                 if (spectrum.Enabled == true)
@@ -115,8 +115,8 @@ namespace DiplomaMB.ViewModels
                         min_x_value = min_x;
                     }
 
-                    ushort max_y = spectrum.dataArray.Max();
-                    ushort min_y = spectrum.dataArray.Min();
+                    double max_y = spectrum.dataArray.Max();
+                    double min_y = spectrum.dataArray.Min();
                     if (max_y > max_y_value)
                     {
                         max_y_value = max_y;
@@ -174,14 +174,10 @@ namespace DiplomaMB.ViewModels
             windowManager.ShowDialogAsync(login);
 
             Smoothing smoothing = login.Smoothing;
-            MessageBox.Show("M0dal closed");
-            MessageBox.Show(smoothing.FftSmoothingDegree.ToString());
-            MessageBox.Show(smoothing.SavGolayWindow.ToString());
-            MessageBox.Show(smoothing.BoxCarWindow.ToString());
-            //if ()
-            //{
-            //    var configurationInfo = login.MyUserConfigurationInfo;
-            //}
+            MessageBox.Show("Parameter: " + smoothing.Parameter.ToString());
+            MessageBox.Show("Type: " + smoothing.Type.ToString());
+            Spectrometer.Smoothing(smoothing, selected_spectrum);
+
         }
 
         public void ConnectSpectrometer()
@@ -280,7 +276,7 @@ namespace DiplomaMB.ViewModels
 
             using var reader = new StreamReader(filename);
             List<double> wavelengths = new();
-            List<ushort> data = new();
+            List<double> data = new();
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
