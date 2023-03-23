@@ -246,11 +246,11 @@ namespace DiplomaMB.Models
         {
             ushort[] pArray = spectrum.dataArray.ToArray();
 
-            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
-            if (ret < 0)
-            {
-                throw new Exception("Smoothing failed");
-            }
+            //int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
+            //if (ret < 0)
+            //{
+            //    throw new Exception("Smoothing failed");
+            //}
         }
 
         public void SetIntegrationTime(string integration_time)

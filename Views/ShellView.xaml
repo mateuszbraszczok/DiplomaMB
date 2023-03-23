@@ -126,7 +126,7 @@
                 <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
                 <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                 <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
-                <Button x:Name="Edit">Edit Data</Button>
+                <Button x:Name="EditSmoothing">Edit Data</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />

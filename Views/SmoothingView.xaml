@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="SmoothingView" Height="450" Width="800">
     <Grid>
+        <StackPanel>
+            <TextBox x:Name="Smoothing_BoxCarWindow"></TextBox>
+            <TextBox x:Name="Smoothing_SavGolayWindow"></TextBox>
+            <TextBox x:Name="Smoothing_FftSmoothingDegree"></TextBox>
+        </StackPanel>
         
     </Grid>
 </Window>

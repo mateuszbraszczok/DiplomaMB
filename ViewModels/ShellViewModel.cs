@@ -167,6 +167,23 @@ namespace DiplomaMB.ViewModels
             System.Windows.Application.Current.Shutdown();
         }
 
+        public void EditSmoothing()
+        {
+            var windowManager = new WindowManager();
+            var login = new SmoothingViewModel();
+            windowManager.ShowDialogAsync(login);
+
+            Smoothing smoothing = login.Smoothing;
+            MessageBox.Show("M0dal closed");
+            MessageBox.Show(smoothing.FftSmoothingDegree.ToString());
+            MessageBox.Show(smoothing.SavGolayWindow.ToString());
+            MessageBox.Show(smoothing.BoxCarWindow.ToString());
+            //if ()
+            //{
+            //    var configurationInfo = login.MyUserConfigurationInfo;
+            //}
+        }
+
         public void ConnectSpectrometer()
         {
             NotifyOfPropertyChange(() => Spectrometer);
