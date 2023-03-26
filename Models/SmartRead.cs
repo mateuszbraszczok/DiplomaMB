@@ -29,5 +29,12 @@ namespace DiplomaMB.Models
 			get { return dark_compensation; }
 			set { dark_compensation = value; }
 		}
-	}
+
+        public SmartRead()
+        {
+            SpectrumsToAverage = 1;
+			Smoothing = false;
+			DarkCompensation = true;
+        }
+    }
 }

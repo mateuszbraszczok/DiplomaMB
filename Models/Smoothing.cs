@@ -57,7 +57,6 @@ namespace DiplomaMB.Models
 			set { boxcar_smoothing = value; }
 		}
 
-
 		public int Parameter
 		{
 			get { 

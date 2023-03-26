@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:DiplomaMB.Views"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:viewmodels="clr-namespace:DiplomaMB.ViewModels"
+        xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
         Title="ShellView" Height="800" Width="1200">
-
 
     <Grid>
         <Grid.RowDefinitions>
@@ -34,19 +34,8 @@
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Menu>
-            <MenuItem x:Name="FileMenu" Header="File" IsEnabled="{Binding CanFileMenu}"/>
-            <MenuItem Header="Edit"/>
-            <MenuItem Header="Settings">
-                <MenuItem x:Name="EditCategories" Header="Edit Categories"/>
-            </MenuItem>
-            <MenuItem Header="Help">
-                <MenuItem Header="Manual"/>
-                <MenuItem x:Name="About" Header="About"/>
-            </MenuItem>
-        </Menu>
 
-        <!--<Label Content="Settings" Grid.Row="1" Grid.Column="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>-->
+        <Label Content="Settings" Grid.Row="1" Grid.Column="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
         <Border BorderBrush="Black" BorderThickness="1" Grid.Row="2" Grid.Column="1" Margin="10">
             <StackPanel Margin="5">
                 <StackPanel.Resources>
@@ -85,8 +74,8 @@
                     <TextBox x:Name="FramesToAcquire" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
-                <Button x:Name="GetSpectrum">Get Spectrum</Button>
-                <Button x:Name="GetDarkScan">Get Dark Scan</Button>
+                <Button x:Name="GetSpectrum" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
+                <Button x:Name="GetDarkScan" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand">Get Dark Scan</Button>
             </StackPanel>
         </Border>
 
@@ -108,7 +97,7 @@
                 </StackPanel>
 
                 <CheckBox IsChecked="{Binding SmartRead.Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
-                <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">"Dark compensate enabled</CheckBox>
+                <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">Dark compensate enabled</CheckBox>
                 <Button x:Name="GetSpectrumSmart" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
             </StackPanel>
         </Border>
@@ -126,32 +115,24 @@
                 <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
                 <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                 <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
-                <Button x:Name="EditSmoothing">Edit Data</Button>
+                <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />
 
-        <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" AutoGenerateColumns="False" SelectedValue="{Binding SelectedSpectrum}" CanUserResizeColumns="False" >
+        <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
+                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" >
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                <DataGridCheckBoxColumn Header="Visible" Binding="{Binding Enabled}">
-                    <!--<DataGridCheckBoxColumn.CellStyle>
-                        <Style>
-                            <EventSetter Event="CheckBox.Checked" Handler="{Binding OnChecked}"/>
-                        </Style>
-                    </DataGridCheckBoxColumn.CellStyle>-->
-                </DataGridCheckBoxColumn>
-                
-
-                <!--<DataGridTemplateColumn Header="Visible">
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTemplateColumn Header="Visible">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType= {x:Type Window}}, Path=DataContext.OnChecked}"/>
+                             cal:Message.Attach="[Event Click] = [OnChecked]"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>-->
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -64,6 +64,9 @@ namespace DiplomaMB.Models
             set { integration_time = value; }
         }
 
+        private int xaxis_min;
+        private int xaxis_max;
+
 
         private string eeprom_filename = Assembly.GetEntryAssembly().Location + "\\..\\para.ini";
 
@@ -168,11 +171,13 @@ namespace DiplomaMB.Models
         {
             ushort[] pArray = new ushort[frames_to_acquire * pixel_number];
             int ret = BwtekAPIWrapper.bwtekFrameDataReadUSB(frames_to_acquire, 0, pArray, channel);
-            if (ret == pixel_number)
+            if (ret != (frames_to_acquire * pixel_number))
             {
                 throw new Exception("Not received data");
             }
             ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
+
+            MessageBox.Show("received data");
 
             ushort[] data_array = new ushort[pixel_number];
 
@@ -197,13 +202,12 @@ namespace DiplomaMB.Models
         }
 
 
-
         public Spectrum ReadDataSmart(SmartRead smart_read)
         {
             ushort[] pArray = new ushort[pixel_number];
             int ret = BwtekAPIWrapper.bwtekDSPDataReadUSB(smart_read.SpectrumsToAverage, Convert.ToInt32(smart_read.Smoothing), Convert.ToInt32(smart_read.DarkCompensation), 0, pArray, channel);
 
-            if (ret == pixel_number)
+            if (ret != pixel_number)
             {
                 throw new Exception("Not received data");
             }
@@ -221,16 +225,19 @@ namespace DiplomaMB.Models
                 for (int i = 0; i < dataArray.Count; i++)
                 {
                     dataArray[i] -= darkScan[i];
+                    if (dataArray[i] < 0)
+                    {
+                        dataArray[i] = 0;
+                    }
                 }
             }
-
         }
 
         public void GetDarkScan()
         {
             ushort[] pArray = new ushort[pixel_number];
             int ret = BwtekAPIWrapper.bwtekFrameDataReadUSB(1, 0, pArray, channel);
-            if (ret == pixel_number)
+            if (ret != pixel_number)
             {
                 throw new Exception("Not received data");
             }
@@ -238,23 +245,28 @@ namespace DiplomaMB.Models
 
             darkScan = pArray.ToList().ConvertAll(x => (double)x);
 
-            dark_scan_taken = true;
+            DarkScanTaken = true;
         }
 
-        public void Smoothing(Smoothing smoothing, Spectrum spectrum)
+        public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {
-            double[] pArray = spectrum.dataArray.ToArray();
+            double[] pArray = spectrum.DataArray.ToArray();
 
-            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.dataArray.Count);
+            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.DataArray.Count);
             if (ret < 0)
             {
                 throw new Exception("Smoothing failed");
             }
+            MessageBox.Show("Smoothing success");
+
+            dataArray = pArray.ToList().ConvertAll(x => (double)x);
+
+            return new Spectrum(wavelengths, dataArray);
         }
 
-        public void SetIntegrationTime(string integration_time)
+        public void SetIntegrationTime(int integration_time)
         {
-            int new_integration_time = Int32.Parse(integration_time);
+            int new_integration_time = integration_time;
             if (integration_time_unit == 1)
             {
                 new_integration_time *= 1000;
@@ -267,7 +279,7 @@ namespace DiplomaMB.Models
                 return;
             }
 
-            IntegrationTime = Int32.Parse(integration_time);
+            IntegrationTime = integration_time;
         }
 
         private void ReadEeprom()
@@ -306,6 +318,9 @@ namespace DiplomaMB.Models
 
             input_mode = Convert.ToInt32(iniFile.Read("input_mode", model));
             config_properties.Add(new ConfigProperty("input_mode", input_mode.ToString()));
+
+            xaxis_max = Convert.ToInt32(iniFile.Read("xaxis_max", "COMMON"));
+            xaxis_min = Convert.ToInt32(iniFile.Read("xaxis_min", "COMMON"));
 
 
             a0_coefficient = double.Parse(iniFile.Read("coefs_a0", "COMMON"), CultureInfo.InvariantCulture);

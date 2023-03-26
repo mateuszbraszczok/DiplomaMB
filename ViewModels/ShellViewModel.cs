@@ -15,6 +15,7 @@ using System.ComponentModel;
 using Microsoft.Win32;
 using System.Globalization;
 using System.IO;
+using System.Collections.Specialized;
 
 namespace DiplomaMB.ViewModels
 {
@@ -45,7 +46,7 @@ namespace DiplomaMB.ViewModels
         public BindableCollection<Spectrum> Spectrums
         {
             get { return spectrums; }
-            set { spectrums = value; NotifyOfPropertyChange(() => Spectrums);}
+            set { spectrums = value; }
         }
 
         private int frames_to_acquire;
@@ -54,6 +55,15 @@ namespace DiplomaMB.ViewModels
             get { return frames_to_acquire; }
             set { frames_to_acquire = value; NotifyOfPropertyChange(() => FramesToAcquire); }
         }
+
+        private int integrationTime;
+
+        public int IntegrationTime
+        {
+            get { return integrationTime; }
+            set { integrationTime = value; NotifyOfPropertyChange(() => IntegrationTime); }
+        }
+
 
         private SmartRead smart_read;
 
@@ -70,8 +80,9 @@ namespace DiplomaMB.ViewModels
             PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
             Spectrometer = new Spectrometer();
             Spectrums = new BindableCollection<Spectrum> { };
+            SmartRead = new SmartRead();
 
-            Spectrums.CollectionChanged += (e, v) => UpdatePlot();
+            FramesToAcquire = 1;
 
             InitializePlot();
         }
@@ -93,19 +104,20 @@ namespace DiplomaMB.ViewModels
 
         private void UpdatePlot()
         {
-            MessageBox.Show("Plot update");
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
             double max_x_value = double.MinValue;
-            double min_y_value = ushort.MaxValue;
-            double max_y_value = ushort.MinValue;
+            double min_y_value = double.MaxValue;
+            double max_y_value = double.MinValue;
+            int spectrums_enabled = 0;
             foreach (var spectrum in Spectrums)
             {
                 if (spectrum.Enabled == true)
                 {
+                    spectrums_enabled++;
                     PlotModel.Series.Add(spectrum.getPlotSerie());
-                    double max_x = spectrum.wavelengths.Max();
-                    double min_x = spectrum.wavelengths.Min();
+                    double max_x = spectrum.Wavelengths.Max();
+                    double min_x = spectrum.Wavelengths.Min();
                     if (max_x > max_x_value)
                     {
                         max_x_value = max_x;
@@ -115,8 +127,8 @@ namespace DiplomaMB.ViewModels
                         min_x_value = min_x;
                     }
 
-                    double max_y = spectrum.dataArray.Max();
-                    double min_y = spectrum.dataArray.Min();
+                    double max_y = spectrum.DataArray.Max();
+                    double min_y = spectrum.DataArray.Min();
                     if (max_y > max_y_value)
                     {
                         max_y_value = max_y;
@@ -127,7 +139,8 @@ namespace DiplomaMB.ViewModels
                     }
                 }
             }
-            if (spectrums.Count == 0)
+
+            if (spectrums.Count == 0 || spectrums_enabled == 0)
             {
                 min_x_value = 100;
                 max_x_value = 1000;
@@ -169,29 +182,59 @@ namespace DiplomaMB.ViewModels
 
         public void EditSmoothing()
         {
+            if (selected_spectrum == null)
+            {
+                MessageBox.Show("No Spectrum selcted");
+                return;
+            }
             var windowManager = new WindowManager();
-            var login = new SmoothingViewModel();
-            windowManager.ShowDialogAsync(login);
+            var smoothing_dialog = new SmoothingViewModel();
+            windowManager.ShowDialogAsync(smoothing_dialog);
 
-            Smoothing smoothing = login.Smoothing;
-            MessageBox.Show("Parameter: " + smoothing.Parameter.ToString());
-            MessageBox.Show("Type: " + smoothing.Type.ToString());
-            Spectrometer.Smoothing(smoothing, selected_spectrum);
+            if (smoothing_dialog.PerformSmoothing)
+            {
+                Smoothing smoothing = smoothing_dialog.Smoothing;
+                MessageBox.Show("Parameter: " + smoothing.Parameter.ToString() + "Type: " + smoothing.Type.ToString());
 
+                Spectrum spectrum = Spectrometer.Smoothing(smoothing, selected_spectrum);
+
+                if (spectrum.DataArray != null)
+                {
+                    if (smoothing_dialog.CreateNewSpectrum)
+                    {
+                        MessageBox.Show("create new spectrum");
+                        spectrum.Id = last_id;
+                        spectrum.Name = selected_spectrum.Name + "_smoothed";
+                        last_id += 1;
+                        spectrums.Add(spectrum);
+                    }
+                    else
+                    {
+                        Spectrum edited_spectrum = selected_spectrum;
+                        edited_spectrum.DataArray = spectrum.DataArray;
+                        MessageBox.Show("edit existing spectrum");
+                        spectrums.Remove(selected_spectrum);
+                        spectrums.Add(edited_spectrum);
+                    }
+                    UpdatePlot();
+                }
+            }   
         }
 
         public void ConnectSpectrometer()
         {
-            NotifyOfPropertyChange(() => Spectrometer);
             Spectrometer.Connect();
             if (Spectrometer.Connected == true)
             {
-                //IntegrationTime = Spectrometer.IntegrationTime.ToString();
+                IntegrationTime = Spectrometer.IntegrationTime;
+
             }
             else
             {
                 MessageBox.Show("Can't connect with spectrometer", "Can't connect with spectrometer", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
+            NotifyOfPropertyChange(() => Spectrometer);
+            MessageBox.Show(Spectrometer.Connected.ToString());
         }
 
         public bool CanResetSpectrometer()
@@ -207,9 +250,17 @@ namespace DiplomaMB.ViewModels
         {
             if (Spectrometer.Connected)
             {
-                //Spectrometer.SetIntegrationTime(IntegrationTime);
+                Spectrometer.SetIntegrationTime(IntegrationTime);
             }
-            //IntegrationTime = spectrometer.IntegrationTime.ToString();
+            if (IntegrationTime == spectrometer.IntegrationTime)
+            {
+                MessageBox.Show("Succesfully set integration time");
+            }
+            else
+            {
+                MessageBox.Show("Failed to set integration time","Integration time set failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            IntegrationTime = spectrometer.IntegrationTime;
         }
 
         public bool CanGetSpectrum()
@@ -218,8 +269,10 @@ namespace DiplomaMB.ViewModels
         }
         public void GetSpectrum()
         {
+            MessageBox.Show("before read data");
             List<Spectrum> spectrum_list = Spectrometer.ReadData(FramesToAcquire);
 
+            MessageBox.Show("readed data");
             foreach (Spectrum spectrum in spectrum_list)
             {
                 spectrum.Id = last_id;
@@ -241,7 +294,7 @@ namespace DiplomaMB.ViewModels
             spectrum.Name = "Spectrum " + last_id.ToString();
             last_id += 1;
 
-            if (spectrum.dataArray != null)
+            if (spectrum.DataArray != null)
             {
                 spectrums.Add(spectrum);
                 UpdatePlot();
@@ -255,6 +308,7 @@ namespace DiplomaMB.ViewModels
         public void GetDarkScan()
         {
             Spectrometer.GetDarkScan();
+            NotifyOfPropertyChange(() => Spectrometer);
         }
 
         public void LoadSpectrum()
@@ -264,36 +318,14 @@ namespace DiplomaMB.ViewModels
                 Title = "Open CSV File",
                 Filter = "CSV Files (*.csv)|*.csv"
             };
-            string filename;
             if (dialog.ShowDialog() == true)
             {
-                filename = dialog.FileName;
+                string file_path = dialog.FileName;
+                Spectrum spectrum = new Spectrum(file_path, last_id);
+                last_id++;
+                spectrums.Add(spectrum);
+                UpdatePlot();
             }
-            else
-            {
-                return;
-            }
-
-            using var reader = new StreamReader(filename);
-            List<double> wavelengths = new();
-            List<double> data = new();
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                var values = line.Split(',');
-
-                wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
-                data.Add(Convert.ToUInt16(values[1]));
-            }
-            string name = Path.GetFileNameWithoutExtension(filename);
-            Spectrum spectrum = new Spectrum(wavelengths, data, name)
-            {
-                Id = last_id
-            };
-            last_id++;
-            spectrums.Add(spectrum);
-
-            UpdatePlot();
         }
 
         public void DeleteSelectedSpectrum()
@@ -327,18 +359,14 @@ namespace DiplomaMB.ViewModels
 
         public void OnChecked()
         {
-            MessageBox.Show("Clicked checkbox");
             UpdatePlot();
         }
-
 
         private bool IsSpectrometerConnected()
         {
             if (!Spectrometer.Connected) { MessageBox.Show("Spectrometer is not connected"); }
             return Spectrometer.Connected;
         }
-
-
 
     }
 }

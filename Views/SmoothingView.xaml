@@ -5,27 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiplomaMB.Views"
         mc:Ignorable="d"
-        Title="SmoothingView" Height="250" Width="400">
+        Title="Smoothing Control" Height="240" Width="400" WindowStartupLocation="CenterOwner" Background="WhiteSmoke">
     <Grid>
-        <StackPanel>
+        <StackPanel Margin="5">
             <RadioButton IsChecked="True" x:Name="Smoothing_BoxcarSmoothing" Content="Boxcar Smoothing"></RadioButton>
             <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.BoxcarSmoothing}">
-                <Label Content="Boxcar Window Size(2*w+1)"/>
-                <TextBox x:Name="Smoothing_FftSmoothingDegree" Width="20"></TextBox>
+                <Label Content="Boxcar Window Size(2*w+1)" Margin="14,0,0,0"/>
+                <TextBox x:Name="Smoothing_BoxCarWindow" Width="20"></TextBox>
+                <Label Content="(1-1023)"></Label>
             </StackPanel>
 
             <RadioButton x:Name="Smoothing_FftSmoothing" Content="FFT (Fast Fourier Transform)"></RadioButton>
             <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.FftSmoothing}">
-                <Label Content="FFT Smoothing Degree"/>
-                <TextBox x:Name="Smoothing_BoxCarWindow" Width="20"></TextBox>
+                <Label Content="FFT Smoothing Degree" Margin="14,0,0,0"/>
+                <TextBox x:Name="Smoothing_FftSmoothingDegree" Width="20"></TextBox>
+                <Label Content="(1-99)%"></Label>
             </StackPanel>
 
             <RadioButton x:Name="Smoothing_SavGolaySmoothing" Content="Savitzky-Golay Smoothing"></RadioButton>
             <StackPanel Orientation="Horizontal" IsEnabled="{Binding Smoothing.SavGolaySmoothing}">
-                <Label Content="Sav-Golay Window Size(2*w+1)"/>
+                <Label Content="Sav-Golay Window Size(2*w+1)" Margin="14,0,0,0"/>
                 <TextBox x:Name="Smoothing_SavGolayWindow" Width="20"></TextBox>
+                <Label Content="(2-5)"></Label>
             </StackPanel>
-            <Button x:Name="CloseWindow" Content="Accept Smoothing"/>
+
+            <CheckBox x:Name="CreateNewSpectrum" Content="Create new Spectrum" Margin="10,2"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2">
+                <Button x:Name="CloseWindow" Content="Accept Smoothing" Cursor="Hand" Margin="15"/>
+                <Button x:Name="CancelWindow" Content="Cancel Smoothing" Cursor="Hand"  Margin="15"/>
+            </StackPanel>
+            
         </StackPanel>
 
     </Grid>

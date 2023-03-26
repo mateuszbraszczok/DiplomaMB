@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Caliburn.Micro;
+using Microsoft.Win32;
 using OxyPlot;
 using System;
 using System.Collections.Generic;
@@ -7,13 +8,28 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DiplomaMB.Models
 {
     public class Spectrum
     {
-        public List<double> wavelengths = new List<double>();
-        public List<double> dataArray = new List<double>();
+        private List<double> wavelengths;
+
+        public List<double> Wavelengths
+        {
+            get { return wavelengths; }
+            set { wavelengths = value; }
+        }
+
+        private List<double> data_array;
+
+        public List<double> DataArray
+        {
+            get { return data_array; }
+            set { data_array = value; }
+        }
+
 
         private int id;
         public int Id
@@ -39,10 +55,31 @@ namespace DiplomaMB.Models
 
         public Spectrum(List<double> _wavelengths, List<double> _dataArray, string _name = "", int _id = 0)
         {
-            wavelengths = _wavelengths;
-            dataArray = _dataArray;
+            Wavelengths = new List<double>();
+            DataArray = new List<double>();
+            Wavelengths = _wavelengths;
+            DataArray = _dataArray;
             Name = _name;
             Id = _id;
+            Enabled = true;
+        }
+
+        public Spectrum(string file_path, int _id)
+        {
+            MessageBox.Show(file_path);
+            using var reader = new StreamReader(file_path);
+            Wavelengths = new List<double>();
+            DataArray = new List<double>();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                var values = line.Split(',');
+
+                Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
+                DataArray.Add(Convert.ToUInt16(values[1]));
+            }
+            Id = _id;
+            Name = Path.GetFileNameWithoutExtension(file_path);
             Enabled = true;
         }
 
@@ -59,9 +96,9 @@ namespace DiplomaMB.Models
                 //Smooth = false,
             };
             int i = 0;
-            foreach (ushort item in dataArray)
+            foreach (double item in DataArray)
             {
-                lineSerie.Points.Add(new DataPoint(wavelengths[i], Convert.ToDouble(item)));
+                lineSerie.Points.Add(new DataPoint(Wavelengths[i], item));
                 i++;
             }
 
@@ -70,16 +107,16 @@ namespace DiplomaMB.Models
 
 
         public void SaveToFile()
-        {
+        {   
             var csv = new StringBuilder();
-            for (int i = 0; i < wavelengths.Count; i++)
+            for (int i = 0; i < Wavelengths.Count; i++)
             {
-                var first = wavelengths[i].ToString(CultureInfo.InvariantCulture);
-                var second = dataArray[i];
+                var first = Wavelengths[i].ToString(CultureInfo.InvariantCulture);
+                var second = DataArray[i];
                 var newLine = $"{first}, {second}";
                 csv.AppendLine(newLine);
             }
-            string fileText = string.Join(" ", dataArray);
+            string fileText = string.Join(" ", DataArray);
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Filter = "CSV file (*.csv)|*.csv| All Files (*.*)|*.*";
