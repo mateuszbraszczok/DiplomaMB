@@ -1,16 +1,10 @@
-﻿using OxyPlot;
+﻿using DiplomaMB.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Reflection;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using System.Windows;
-using DiplomaMB.Utils;
 
 namespace DiplomaMB.Models
 {

@@ -1,15 +1,15 @@
-﻿using Caliburn.Micro;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace DiplomaMB.Models
 {
@@ -67,21 +67,15 @@ namespace DiplomaMB.Models
 
         public Spectrum(string file_path, int _id)
         {
-            MessageBox.Show(file_path);
-            using var reader = new StreamReader(file_path);
-            Wavelengths = new List<double>();
-            DataArray = new List<double>();
-            while (!reader.EndOfStream)
+            string extension = Path.GetExtension(file_path);
+            if (extension == ".csv")
             {
-                var line = reader.ReadLine();
-                var values = line.Split(',');
-
-                Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
-                DataArray.Add(Convert.ToUInt16(values[1]));
+                LoadCsvFile(file_path, _id);
             }
-            Id = _id;
-            Name = Path.GetFileNameWithoutExtension(file_path);
-            Enabled = true;
+            else if (extension == ".json")
+            {
+                LoadJsonFile(file_path);
+            }
         }
 
         public OxyPlot.Series.LineSeries getPlotSerie()
@@ -154,6 +148,36 @@ namespace DiplomaMB.Models
             File.WriteAllText(filename, json);
         }
 
+        private void LoadCsvFile(string file_path, int id)
+        {
+            using var reader = new StreamReader(file_path);
+            Wavelengths = new List<double>();
+            DataArray = new List<double>();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                var values = line.Split(',');
+
+                Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
+                DataArray.Add(Convert.ToUInt16(values[1]));
+            }
+            Id = id;
+            Name = Path.GetFileNameWithoutExtension(file_path);
+            Enabled = true;
+        }
+
+        private void LoadJsonFile(string file_path)
+        {
+            Spectrum spectrum = JsonSerializer.Deserialize<Spectrum>(file_path);
+            if (spectrum != null)
+            {
+                Wavelengths = spectrum.Wavelengths;
+                DataArray = spectrum.DataArray;
+                Id = spectrum.Id;
+                Name = spectrum.Name;
+                Enabled = spectrum.Enabled;
+            }
+        }
     }
 }
 

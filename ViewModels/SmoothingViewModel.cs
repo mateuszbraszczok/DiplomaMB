@@ -1,11 +1,5 @@
 ﻿using Caliburn.Micro;
 using DiplomaMB.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace DiplomaMB.ViewModels
@@ -14,7 +8,6 @@ namespace DiplomaMB.ViewModels
     {
 
         private Smoothing smoothing;
-
         public Smoothing Smoothing
         {
             get { return smoothing; }
@@ -22,7 +15,6 @@ namespace DiplomaMB.ViewModels
         }
 
         private bool perform_smoothing;
-
         public bool PerformSmoothing
         {
             get { return perform_smoothing; }
@@ -30,7 +22,6 @@ namespace DiplomaMB.ViewModels
         }
 
         private bool create_new_spectrum;
-
         public bool CreateNewSpectrum
         {
             get { return create_new_spectrum; }

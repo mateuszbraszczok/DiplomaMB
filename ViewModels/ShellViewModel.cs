@@ -1,22 +1,12 @@
 ﻿using Caliburn.Micro;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using DiplomaMB.Models;
+using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
-using OxyPlot.Series;
-using OxyPlot.Wpf;
-using DiplomaMB.Models;
-using System.ComponentModel;
-using Microsoft.Win32;
-using System.Globalization;
-using System.IO;
-using System.Collections.Specialized;
-using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
 
 namespace DiplomaMB.ViewModels
 {
@@ -58,16 +48,13 @@ namespace DiplomaMB.ViewModels
         }
 
         private int integrationTime;
-
         public int IntegrationTime
         {
             get { return integrationTime; }
             set { integrationTime = value; NotifyOfPropertyChange(() => IntegrationTime); }
         }
 
-
         private SmartRead smart_read;
-
         public SmartRead SmartRead
         {
             get { return smart_read; }
@@ -84,7 +71,6 @@ namespace DiplomaMB.ViewModels
             SmartRead = new SmartRead();
 
             FramesToAcquire = 1;
-
             InitializePlot();
         }
 
@@ -318,7 +304,7 @@ namespace DiplomaMB.ViewModels
             OpenFileDialog dialog = new()
             {
                 Title = "Open CSV File",
-                Filter = "CSV Files (*.csv)|*.csv"
+                Filter = "Json files (*.json)|*.json|CSV file (*.csv)|*.csv"
             };
             if (dialog.ShowDialog() == true)
             {
