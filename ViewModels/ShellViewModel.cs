@@ -16,6 +16,7 @@ using Microsoft.Win32;
 using System.Globalization;
 using System.IO;
 using System.Collections.Specialized;
+using System.Text.Json;
 
 namespace DiplomaMB.ViewModels
 {
@@ -110,9 +111,10 @@ namespace DiplomaMB.ViewModels
             double min_y_value = double.MaxValue;
             double max_y_value = double.MinValue;
             int spectrums_enabled = 0;
+            int i = 0;
             foreach (var spectrum in Spectrums)
             {
-                if (spectrum.Enabled == true)
+                if (spectrum.Enabled == true && i> spectrometer.xaxis_min && i < spectrometer.xaxis_max)
                 {
                     spectrums_enabled++;
                     PlotModel.Series.Add(spectrum.getPlotSerie());

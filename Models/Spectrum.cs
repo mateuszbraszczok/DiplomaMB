@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -108,6 +109,31 @@ namespace DiplomaMB.Models
 
         public void SaveToFile()
         {   
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "Json files (*.json)|*.json|CSV file (*.csv)|*.csv| All Files (*.*)|*.*",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+                DefaultExt = ".csv",
+                FileName = Name
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string extension = Path.GetExtension(saveFileDialog.FileName);
+                if (extension == ".csv")
+                {
+                    SaveAsCsvFile(saveFileDialog.FileName);
+                }
+                else if (extension == ".json")
+                {
+                    SaveAsJsonFile(saveFileDialog.FileName);
+                }
+            }
+        }
+
+        private void SaveAsCsvFile(string filename)
+        {
             var csv = new StringBuilder();
             for (int i = 0; i < Wavelengths.Count; i++)
             {
@@ -116,19 +142,16 @@ namespace DiplomaMB.Models
                 var newLine = $"{first}, {second}";
                 csv.AppendLine(newLine);
             }
-            string fileText = string.Join(" ", DataArray);
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            File.WriteAllText(filename, csv.ToString());
+        }
 
-            saveFileDialog.Filter = "CSV file (*.csv)|*.csv| All Files (*.*)|*.*";
-            saveFileDialog.FilterIndex = 1;
-            saveFileDialog.RestoreDirectory = true;
-            saveFileDialog.DefaultExt = ".csv";
-            saveFileDialog.FileName = Name;
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                File.WriteAllText(saveFileDialog.FileName, csv.ToString());
-            }
+        private void SaveAsJsonFile(string filename)
+        {
+            string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            System.Diagnostics.Debug.WriteLine(json);
+            System.Diagnostics.Debug.WriteLine("after json generation");
+            MessageBox.Show("aaa" + json);
+            File.WriteAllText(filename, json);
         }
 
     }

@@ -64,11 +64,11 @@ namespace DiplomaMB.Models
             set { integration_time = value; }
         }
 
-        private int xaxis_min;
-        private int xaxis_max;
+        public int xaxis_min;
+        public int xaxis_max;
 
 
-        private string eeprom_filename = Assembly.GetEntryAssembly().Location + "\\..\\para.ini";
+        private string eeprom_filename = $"{Assembly.GetEntryAssembly().Location}\\..\\para.ini";
 
         private bool connected;
         public bool Connected
@@ -195,7 +195,6 @@ namespace DiplomaMB.Models
                 }
 
                 data_array[i] = value;
-
                 i++;
             }
             return spectrum_list;
