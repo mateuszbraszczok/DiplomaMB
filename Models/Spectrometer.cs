@@ -1,6 +1,7 @@
 ﻿using DiplomaMB.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -78,9 +79,26 @@ namespace DiplomaMB.Models
             set { status = value; }
         }
 
-        private List<double> wavelengths = new List<double>();
-        private List<double> dataArray = new List<double>();
-        private List<double> darkScan = new List<double>();
+        private List<double> wavelengths;
+        public List<double> Wavelengths
+        {
+            get { return wavelengths; }
+            set { wavelengths = value; }
+        }
+
+        private List<double> data_array;
+        public List<double> DataArray
+        {
+            get { return data_array; }
+            set { data_array = value; }
+        }
+
+        private List<double> dark_scan;
+        public List<double> DarkScan
+        {
+            get { return dark_scan; }
+            set { dark_scan = value; }
+        }
 
         private bool dark_scan_taken;
         public bool DarkScanTaken
@@ -104,9 +122,8 @@ namespace DiplomaMB.Models
 
         public void Connect()
         {
-            connected = false;
-            status = "Connection failed";
-
+            Connected = false;
+            Status = "Connection failed";
             do
             {
                 bool retCode = BwtekAPIWrapper.InitDevices();
@@ -127,7 +144,7 @@ namespace DiplomaMB.Models
 
                 if (ret < 0) { break; }
 
-                MessageBox.Show("Test Usb success");
+                Debug.WriteLine("Test Usb success");
 
                 int new_integration_time = integration_time_min;
                 if (integration_time_unit == 1)
@@ -169,31 +186,45 @@ namespace DiplomaMB.Models
             {
                 throw new Exception("Not received data");
             }
-            ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
+            _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            MessageBox.Show("received data");
-
-            ushort[] data_array = new ushort[pixel_number];
+            Debug.WriteLine("ReadData: received data");
 
             List<Spectrum> spectrum_list = new();
+            List<double> data_list = new();
             int i = 1;
             foreach (ushort value in pArray)
             {
                 if (i == pixel_number)
                 {
                     i = 1;
-                    dataArray = data_array.ToList().ConvertAll(x => (double)x);
+                    DataArray = data_list;
                     SubtractDarkScan();
-                    spectrum_list.Add(new Spectrum(wavelengths, dataArray));
-                    data_array = new ushort[pixel_number];
+                    spectrum_list.Add(new Spectrum(Wavelengths, DataArray));
+                    data_list = new List<double>();
                 }
 
-                data_array[i] = value;
+                if (i > xaxis_min && i <= xaxis_max)
+                {
+                    data_list.Add((double)value);
+                }
                 i++;
             }
             return spectrum_list;
         }
 
+        public Spectrum GenerateDummySpectrum()
+        {
+            Wavelengths = new List<double>();
+            DataArray = new List<double>();
+            Random r = new Random();
+            for(int i=1; i<200;i++)
+            {
+                Wavelengths.Add((double)i); 
+                DataArray.Add((double)r.NextDouble());  
+            }
+            return new Spectrum(Wavelengths,DataArray);
+        }
 
         public Spectrum ReadDataSmart(SmartRead smart_read)
         {
@@ -202,25 +233,32 @@ namespace DiplomaMB.Models
 
             if (ret != pixel_number)
             {
+                Debug.WriteLine("ReadDataSmart: Received: " + ret + " pixels");
                 throw new Exception("Not received data");
             }
-            ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
-            dataArray = pArray.ToList().ConvertAll(x => (double)x);
-            SubtractDarkScan();
+            _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            return new Spectrum(wavelengths, dataArray);
+            DataArray = new List<double>();
+            for (int i = xaxis_min; i < xaxis_max; i++)
+            {
+                DataArray.Add((double)pArray[i]);
+            }
+            SubtractDarkScan();
+                
+            return new Spectrum(Wavelengths, DataArray);
         }
 
         private void SubtractDarkScan()
         {
             if (dark_scan_taken)
             {
-                for (int i = 0; i < dataArray.Count; i++)
+                Debug.WriteLine(string.Format("SubtractDarkScan: Data array count: {0} Dark count: {1}", DataArray.Count, DarkScan.Count));
+                for (int i = 0; i < DataArray.Count; i++)
                 {
-                    dataArray[i] -= darkScan[i];
-                    if (dataArray[i] < 0)
+                    DataArray[i] -= DarkScan[i];
+                    if (DataArray[i] < 0)
                     {
-                        dataArray[i] = 0;
+                        DataArray[i] = 0;
                     }
                 }
             }
@@ -232,11 +270,16 @@ namespace DiplomaMB.Models
             int ret = BwtekAPIWrapper.bwtekFrameDataReadUSB(1, 0, pArray, channel);
             if (ret != pixel_number)
             {
+                Debug.WriteLine("GetDarkScan: Received: " + ret + " pixels");
                 throw new Exception("Not received data");
             }
-            ret = BwtekAPIWrapper.bwtekStopIntegration(channel);
+            _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            darkScan = pArray.ToList().ConvertAll(x => (double)x);
+            DarkScan = new List<double>();
+            for (int i = xaxis_min; i < xaxis_max; i++)
+            {
+                DarkScan.Add((double)pArray[i]);
+            }
 
             DarkScanTaken = true;
         }
@@ -250,11 +293,10 @@ namespace DiplomaMB.Models
             {
                 throw new Exception("Smoothing failed");
             }
-            MessageBox.Show("Smoothing success");
+            Debug.WriteLine("Smoothing success");
+            DataArray = pArray.ToList().ConvertAll(x => (double)x);
 
-            dataArray = pArray.ToList().ConvertAll(x => (double)x);
-
-            return new Spectrum(wavelengths, dataArray);
+            return new Spectrum(Wavelengths, DataArray);
         }
 
         public void SetIntegrationTime(int integration_time)
@@ -273,6 +315,13 @@ namespace DiplomaMB.Models
             }
 
             IntegrationTime = integration_time;
+        }
+
+        public void CalculateDerivative(int order, Spectrum spectrum)
+        {
+            double[] pArray = spectrum.DataArray.ToArray();
+            double[] result_array = new double[pArray.Length];
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(0, 0, 5, order, pArray, result_array, spectrum.DataArray.Count);
         }
 
         private void ReadEeprom()
@@ -315,15 +364,15 @@ namespace DiplomaMB.Models
             xaxis_max = Convert.ToInt32(iniFile.Read("xaxis_max", "COMMON"));
             xaxis_min = Convert.ToInt32(iniFile.Read("xaxis_min", "COMMON"));
 
-
             a0_coefficient = double.Parse(iniFile.Read("coefs_a0", "COMMON"), CultureInfo.InvariantCulture);
             a1_coefficient = double.Parse(iniFile.Read("coefs_a1", "COMMON"), CultureInfo.InvariantCulture);
             a2_coefficient = double.Parse(iniFile.Read("coefs_a2", "COMMON"), CultureInfo.InvariantCulture);
             a3_coefficient = double.Parse(iniFile.Read("coefs_a3", "COMMON"), CultureInfo.InvariantCulture);
 
-            for (int i = 0; i < pixel_number; i++)
+            Wavelengths = new List<double>();
+            for (int i = xaxis_min; i <= xaxis_max; i++)
             {
-                wavelengths.Add(a0_coefficient + a1_coefficient * i + a2_coefficient * Math.Pow(i, 2) + a3_coefficient * Math.Pow(i, 3));
+                Wavelengths.Add(a0_coefficient + a1_coefficient * i + a2_coefficient * Math.Pow(i, 2) + a3_coefficient * Math.Pow(i, 3));
             }
         }
 

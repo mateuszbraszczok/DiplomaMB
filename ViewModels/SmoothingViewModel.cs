@@ -31,8 +31,10 @@ namespace DiplomaMB.ViewModels
 
         public SmoothingViewModel()
         {
-            smoothing = new Smoothing();
-            smoothing.BoxcarSmoothing = true;
+            smoothing = new Smoothing
+            {
+                BoxcarSmoothing = true
+            };
         }
 
         public void CloseWindow()

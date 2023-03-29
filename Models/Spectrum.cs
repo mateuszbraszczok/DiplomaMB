@@ -15,23 +15,6 @@ namespace DiplomaMB.Models
 {
     public class Spectrum
     {
-        private List<double> wavelengths;
-
-        public List<double> Wavelengths
-        {
-            get { return wavelengths; }
-            set { wavelengths = value; }
-        }
-
-        private List<double> data_array;
-
-        public List<double> DataArray
-        {
-            get { return data_array; }
-            set { data_array = value; }
-        }
-
-
         private int id;
         public int Id
         {
@@ -53,6 +36,24 @@ namespace DiplomaMB.Models
             set => enabled = value;
         }
 
+        private List<double> wavelengths;
+        public List<double> Wavelengths
+        {
+            get { return wavelengths; }
+            set { wavelengths = value; }
+        }
+
+        private List<double> data_array;
+        public List<double> DataArray
+        {
+            get { return data_array; }
+            set { data_array = value; }
+        }
+
+        public Spectrum()
+        {
+            
+        }
 
         public Spectrum(List<double> _wavelengths, List<double> _dataArray, string _name = "", int _id = 0)
         {
@@ -168,7 +169,10 @@ namespace DiplomaMB.Models
 
         private void LoadJsonFile(string file_path)
         {
-            Spectrum spectrum = JsonSerializer.Deserialize<Spectrum>(file_path);
+            string json_content = File.ReadAllText(file_path);
+            System.Diagnostics.Debug.WriteLine(json_content);
+
+            Spectrum spectrum = JsonSerializer.Deserialize<Spectrum?>(json_content);
             if (spectrum != null)
             {
                 Wavelengths = spectrum.Wavelengths;

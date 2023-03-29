@@ -9,8 +9,10 @@
         xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
-        Title="ShellView" Height="800" Width="1200">
-
+        Title="MB Master Project" Height="800" Width="1200"
+        cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
+        Background="WhiteSmoke"
+        ResizeMode="CanMinimize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
@@ -75,7 +77,9 @@
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
                 <Button x:Name="GetSpectrum" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
-                <Button x:Name="GetDarkScan" IsEnabled="{Binding Spectrometer.Connected}" Cursor="Hand">Get Dark Scan</Button>
+                <Button x:Name="GetDarkScan" IsEnabled="{Binding Spectrometer.Connected}">Get Dark Scan</Button>
+                <Button x:Name="StartAcquire" IsEnabled="{Binding NotAcquireContinuously}">Get Spectrums Continuously</Button>
+                <Button x:Name="StopAcquire" IsEnabled="{Binding AcquireContinuously}">Stop acquaring</Button>
             </StackPanel>
         </Border>
 
@@ -129,7 +133,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             cal:Message.Attach="[Event Click] = [OnChecked]"/>
+                             cal:Message.Attach="[Event Click] = [ChangeVisibility]"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
