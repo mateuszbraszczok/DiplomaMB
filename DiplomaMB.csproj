@@ -14,6 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Utils\avaspecx64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Utils\BWTEKUSB.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

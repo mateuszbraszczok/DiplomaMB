@@ -59,8 +59,8 @@ namespace DiplomaMB.Models
             set { integration_time = value; }
         }
 
-        public int xaxis_min;
-        public int xaxis_max;
+        private int xaxis_min;
+        private int xaxis_max;
 
 
         private string eeprom_filename = $"{Assembly.GetEntryAssembly().Location}\\..\\para.ini";
@@ -167,6 +167,8 @@ namespace DiplomaMB.Models
         {
             _ = BwtekAPIWrapper.bwtekCloseUSB(channel);
             _ = BwtekAPIWrapper.CloseDevices();
+            connected = false;
+            status = "Disconnected";
         }
 
         public void ResetDevice()

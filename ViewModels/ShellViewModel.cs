@@ -27,8 +27,8 @@ namespace DiplomaMB.ViewModels
 			set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
 		}
 
-		private BwtekSpectrometer spectrometer;
-		public BwtekSpectrometer Spectrometer
+		private AvantesSpectrometer spectrometer;
+		public AvantesSpectrometer Spectrometer
         {
 			get { return spectrometer; }
 			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
@@ -85,7 +85,7 @@ namespace DiplomaMB.ViewModels
         public ShellViewModel()
         {
             PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
-            Spectrometer = new BwtekSpectrometer();
+            Spectrometer = new AvantesSpectrometer();
             Spectrums = new BindableCollection<Spectrum> { };
             SmartRead = new SmartRead();
 
