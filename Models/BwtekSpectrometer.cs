@@ -9,7 +9,7 @@ using System.Windows;
 
 namespace DiplomaMB.Models
 {
-    public class Spectrometer
+    public class BwtekSpectrometer
     {
         public class ConfigProperty
         {
@@ -108,7 +108,7 @@ namespace DiplomaMB.Models
         }
 
 
-        public Spectrometer()
+        public BwtekSpectrometer()
         {
             c_code = string.Empty;
             model = string.Empty;
@@ -204,7 +204,7 @@ namespace DiplomaMB.Models
                     data_list = new List<double>();
                 }
 
-                if (i > xaxis_min && i <= xaxis_max)
+                if (i > xaxis_min && i <= xaxis_max+1)
                 {
                     data_list.Add((double)value);
                 }
@@ -239,7 +239,7 @@ namespace DiplomaMB.Models
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
             DataArray = new List<double>();
-            for (int i = xaxis_min; i < xaxis_max; i++)
+            for (int i = xaxis_min; i <= xaxis_max; i++)
             {
                 DataArray.Add((double)pArray[i]);
             }
@@ -276,7 +276,7 @@ namespace DiplomaMB.Models
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
             DarkScan = new List<double>();
-            for (int i = xaxis_min; i < xaxis_max; i++)
+            for (int i = xaxis_min; i <= xaxis_max; i++)
             {
                 DarkScan.Add((double)pArray[i]);
             }

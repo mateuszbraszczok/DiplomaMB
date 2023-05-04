@@ -27,8 +27,8 @@ namespace DiplomaMB.ViewModels
 			set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
 		}
 
-		private Spectrometer spectrometer;
-		public Spectrometer Spectrometer
+		private BwtekSpectrometer spectrometer;
+		public BwtekSpectrometer Spectrometer
         {
 			get { return spectrometer; }
 			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
@@ -85,7 +85,7 @@ namespace DiplomaMB.ViewModels
         public ShellViewModel()
         {
             PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
-            Spectrometer = new Spectrometer();
+            Spectrometer = new BwtekSpectrometer();
             Spectrums = new BindableCollection<Spectrum> { };
             SmartRead = new SmartRead();
 
@@ -175,7 +175,7 @@ namespace DiplomaMB.ViewModels
             {
                 Title = "Relative intensity",
                 Minimum = min_y_value,
-                Maximum = max_y_value,
+                Maximum = max_y_value*1.1,
                 Position = AxisPosition.Left,
                 MajorGridlineStyle = LineStyle.DashDot,
                 IntervalLength = 20
@@ -265,8 +265,8 @@ namespace DiplomaMB.ViewModels
             last_id++;
             while (AcquireContinuously)
             {
-                //Spectrum spectrum = Spectrometer.ReadData(1).First();
-                Spectrum spectrum = Spectrometer.GenerateDummySpectrum();
+                Spectrum spectrum = Spectrometer.ReadData(1).First();
+                //Spectrum spectrum = Spectrometer.GenerateDummySpectrum();
                 spectrum.Id = id;
                 spectrum.Name = "Spectrum " + id.ToString();
                 if (acquired_first_spectrum)
@@ -277,13 +277,21 @@ namespace DiplomaMB.ViewModels
                 UpdatePlot();
                 acquired_first_spectrum = true;
 
-                Thread.Sleep(50);
+                Debug.WriteLine("iteration");
             }
+            Debug.WriteLine("returned");
+            return;
         }
         public void StopAcquire()
         {
             AcquireContinuously = false;
-            continuously_acquiring_thread.Join();
+            Debug.WriteLine("Stopping acquiring");
+            //while(continuously_acquiring_thread.IsAlive)
+            //{
+            //    Thread.Sleep(50);
+            //}
+            //continuously_acquiring_thread.Join();
+            Debug.WriteLine("Stopped acquiring");
         }
 
         public bool CanGetSpectrumSmart()

@@ -2,6 +2,7 @@
 using OxyPlot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection.PortableExecutable;
@@ -130,6 +131,7 @@ namespace DiplomaMB.Models
         private void SaveAsCsvFile(string filename)
         {
             var csv = new StringBuilder();
+            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataarray: " + DataArray.Count);
             for (int i = 0; i < Wavelengths.Count; i++)
             {
                 var first = Wavelengths[i].ToString(CultureInfo.InvariantCulture);
