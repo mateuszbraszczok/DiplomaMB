@@ -9,7 +9,7 @@
         xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
-        Title="MB Master Project" Height="800" Width="1200"
+        Title="MB Master Project" Height="840" Width="1200"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
         Background="WhiteSmoke"
         ResizeMode="CanMinimize">
@@ -50,7 +50,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
-                <Button x:Name="ResetSpectrometer">Reset Device</Button>
+                <Button x:Name="ResetSpectrometer" IsEnabled="{Binding Spectrometer.Connected}">Reset Device </Button>
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="IntegrationTime" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
                     <Label x:Name="Spectrometer_IntegrationTimeUnit"/>
@@ -117,15 +117,18 @@
                 </StackPanel.Resources>
                 <Button x:Name="SaveSelectedSpectrum">Save selected spectrum</Button>
                 <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
+                <Button x:Name="LoadDarkScan" IsEnabled="{Binding Spectrometer.Connected}">Load dark scan from file</Button>
+                <Button x:Name="SaveDarkScan" IsEnabled="{Binding Spectrometer.DarkScanTaken}">Save dark scan to file</Button>
                 <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                 <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
+                <Button x:Name="SpectrumOperations">Spectrum operations</Button>
                 <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />
 
         <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
-                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" >
+                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" MaxHeight="500" VerticalScrollBarVisibility="Auto">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>

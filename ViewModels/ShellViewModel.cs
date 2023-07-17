@@ -174,8 +174,8 @@ namespace DiplomaMB.ViewModels
             var Yaxis = new LinearAxis
             {
                 Title = "Relative intensity",
-                Minimum = min_y_value,
-                Maximum = max_y_value*1.1,
+                Minimum = min_y_value - 0.03 * max_y_value,
+                Maximum = max_y_value + 0.03 * max_y_value,
                 Position = AxisPosition.Left,
                 MajorGridlineStyle = LineStyle.DashDot,
                 IntervalLength = 20
@@ -339,6 +339,18 @@ namespace DiplomaMB.ViewModels
             }
         }
 
+        public void LoadDarkScan()
+        {
+            Spectrometer.LoadDarkScan();
+            NotifyOfPropertyChange(() => Spectrometer);
+        }
+
+        public void SaveDarkScan()
+        {
+            Spectrometer.SaveDarkScan();
+            NotifyOfPropertyChange(() => Spectrometer);
+        }
+
         public void DeleteSelectedSpectrum()
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
@@ -367,6 +379,20 @@ namespace DiplomaMB.ViewModels
                 MessageBox.Show("No available spectrum to save", "Spectrum save error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        public void SpectrumOperations()
+        {
+            var windowManager = new WindowManager();
+            var editing_dialog = new EditingViewModel(Spectrums);
+            windowManager.ShowDialogAsync(editing_dialog);
+
+            Spectrum result = editing_dialog.ResultSpectrum;
+            result.Id = last_id++;
+
+            Spectrums.Add(result);
+            UpdatePlot();
+        }
+
         public void EditSmoothing()
         {
             if (selected_spectrum == null)

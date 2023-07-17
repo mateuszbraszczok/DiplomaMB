@@ -1,11 +1,15 @@
 ﻿using DiplomaMB.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace DiplomaMB.Models
 {
@@ -282,7 +286,55 @@ namespace DiplomaMB.Models
             }
 
             DarkScanTaken = true;
+            Debug.WriteLine("Received dark scan");
         }
+
+        public void LoadDarkScan()
+        {
+            OpenFileDialog dialog = new()
+            {
+                Title = "Open CSV File",
+                Filter = "CSV file (*.csv)|*.csv| All Files (*.*)|*.*"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                string file_path = dialog.FileName;
+                DarkScan = new List<double>();
+                using var reader = new StreamReader(file_path);
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    DarkScan.Add(Convert.ToUInt16(line));
+                }
+            }
+            DarkScanTaken = true;
+            Debug.WriteLine("Read dark scan from file");
+        }
+
+        public void SaveDarkScan()
+        {
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "CSV file (*.csv)|*.csv",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+                DefaultExt = ".csv",
+                FileName = "dark"
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var csv = new StringBuilder();
+                Debug.WriteLine("dark_scan: " + DarkScan.Count);
+                for (int i = 0; i < DarkScan.Count; i++)
+                {
+                    var first = DarkScan[i].ToString(CultureInfo.InvariantCulture);
+                    var newLine = $"{first}";
+                    csv.AppendLine(newLine);
+                }
+                File.WriteAllText(saveFileDialog.FileName, csv.ToString());
+            }
+        }
+
 
         public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {

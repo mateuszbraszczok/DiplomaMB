@@ -102,6 +102,40 @@ namespace DiplomaMB.Models
             return lineSerie;
         }
 
+        public static Spectrum operator +(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            string name = $"{spectrum1.Name}+{spectrum2.Name}";
+            List<double> wavelengths = spectrum1.wavelengths;
+            List<double> dataArray = new List<double>();
+
+            if (spectrum1.DataArray.Count == spectrum2.DataArray.Count)
+            {
+                for(int i = 0; i < spectrum1.DataArray.Count; i++)
+                {
+                    dataArray.Add(spectrum1.DataArray[i] + spectrum2.DataArray[i]);
+                }
+            }
+            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            return result;
+        }
+
+        public static Spectrum operator -(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            string name = $"{spectrum1.Name}-{spectrum2.Name}";
+            List<double> wavelengths = spectrum1.wavelengths;
+            List<double> dataArray = new List<double>();
+
+            if (spectrum1.DataArray.Count == spectrum2.DataArray.Count)
+            {
+                for (int i = 0; i < spectrum1.DataArray.Count; i++)
+                {
+                    dataArray.Add(spectrum1.DataArray[i] - spectrum2.DataArray[i]);
+                }
+            }
+            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            return result;
+        }
+
 
         public void SaveToFile()
         {   
@@ -145,10 +179,10 @@ namespace DiplomaMB.Models
         private void SaveAsJsonFile(string filename)
         {
             string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-            System.Diagnostics.Debug.WriteLine(json);
-            System.Diagnostics.Debug.WriteLine("after json generation");
-            MessageBox.Show("aaa" + json);
+            Debug.WriteLine(json);
+            Debug.WriteLine("after json generation");
             File.WriteAllText(filename, json);
+            Debug.WriteLine("after file saving");
         }
 
         private void LoadCsvFile(string file_path, int id)
@@ -172,7 +206,7 @@ namespace DiplomaMB.Models
         private void LoadJsonFile(string file_path)
         {
             string json_content = File.ReadAllText(file_path);
-            System.Diagnostics.Debug.WriteLine(json_content);
+            Debug.WriteLine(json_content);
 
             Spectrum spectrum = JsonSerializer.Deserialize<Spectrum?>(json_content);
             if (spectrum != null)
