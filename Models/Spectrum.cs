@@ -1,10 +1,13 @@
-﻿using Microsoft.Win32;
+﻿using DiplomaMB.Utils;
+using Microsoft.Win32;
 using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
@@ -135,6 +138,220 @@ namespace DiplomaMB.Models
             Spectrum result = new Spectrum(wavelengths, dataArray, name);
             return result;
         }
+
+        public void PerformBaselineCorrection(double[] y, double lamda, int itermax)
+        {
+            double[,] A = new double[2,2];
+            double[,] B = new double[2, 2];
+
+            int it = 0;
+            for (int i = 0; i<2; i++)
+            {
+                for(int j = 0;j<2; j++)
+                {
+                    A[i, j] = it;
+                    it++;
+                    B[i, j] = it;
+                    it++;
+
+                }
+            }
+
+            MBMatrix matrixA = new MBMatrix(A);
+            MBMatrix matrixB = new MBMatrix(B);
+
+
+            matrixA.print();
+            matrixB.print();
+
+            MBMatrix sum = matrixA + matrixB;
+
+            sum.print();
+
+            sum.Inverse();
+
+            sum.print();
+
+
+
+            int L = y.Length;
+            MBMatrix D = GetDMatrix(L);
+            double[] w = new double[L];
+
+            for (int i = 0; i < L; i++)
+            {
+                w[i] = 1.0;
+            }
+
+            double[] z = null;
+            for (int iter = 1; iter <= itermax; iter++)
+            {
+                Debug.WriteLine($"iteration: {iter}");
+                MBMatrix W = GetWMatrix(w);
+                MBMatrix W_sqrt = GetSqrtMatrix(W);
+                MBMatrix Z = CalculateZMatrix(W_sqrt, D, L, lamda);
+                z = CalculateZSignal(Z, y);
+                double[] residuals = CalculateResiduals(y, z);
+                for (int i = 0; i < residuals.Length; i++)
+                {
+                    if (residuals[i] > 0)
+                    {
+                        w[i] = 0;
+                    }
+                    else
+                    {
+                        double sumNegResiduals = residuals.Where(r => r < 0).Sum();
+                        w[i] = Math.Exp(-iter * Math.Abs(residuals[i]) / Math.Abs(sumNegResiduals));
+                    }
+                }
+
+                for (int i = 0; i < z.Length; i++)
+                {
+                    Debug.WriteLine(z[i]);
+                }
+
+                double sumNegResidualsCheck = residuals.Where(r => r < 0).Sum();
+                if (Math.Abs(sumNegResidualsCheck) < 0.001 * y.Sum())
+                {
+                    break;
+                }
+            }
+
+            //return z;
+        }
+
+        private MBMatrix GetDMatrix(int L)
+        {
+            double[,] values = new double[L, L];
+            for (int i = 0; i < L; i++)
+            {
+                for (int j = 0; j < L; j++)
+                {
+                    if (i == (j + 1))
+                    {
+                        values[i, j] = -2.0;
+                    }
+                    else if (i == j || i == j + 2)
+                    {
+                        values[i, j] = 1.0;
+                    }
+                    else
+                    {
+                        values[i, j] = 0.0;
+                    }
+                }
+            }
+            MBMatrix D = new MBMatrix(values);
+            return D;
+        }
+
+        private MBMatrix GetWMatrix(double[] w)
+        {
+            int L = w.Length;
+            double[,] values = new double[L, L];
+            for (int i = 0; i < L; i++)
+            {
+                values[i, i] = w[i];
+            }
+            MBMatrix W = new MBMatrix(values);
+            return W;
+        }
+
+        //private MBMatrix GetSqrtMatrix(MBMatrix matrix)
+        //{
+        //    MBMatrix sqrtMatrix = new MBMatrix(matrix.rows_number, matrix.cols_number);
+        //    for (int i = 0; i < matrix.rows_number; i++)
+        //    {
+        //        for (int j = 0; j < matrix.cols_number; j++)
+        //        {
+        //            sqrtMatrix.data[i, j] = Math.Sqrt(matrix.data[i, j]);
+        //        }
+        //    }
+        //    return sqrtMatrix;
+        //}
+
+        //private MBMatrix CalculateZMatrix(MBMatrix W_sqrt, MBMatrix D, int L, double lambda)
+        //{
+        //    MBMatrix DTransposed = D.Transpose();
+        //    MBMatrix DTD = DTransposed * D;
+        //    MBMatrix beforeInvert = W_sqrt + DTD.MultiplyBy(lambda/L);
+        //    MBMatrix Z = beforeInvert.Inverse() * W_sqrt;
+        //    return Z;
+        //}
+
+        //private double[,] TransposeMatrix(double[,] matrix)
+        //{
+        //    int rows = matrix.GetLength(0);
+        //    int cols = matrix.GetLength(1);
+        //    double[,] transposedMatrix = new double[cols, rows];
+        //    for (int i = 0; i < cols; i++)
+        //    {
+        //        for (int j = 0; j < rows; j++)
+        //        {
+        //            transposedMatrix[i, j] = matrix[j, i];
+        //        }
+        //    }
+        //    return transposedMatrix;
+        //}
+
+        //private double[,] MultiplyMatrices(double[,] matrixA, double[,] matrixB)
+        //{
+        //    int rowsA = matrixA.GetLength(0);
+        //    int colsA = matrixA.GetLength(1);
+        //    int colsB = matrixB.GetLength(1);
+        //    double[,] result = new double[rowsA, colsB];
+        //    for (int i = 0; i < rowsA; i++)
+        //    {
+        //        for (int j = 0; j < colsB; j++)
+        //        {
+        //            for (int k = 0; k < colsA; k++)
+        //            {
+        //                result[i, j] += matrixA[i, k] * matrixB[k, j];
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
+
+        //private double[,] InvertMatrix(double[,] matrix, double factor)
+        //{
+        //    int rows = matrix.GetLength(0);
+        //    int cols = matrix.GetLength(1);
+        //    double[,] invertedMatrix = new double[rows, cols];
+        //    for (int i = 0; i < rows; i++)
+        //    {
+        //        for (int j = 0; j < cols; j++)
+        //        {
+        //            invertedMatrix[i, j] = matrix[i, j] / (matrix[i, i] + factor);
+        //        }
+        //    }
+        //    return invertedMatrix;
+        //}
+
+        //private double[] CalculateZSignal(MBMatrix Z, double[] y)
+        //{
+        //    int L = y.Length;
+        //    double[] z = new double[L];
+        //    for (int i = 0; i < L; i++)
+        //    {
+        //        for (int j = 0; j < L; j++)
+        //        {
+        //            z[i] += Z.data[i, j] * y[j];
+        //        }
+        //    }
+        //    return z;
+        //}
+
+        //private double[] CalculateResiduals(double[] y, double[] z)
+        //{
+        //    int L = y.Length;
+        //    double[] residuals = new double[L];
+        //    for (int i = 0; i < L; i++)
+        //    {
+        //        residuals[i] = y[i] - z[i];
+        //    }
+        //    return residuals;
+        //}
 
 
         public void SaveToFile()
