@@ -257,18 +257,18 @@ namespace DiplomaMB.Models
             return W;
         }
 
-        //private MBMatrix GetSqrtMatrix(MBMatrix matrix)
-        //{
-        //    MBMatrix sqrtMatrix = new MBMatrix(matrix.rows_number, matrix.cols_number);
-        //    for (int i = 0; i < matrix.rows_number; i++)
-        //    {
-        //        for (int j = 0; j < matrix.cols_number; j++)
-        //        {
-        //            sqrtMatrix.data[i, j] = Math.Sqrt(matrix.data[i, j]);
-        //        }
-        //    }
-        //    return sqrtMatrix;
-        //}
+        private MBMatrix GetSqrtMatrix(MBMatrix matrix)
+        {
+            MBMatrix sqrtMatrix = new MBMatrix(matrix.rows_number, matrix.cols_number);
+            for (int i = 0; i < matrix.rows_number; i++)
+            {
+                for (int j = 0; j < matrix.cols_number; j++)
+                {
+                    sqrtMatrix.data[i, j] = Math.Sqrt(matrix.data[i, j]);
+                }
+            }
+            return sqrtMatrix;
+        }
 
         //private MBMatrix CalculateZMatrix(MBMatrix W_sqrt, MBMatrix D, int L, double lambda)
         //{
