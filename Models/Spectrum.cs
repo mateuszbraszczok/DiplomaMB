@@ -139,41 +139,8 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public void PerformBaselineCorrection(double[] y, double lamda, int itermax)
+        public double[] PerformBaselineCorrection(double[] y, double lambda, int itermax)
         {
-            double[,] A = new double[2,2];
-            double[,] B = new double[2, 2];
-
-            int it = 0;
-            for (int i = 0; i<2; i++)
-            {
-                for(int j = 0;j<2; j++)
-                {
-                    A[i, j] = it;
-                    it++;
-                    B[i, j] = it;
-                    it++;
-
-                }
-            }
-
-            MBMatrix matrixA = new MBMatrix(A);
-            MBMatrix matrixB = new MBMatrix(B);
-
-
-            matrixA.print();
-            matrixB.print();
-
-            MBMatrix sum = matrixA + matrixB;
-
-            sum.print();
-
-            sum.Inverse();
-
-            sum.print();
-
-
-
             int L = y.Length;
             MBMatrix D = GetDMatrix(L);
             double[] w = new double[L];
@@ -188,10 +155,11 @@ namespace DiplomaMB.Models
             {
                 Debug.WriteLine($"iteration: {iter}");
                 MBMatrix W = GetWMatrix(w);
-                MBMatrix W_sqrt = GetSqrtMatrix(W);
-                MBMatrix Z = CalculateZMatrix(W_sqrt, D, L, lamda);
+                MBMatrix W_sqrt = W.GetSqrt();
+                MBMatrix Z = CalculateZMatrix(W_sqrt, D, L, lambda);
                 z = CalculateZSignal(Z, y);
                 double[] residuals = CalculateResiduals(y, z);
+                double sumNegResiduals = residuals.Where(r => r < 0).Sum();
                 for (int i = 0; i < residuals.Length; i++)
                 {
                     if (residuals[i] > 0)
@@ -200,7 +168,6 @@ namespace DiplomaMB.Models
                     }
                     else
                     {
-                        double sumNegResiduals = residuals.Where(r => r < 0).Sum();
                         w[i] = Math.Exp(-iter * Math.Abs(residuals[i]) / Math.Abs(sumNegResiduals));
                     }
                 }
@@ -210,28 +177,32 @@ namespace DiplomaMB.Models
                     Debug.WriteLine(z[i]);
                 }
 
-                double sumNegResidualsCheck = residuals.Where(r => r < 0).Sum();
-                if (Math.Abs(sumNegResidualsCheck) < 0.001 * y.Sum())
+                if (Math.Abs(sumNegResiduals) < 0.001 * y.Sum())
                 {
                     break;
                 }
             }
 
-            //return z;
+            for (int i = 0; i < y.Length; i++ )
+            {
+                z[i] = y[i] - z[i];
+            }
+
+            return z;
         }
 
         private MBMatrix GetDMatrix(int L)
         {
-            double[,] values = new double[L, L];
-            for (int i = 0; i < L; i++)
+            double[,] values = new double[L-2, L];
+            for (int i = 0; i < L - 2; i++)
             {
                 for (int j = 0; j < L; j++)
                 {
-                    if (i == (j + 1))
+                    if (i == (j - 1))
                     {
                         values[i, j] = -2.0;
                     }
-                    else if (i == j || i == j + 2)
+                    else if (i == j || i == j - 2)
                     {
                         values[i, j] = 1.0;
                     }
@@ -257,27 +228,30 @@ namespace DiplomaMB.Models
             return W;
         }
 
-        private MBMatrix GetSqrtMatrix(MBMatrix matrix)
+        private MBMatrix CalculateZMatrix(MBMatrix W_sqrt, MBMatrix D, int L, double lambda)
         {
-            MBMatrix sqrtMatrix = new MBMatrix(matrix.rows_number, matrix.cols_number);
-            for (int i = 0; i < matrix.rows_number; i++)
-            {
-                for (int j = 0; j < matrix.cols_number; j++)
-                {
-                    sqrtMatrix.data[i, j] = Math.Sqrt(matrix.data[i, j]);
-                }
-            }
-            return sqrtMatrix;
-        }
+            //D.SaveToFile("D.csv");
+            //Debug.WriteLine("D matrix colums: " + D.rows_number + "colums: " + D.cols_number);
+            //MBMatrix DT = D.Transpose();
+            //Debug.WriteLine("DT matrix colums: " + DT.rows_number + "colums: " + DT.cols_number);
+            //DT.SaveToFile("DT.csv");
+            //double[,] dt= DT.data.AsArray();
+            MBMatrix DTD = D.Transpose() * D;
+            //DTD.SaveToFile("DTD.csv");
 
-        //private MBMatrix CalculateZMatrix(MBMatrix W_sqrt, MBMatrix D, int L, double lambda)
-        //{
-        //    MBMatrix DTransposed = D.Transpose();
-        //    MBMatrix DTD = DTransposed * D;
-        //    MBMatrix beforeInvert = W_sqrt + DTD.MultiplyBy(lambda/L);
-        //    MBMatrix Z = beforeInvert.Inverse() * W_sqrt;
-        //    return Z;
-        //}
+            //W_sqrt.SaveToFile("W_sqrt.csv");
+            double factor = lambda / (double)L;
+            //MBMatrix beforeSum = DTD.MultiplyBy(factor);
+            //beforeSum.SaveToFile("beforeSum.csv");
+            //MBMatrix beforeInvert = W_sqrt + beforeSum;
+            //beforeInvert.SaveToFile("beforeInvert.csv");
+            //MBMatrix afterInvert = beforeInvert.Inverse();
+            //afterInvert.SaveToFile("afterInvert.csv");
+
+            MBMatrix Z = (W_sqrt + DTD.MultiplyBy(factor)).Inverse() * W_sqrt;
+            //Z.SaveToFile("Z.csv");
+            return Z;
+        }
 
         //private double[,] TransposeMatrix(double[,] matrix)
         //{
@@ -328,30 +302,30 @@ namespace DiplomaMB.Models
         //    return invertedMatrix;
         //}
 
-        //private double[] CalculateZSignal(MBMatrix Z, double[] y)
-        //{
-        //    int L = y.Length;
-        //    double[] z = new double[L];
-        //    for (int i = 0; i < L; i++)
-        //    {
-        //        for (int j = 0; j < L; j++)
-        //        {
-        //            z[i] += Z.data[i, j] * y[j];
-        //        }
-        //    }
-        //    return z;
-        //}
+        private double[] CalculateZSignal(MBMatrix Z, double[] y)
+        {
+            int L = y.Length;
+            double[] z = new double[L];
+            for (int i = 0; i < L; i++)
+            {
+                for (int j = 0; j < L; j++)
+                {
+                    z[i] += Z.data[i, j] * y[j];
+                }
+            }
+            return z;
+        }
 
-        //private double[] CalculateResiduals(double[] y, double[] z)
-        //{
-        //    int L = y.Length;
-        //    double[] residuals = new double[L];
-        //    for (int i = 0; i < L; i++)
-        //    {
-        //        residuals[i] = y[i] - z[i];
-        //    }
-        //    return residuals;
-        //}
+        private double[] CalculateResiduals(double[] y, double[] z)
+        {
+            int L = y.Length;
+            double[] residuals = new double[L];
+            for (int i = 0; i < L; i++)
+            {
+                residuals[i] = y[i] - z[i];
+            }
+            return residuals;
+        }
 
 
         public void SaveToFile()
