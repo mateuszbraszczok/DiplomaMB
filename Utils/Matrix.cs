@@ -14,9 +14,16 @@ using System.IO;
 using System.Globalization;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using MathNet.Numerics;
+using System.Runtime.InteropServices;
+
+using MathWorks.Training.MLNE;
+using MathWorks.MATLAB.NET.Arrays;
+using MathWorks.Baseline;
 
 namespace DiplomaMB.Utils
 {
+
+
     public class MBMatrix
     {
         public int rows_number;
@@ -25,11 +32,62 @@ namespace DiplomaMB.Utils
 
         public Matrix<double> data;
 
+        GDPTools gdpmod = null;
+
+
+
+        public static double[] BaselineRemoveAirPLS(double[] data, double lambda, uint itermax)
+        {
+            Baseline baseline = new Baseline();
+            MWNumericArray dataArray = new MWNumericArray(data);
+
+            MWNumericArray lambdaValue = new MWNumericArray(lambda);
+            MWNumericArray itermaxValue = new MWNumericArray(itermax);
+            
+
+
+            MWArray array = baseline.airPLS(dataArray, lambdaValue, itermaxValue);
+
+            MWNumericArray numericArray = (MWNumericArray)array;
+
+
+            //object objData = array.ToArray();
+
+            //double[] returnValue = (double[])objData;
+            object objData = array.ToArray();
+
+            double[,] doubleMatrix = (double[,])objData;
+
+            int rows = doubleMatrix.GetLength(0);
+            int columns = doubleMatrix.GetLength(1);
+
+            // Calculate the total number of elements in the 2D array
+            int totalElements = rows * columns;
+
+            // Create a new 1D array to store the flattened elements
+            double[] doubleArray = new double[totalElements];
+
+            // Flatten the 2D array into the 1D array
+            int index = 0;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    doubleArray[index] = doubleMatrix[i, j];
+                    index++;
+                }
+            }
+
+            return doubleArray;
+        }
+
         public MBMatrix(double[,] matrix) 
         { 
             rows_number = matrix.GetLength(0);
             cols_number = matrix.GetLength(1);
             data = DenseMatrix.OfArray(matrix);
+
+            gdpmod = new GDPTools();
         }
 
         public MBMatrix(Matrix<double> matrix)
@@ -37,6 +95,9 @@ namespace DiplomaMB.Utils
             rows_number = matrix.RowCount;
             cols_number = matrix.ColumnCount;
             data = matrix;
+
+            gdpmod = new GDPTools();
+
         }
 
 
@@ -124,32 +185,48 @@ namespace DiplomaMB.Utils
 
         public MBMatrix Inverse()
         {
-            int maxDegreeOfParallelism = 8; // Set to the number of threads you want to use
+            //int maxDegreeOfParallelism = 8; // Set to the number of threads you want to use
 
             // Set the maximum degree of parallelism for MathNet.Numerics
-            Control.MaxDegreeOfParallelism = maxDegreeOfParallelism;
-            if (CalculateDeterminant() == 0)
-            {
-                throw new ArgumentException("can't inverse matrix");
-            }
-            //Matrix<double> inverseMatrix = data.Inverse();
+            //Control.MaxDegreeOfParallelism = maxDegreeOfParallelism;
+            //Control.UseManaged();
 
-            // Get the current linear algebra provider
-            var linearAlgebraProvider = Control.LinearAlgebraProvider;
+            //Debug.WriteLine(Control.NativeProviderPath);
 
-            // Print the provider information
-            Debug.WriteLine($"Linear Algebra Provider: {linearAlgebraProvider.GetType().Name}");
+            double[,] doubleMatrix = data.ToArray();
+
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+
+            MWNumericArray numericArray = new MWNumericArray(doubleMatrix);
+            MWArray array = gdpmod.invert_matrix(numericArray);
+
+            object objData = array.ToArray();
+
+            double[,] doubleMatrix2 = (double[,])objData;
 
 
-            QR<double> qr = data.QR();
 
-            // Get the R factor from the QR decomposition
-            Matrix<double> R = qr.R;
+            //if (CalculateDeterminant() == 0)
+            //{
+            //    throw new ArgumentException("can't inverse matrix");
+            //}
+            ////Matrix<double> inverseMatrix = data.Inverse();
 
-            // Calculate the inverse using QR decomposition
-            Matrix<double> inverseA_QR = qr.Solve(DenseMatrix.CreateIdentity(data.RowCount));
+            //QR<double> qr = data.QR();
 
-            MBMatrix inversed = new MBMatrix(inverseA_QR);
+            //// Get the R factor from the QR decomposition
+            //Matrix<double> R = qr.R;
+
+            //// Calculate the inverse using QR decomposition
+            //Matrix<double> inverseA_QR = qr.Solve(DenseMatrix.CreateIdentity(data.RowCount));
+
+            MBMatrix inversed = new MBMatrix(doubleMatrix2);
+
+            watch.Stop();
+
+            Debug.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
             return inversed;
         }
 

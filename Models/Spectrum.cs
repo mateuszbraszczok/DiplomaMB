@@ -139,56 +139,64 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public double[] PerformBaselineCorrection(double[] y, double lambda, int itermax)
+        public double[] PerformBaselineCorrection(double[] y, double lambda, uint itermax)
         {
-            int L = y.Length;
-            MBMatrix D = GetDMatrix(L);
-            double[] w = new double[L];
+            double[] output = MBMatrix.BaselineRemoveAirPLS(y, lambda, itermax);
 
-            for (int i = 0; i < L; i++)
+            for (int i = 0; i < y.Length; i++)
             {
-                w[i] = 1.0;
+                output[i] = y[i] - output[i];
             }
 
-            double[] z = null;
-            for (int iter = 1; iter <= itermax; iter++)
-            {
-                Debug.WriteLine($"iteration: {iter}");
-                MBMatrix W = GetWMatrix(w);
-                MBMatrix W_sqrt = W.GetSqrt();
-                MBMatrix Z = CalculateZMatrix(W_sqrt, D, L, lambda);
-                z = CalculateZSignal(Z, y);
-                double[] residuals = CalculateResiduals(y, z);
-                double sumNegResiduals = residuals.Where(r => r < 0).Sum();
-                for (int i = 0; i < residuals.Length; i++)
-                {
-                    if (residuals[i] > 0)
-                    {
-                        w[i] = 0;
-                    }
-                    else
-                    {
-                        w[i] = Math.Exp(-iter * Math.Abs(residuals[i]) / Math.Abs(sumNegResiduals));
-                    }
-                }
+            return output;
+            //int L = y.Length;
+            //MBMatrix D = GetDMatrix(L);
+            //double[] w = new double[L];
 
-                for (int i = 0; i < z.Length; i++)
-                {
-                    Debug.WriteLine(z[i]);
-                }
+            //for (int i = 0; i < L; i++)
+            //{
+            //    w[i] = 1.0;
+            //}
 
-                if (Math.Abs(sumNegResiduals) < 0.001 * y.Sum())
-                {
-                    break;
-                }
-            }
+            //double[] z = null;
+            //for (int iter = 1; iter <= itermax; iter++)
+            //{
+            //    Debug.WriteLine($"iteration: {iter}");
+            //    MBMatrix W = GetWMatrix(w);
+            //    MBMatrix W_sqrt = W.GetSqrt();
+            //    MBMatrix Z = CalculateZMatrix(W_sqrt, D, L, lambda);
+            //    z = CalculateZSignal(Z, y);
+            //    double[] residuals = CalculateResiduals(y, z);
+            //    double sumNegResiduals = residuals.Where(r => r < 0).Sum();
+            //    for (int i = 0; i < residuals.Length; i++)
+            //    {
+            //        if (residuals[i] > 0)
+            //        {
+            //            w[i] = 0;
+            //        }
+            //        else
+            //        {
+            //            w[i] = Math.Exp(-iter * Math.Abs(residuals[i]) / Math.Abs(sumNegResiduals));
+            //        }
+            //    }
 
-            for (int i = 0; i < y.Length; i++ )
-            {
-                z[i] = y[i] - z[i];
-            }
+            //    //for (int i = 0; i < z.Length; i++)
+            //    //{
+            //    //    Debug.WriteLine(z[i]);
+            //    //}
 
-            return z;
+            //    if (Math.Abs(sumNegResiduals) < 0.001 * y.Sum())
+            //    {
+            //        break;
+            //    }
+            //}
+
+            //for (int i = 0; i < y.Length; i++ )
+            //{
+            //    z[i] = y[i] - z[i];
+            //}
+
+            //return z;
         }
 
         private MBMatrix GetDMatrix(int L)

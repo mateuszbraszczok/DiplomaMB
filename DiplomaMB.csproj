@@ -8,11 +8,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="alglib.net" Version="3.19.0" />
     <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
     <PackageReference Include="Caliburn.Micro.Core" Version="4.0.212" />
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="MathNet.Numerics.MKL.Win" Version="3.0.0" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Baseline">
+      <HintPath>D:\AiR Magisterskie\Praca magisterska\documents\new_spectrums\05_06_2023\airPLS\for_redistribution_files_only\Baseline.dll</HintPath>
+    </Reference>
+    <Reference Include="MLNE">
+      <HintPath>..\..\AiR magisterskie\Praca magisterska\documents\new_spectrums\05_06_2023\MyDLLFolder\invert_matrix\for_redistribution_files_only\MLNE.dll</HintPath>
+    </Reference>
+    <Reference Include="MWArray">
+      <HintPath>..\..\..\..\..\Program Files\MATLAB\R2023a\toolbox\dotnetbuilder\bin\win64\v4.0\MWArray.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

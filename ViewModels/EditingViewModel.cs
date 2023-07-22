@@ -89,6 +89,7 @@ namespace DiplomaMB.ViewModels
                     string name = $"{SelectedSpectrum1.Name}_baseline";
                     List<double> wavelengths = SelectedSpectrum1.Wavelengths;
 
+                    
                     double[] y = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1.DataArray.ToArray(), 10000000, 5);
                     List<double> dataArray = y.ToList();
 
