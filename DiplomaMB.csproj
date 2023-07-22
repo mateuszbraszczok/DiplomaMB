@@ -16,13 +16,10 @@
 
   <ItemGroup>
     <Reference Include="Baseline">
-      <HintPath>D:\AiR Magisterskie\Praca magisterska\documents\new_spectrums\05_06_2023\airPLS\for_redistribution_files_only\Baseline.dll</HintPath>
-    </Reference>
-    <Reference Include="MLNE">
-      <HintPath>..\..\AiR magisterskie\Praca magisterska\documents\new_spectrums\05_06_2023\MyDLLFolder\invert_matrix\for_redistribution_files_only\MLNE.dll</HintPath>
+      <HintPath>Utils\Baseline.dll</HintPath>
     </Reference>
     <Reference Include="MWArray">
-      <HintPath>..\..\..\..\..\Program Files\MATLAB\R2023a\toolbox\dotnetbuilder\bin\win64\v4.0\MWArray.dll</HintPath>
+      <HintPath>Utils\MWArray.dll</HintPath>
     </Reference>
   </ItemGroup>
 

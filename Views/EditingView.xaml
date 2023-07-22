@@ -43,6 +43,6 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <Button x:Name="CloseWindow" Content="Accept Smoothing" Grid.Row="2" Grid.Column="2" Cursor="Hand" Margin="15"/>
+        <Button x:Name="CloseWindow" Content="Accept Operation" Grid.Row="2" Grid.Column="2" Cursor="Hand" Margin="15"/>
     </Grid>
 </Window>
