@@ -47,6 +47,13 @@ namespace DiplomaMB.ViewModels
             set { result_spectrum = value; }
         }
 
+        private bool operation_done;
+        public bool OperationDone
+        {
+            get { return operation_done; }
+            set { operation_done = value; }
+        }
+
         public enum Operations
         {
             Add,
@@ -60,6 +67,7 @@ namespace DiplomaMB.ViewModels
 
         public EditingViewModel(BindableCollection<Spectrum> spectrums)
         {
+            OperationDone = false;
             Spectrums1 = spectrums;
             Spectrums2 = spectrums;
             ResultSpectrum = new Spectrum();
@@ -74,31 +82,53 @@ namespace DiplomaMB.ViewModels
             switch (SelectedOperation)
             {      
                 case Operations.Add:
-                    ResultSpectrum = SelectedSpectrum1 + SelectedSpectrum2;
-                    MessageBox.Show("Add");
+                    AddSelectedSpectrums();
                     break;
                 case Operations.Subtract:
-                    ResultSpectrum = SelectedSpectrum1 - SelectedSpectrum2;
-                    MessageBox.Show("Subtract");
+                    SubtractSelectedSpectrums();
                     break;
                 case Operations.Divide:
                     MessageBox.Show("Divide");
                     break;
 
                 case Operations.BaselineRemove:
-                    string name = $"{SelectedSpectrum1.Name}_baseline";
-                    List<double> wavelengths = SelectedSpectrum1.Wavelengths;
-
-                    
-                    double[] y = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1.DataArray.ToArray(), 10000000, 5);
-                    List<double> dataArray = y.ToList();
-
-                    ResultSpectrum = new Spectrum(wavelengths, dataArray, name);
+                    BaselineRemoveSelectedSpectrum();
                     break;
                 default:
                     break;
             }
             TryCloseAsync();
         }
+
+        private void AddSelectedSpectrums()
+        {
+            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            {
+                ResultSpectrum = SelectedSpectrum1 + SelectedSpectrum2;
+                MessageBox.Show("Added two spectrums");
+                OperationDone = true;
+            }
+        }
+
+        private void SubtractSelectedSpectrums()
+        {
+            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            {
+                ResultSpectrum = SelectedSpectrum1 - SelectedSpectrum2;
+                MessageBox.Show("Subtracted two spectrums");
+                OperationDone = true;
+            }
+        }
+
+        private void BaselineRemoveSelectedSpectrum()
+        {
+            if (SelectedSpectrum1 != null)
+            {
+                ResultSpectrum = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1, 10000000, 5);
+                MessageBox.Show("Removed baseline");
+                OperationDone = true;
+            }
+        }
     }
+
 }

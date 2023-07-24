@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -133,16 +134,24 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public double[] PerformBaselineCorrection(double[] y, double lambda, uint itermax)
+        public Spectrum PerformBaselineCorrection(Spectrum spectrum, double lambda, uint itermax)
         {
-            double[] output = MBMatrix.BaselineRemoveAirPLS(y, lambda, itermax);
+            double[] inputArray = spectrum.DataArray.ToArray();
+            double[] output = MBMatrix.BaselineRemoveAirPLS(inputArray, lambda, itermax);
 
-            for (int i = 0; i < y.Length; i++)
+            //double[] output = MBMatrix.BaselineRemoveALS(inputArray, lambda, 0.001, itermax);
+
+            for (int i = 0; i < inputArray.Length; i++)
             {
-                output[i] = y[i] - output[i];
+                output[i] = inputArray[i] - output[i];
             }
 
-            return output;
+            string name = $"{spectrum.Name}_baselineRemoved";
+            List<double> wavelengths = spectrum.wavelengths;
+            List<double> dataArray = output.ToList();
+
+            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            return result;
         }
 
        
@@ -150,7 +159,7 @@ namespace DiplomaMB.Models
         {   
             SaveFileDialog saveFileDialog = new()
             {
-                Filter = "Json files (*.json)|*.json|CSV file (*.csv)|*.csv| All Files (*.*)|*.*",
+                Filter = "CSV file (*.csv)|*.csv| Json files (*.json)|*.json| All Files (*.*)|*.*",
                 FilterIndex = 1,
                 RestoreDirectory = true,
                 DefaultExt = ".csv",
@@ -174,7 +183,7 @@ namespace DiplomaMB.Models
         private void SaveAsCsvFile(string filename)
         {
             var csv = new StringBuilder();
-            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataarray: " + DataArray.Count);
+            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataArray: " + DataArray.Count);
             for (int i = 0; i < Wavelengths.Count; i++)
             {
                 var first = Wavelengths[i].ToString(CultureInfo.InvariantCulture);

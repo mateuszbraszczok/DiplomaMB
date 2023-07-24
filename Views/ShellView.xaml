@@ -9,7 +9,7 @@
         xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
-        Title="MB Master Project" Height="840" Width="1200"
+        Title="MB Master Project" Height="850" Width="1200"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
         Background="WhiteSmoke"
         ResizeMode="CanMinimize">

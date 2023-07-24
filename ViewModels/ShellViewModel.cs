@@ -80,7 +80,7 @@ namespace DiplomaMB.ViewModels
             get { return !acquire_continuously; }
         }
 
-        private int last_id = 0;
+        private int last_id = 1;
         private Thread continuously_acquiring_thread;
         public ShellViewModel()
         {
@@ -326,8 +326,8 @@ namespace DiplomaMB.ViewModels
         {
             OpenFileDialog dialog = new()
             {
-                Title = "Open CSV File",
-                Filter = "Json files (*.json)|*.json|CSV file (*.csv)|*.csv| All Files (*.*)|*.*"
+                Title = "Open Spectrum File",
+                Filter = "CSV file (*.csv)|*.csv| Json files (*.json)|*.json| All Files (*.*)|*.*"
             };
             if (dialog.ShowDialog() == true)
             {
@@ -386,11 +386,14 @@ namespace DiplomaMB.ViewModels
             var editing_dialog = new EditingViewModel(Spectrums);
             windowManager.ShowDialogAsync(editing_dialog);
 
-            Spectrum result = editing_dialog.ResultSpectrum;
-            result.Id = last_id++;
+            if (editing_dialog.OperationDone)
+            {
+                Spectrum result = editing_dialog.ResultSpectrum;
+                result.Id = last_id++;
 
-            Spectrums.Add(result);
-            UpdatePlot();
+                Spectrums.Add(result);
+                UpdatePlot();
+            } 
         }
 
         public void EditSmoothing()

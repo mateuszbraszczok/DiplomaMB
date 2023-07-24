@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Utils\avaspecx64.dll">
+    <None Update="Utils\Libraries\avaspecx64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Utils\BWTEKUSB.dll">
+    <None Update="Utils\Libraries\BWTEKUSB.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

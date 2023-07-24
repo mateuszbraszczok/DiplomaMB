@@ -1,4 +1,5 @@
-﻿using MathWorks.Baseline;
+﻿using Caliburn.Micro;
+using MathWorks.Baseline;
 using MathWorks.MATLAB.NET.Arrays;
 
 namespace DiplomaMB.Utils
@@ -6,42 +7,33 @@ namespace DiplomaMB.Utils
 
     public class MBMatrix
     {
-
         public static double[] BaselineRemoveAirPLS(double[] data, double lambda, uint itermax)
         {
-            Baseline baseline = new();
+            BaselineRemoval baseline = new();
             MWNumericArray dataArray = new(data);
 
-            MWNumericArray lambdaValue = new(lambda);
-            MWNumericArray itermaxValue = new(itermax);
+            MWArray baselineAray = baseline.airPLS(dataArray, lambda, itermax);
 
-            MWArray array = baseline.airPLS(dataArray, lambdaValue, itermaxValue);
+            double[] resultArray = (double[])((MWNumericArray)baselineAray).ToVector(0);
 
-            object objData = array.ToArray();
+            baseline.Dispose();
 
-            double[,] doubleMatrix = (double[,])objData;
+            return resultArray;
+        }
 
-            int rows = doubleMatrix.GetLength(0);
-            int columns = doubleMatrix.GetLength(1);
 
-            // Calculate the total number of elements in the 2D array
-            int totalElements = rows * columns;
+        public static double[] BaselineRemoveALS(double[] data, double lambda, double p, uint itermax)
+        {
+            BaselineRemoval baseline = new();
+            MWNumericArray dataArray = new(data);
 
-            // Create a new 1D array to store the flattened elements
-            double[] doubleArray = new double[totalElements];
+            MWArray baselineAray = baseline.ALS(dataArray, lambda, p, itermax);
 
-            // Flatten the 2D array into the 1D array
-            int index = 0;
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < columns; j++)
-                {
-                    doubleArray[index] = doubleMatrix[i, j];
-                    index++;
-                }
-            }
+            double[] resultArray = (double[])((MWNumericArray)baselineAray).ToVector(0);
 
-            return doubleArray;
+            baseline.Dispose();
+
+            return resultArray;
         }
     }
 }
