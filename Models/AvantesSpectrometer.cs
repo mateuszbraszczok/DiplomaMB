@@ -189,7 +189,7 @@ namespace DiplomaMB.Models
 
         public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {
-            double[] pArray = spectrum.DataArray.ToArray();
+            double[] pArray = spectrum.DataValues.ToArray();
 
             //int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.DataArray.Count);
             //if (ret < 0)

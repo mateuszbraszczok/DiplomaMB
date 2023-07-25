@@ -1,6 +1,7 @@
 ﻿using DiplomaMB.Utils;
 using Microsoft.Win32;
 using OxyPlot;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,11 +43,18 @@ namespace DiplomaMB.Models
             set { wavelengths = value; }
         }
 
-        private List<double> data_array;
-        public List<double> DataArray
+        private List<double> data_values;
+        public List<double> DataValues
         {
-            get { return data_array; }
-            set { data_array = value; }
+            get { return data_values; }
+            set { data_values = value; }
+        }
+
+        private List<Peak> peaks;
+        public List<Peak> Peaks
+        {
+            get { return peaks; }
+            set { peaks = value; }
         }
 
         public Spectrum()
@@ -54,15 +62,14 @@ namespace DiplomaMB.Models
             
         }
 
-        public Spectrum(List<double> _wavelengths, List<double> _dataArray, string _name = "", int _id = 0)
+        public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "", int _id = 0)
         {
-            Wavelengths = new List<double>();
-            DataArray = new List<double>();
             Wavelengths = _wavelengths;
-            DataArray = _dataArray;
+            data_values = _dataValues;
             Name = _name;
             Id = _id;
             Enabled = true;
+            Peaks = new List<Peak>();
         }
 
         public Spectrum(string file_path, int _id)
@@ -76,6 +83,7 @@ namespace DiplomaMB.Models
             {
                 LoadJsonFile(file_path);
             }
+            Peaks = new List<Peak>();
         }
 
         public OxyPlot.Series.LineSeries getPlotSerie()
@@ -91,29 +99,46 @@ namespace DiplomaMB.Models
                 //Smooth = false,
             };
             int i = 0;
-            foreach (double item in DataArray)
+            foreach (double item in data_values)
             {
-                lineSerie.Points.Add(new DataPoint(Wavelengths[i], item));
+                lineSerie.Points.Add(new DataPoint(wavelengths[i], item));
                 i++;
             }
 
             return lineSerie;
         }
 
+        public OxyPlot.Series.ScatterSeries getPeaks()
+        {
+            var scatterSerie = new OxyPlot.Series.ScatterSeries
+            {
+                MarkerFill = OxyPlot.OxyColors.Black,
+                MarkerSize = 5,
+                MarkerType = MarkerType.Triangle,
+            };
+
+            foreach (Peak peak in peaks)
+            {
+                scatterSerie.Points.Add(new ScatterPoint(wavelengths[peak.PeakIndex-1], data_values[peak.PeakIndex - 1]));
+            }
+
+            return scatterSerie;
+        }
+
         public static Spectrum operator +(Spectrum spectrum1, Spectrum spectrum2)
         {
             string name = $"{spectrum1.Name}+{spectrum2.Name}";
             List<double> wavelengths = spectrum1.wavelengths;
-            List<double> dataArray = new List<double>();
+            List<double> dataValues = new();
 
-            if (spectrum1.DataArray.Count == spectrum2.DataArray.Count)
+            if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
-                for(int i = 0; i < spectrum1.DataArray.Count; i++)
+                for(int i = 0; i < spectrum1.DataValues.Count; i++)
                 {
-                    dataArray.Add(spectrum1.DataArray[i] + spectrum2.DataArray[i]);
+                    dataValues.Add(spectrum1.DataValues[i] + spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            Spectrum result = new(wavelengths, dataValues, name);
             return result;
         }
 
@@ -121,25 +146,25 @@ namespace DiplomaMB.Models
         {
             string name = $"{spectrum1.Name}-{spectrum2.Name}";
             List<double> wavelengths = spectrum1.wavelengths;
-            List<double> dataArray = new List<double>();
+            List<double> dataValues = new();
 
-            if (spectrum1.DataArray.Count == spectrum2.DataArray.Count)
+            if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
-                for (int i = 0; i < spectrum1.DataArray.Count; i++)
+                for (int i = 0; i < spectrum1.DataValues.Count; i++)
                 {
-                    dataArray.Add(spectrum1.DataArray[i] - spectrum2.DataArray[i]);
+                    dataValues.Add(spectrum1.DataValues[i] - spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            Spectrum result = new(wavelengths, dataValues, name);
             return result;
         }
 
         public Spectrum PerformBaselineCorrection(Spectrum spectrum, double lambda, uint itermax)
         {
-            double[] inputArray = spectrum.DataArray.ToArray();
-            double[] output = MBMatrix.BaselineRemoveAirPLS(inputArray, lambda, itermax);
+            double[] inputArray = spectrum.DataValues.ToArray();
+            double[] output = SpectrumUtils.BaselineRemoveAirPLS(inputArray, lambda, itermax);
 
-            //double[] output = MBMatrix.BaselineRemoveALS(inputArray, lambda, 0.001, itermax);
+            //double[] output = SpectrumUtils.BaselineRemoveALS(inputArray, lambda, 0.001, itermax);
 
             for (int i = 0; i < inputArray.Length; i++)
             {
@@ -148,10 +173,25 @@ namespace DiplomaMB.Models
 
             string name = $"{spectrum.Name}_baselineRemoved";
             List<double> wavelengths = spectrum.wavelengths;
-            List<double> dataArray = output.ToList();
+            List<double> dataValues = output.ToList();
 
-            Spectrum result = new Spectrum(wavelengths, dataArray, name);
+            Spectrum result = new(wavelengths, dataValues, name);
             return result;
+        }
+
+        public void DetectPeaks()
+        {
+            List<Peak> peaks = SpectrumUtils.DetectSpectrumPeaks(data_values, wavelengths);
+
+            foreach( Peak peak in peaks )
+            {
+                double peakWavelength = wavelengths[(int)peak.PeakIndex - 1];
+                double peakValue = data_values[(int)peak.PeakIndex - 1];
+                Debug.WriteLine($"Peak wavelength: {peakWavelength}, value: {peakValue}");
+            }
+
+            Peaks = peaks;
+
         }
 
        
@@ -183,11 +223,11 @@ namespace DiplomaMB.Models
         private void SaveAsCsvFile(string filename)
         {
             var csv = new StringBuilder();
-            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataArray: " + DataArray.Count);
+            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataArray: " + DataValues.Count);
             for (int i = 0; i < Wavelengths.Count; i++)
             {
                 var first = Wavelengths[i].ToString(CultureInfo.InvariantCulture);
-                var second = DataArray[i];
+                var second = DataValues[i];
                 var newLine = $"{first}, {second}";
                 csv.AppendLine(newLine);
             }
@@ -207,14 +247,14 @@ namespace DiplomaMB.Models
         {
             using var reader = new StreamReader(file_path);
             Wavelengths = new List<double>();
-            DataArray = new List<double>();
+            DataValues = new List<double>();
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
                 var values = line.Split(',');
 
                 Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
-                DataArray.Add(Convert.ToUInt16(values[1]));
+                DataValues.Add(Convert.ToUInt32(values[1]));
             }
             Id = id;
             Name = Path.GetFileNameWithoutExtension(file_path);
@@ -230,7 +270,7 @@ namespace DiplomaMB.Models
             if (spectrum != null)
             {
                 Wavelengths = spectrum.Wavelengths;
-                DataArray = spectrum.DataArray;
+                DataValues = spectrum.DataValues;
                 Id = spectrum.Id;
                 Name = spectrum.Name;
                 Enabled = spectrum.Enabled;

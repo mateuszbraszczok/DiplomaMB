@@ -21,6 +21,9 @@
     <Reference Include="MWArray">
       <HintPath>Utils\MWArray.dll</HintPath>
     </Reference>
+    <Reference Include="Peaks">
+      <HintPath>Utils\Libraries\Peaks.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

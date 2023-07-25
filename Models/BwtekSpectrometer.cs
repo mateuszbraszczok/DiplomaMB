@@ -340,9 +340,9 @@ namespace DiplomaMB.Models
 
         public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {
-            double[] pArray = spectrum.DataArray.ToArray();
+            double[] pArray = spectrum.DataValues.ToArray();
 
-            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.DataArray.Count);
+            int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.DataValues.Count);
             if (ret < 0)
             {
                 throw new Exception("Smoothing failed");
@@ -373,9 +373,9 @@ namespace DiplomaMB.Models
 
         public void CalculateDerivative(int order, Spectrum spectrum)
         {
-            double[] pArray = spectrum.DataArray.ToArray();
+            double[] pArray = spectrum.DataValues.ToArray();
             double[] result_array = new double[pArray.Length];
-            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(0, 0, 5, order, pArray, result_array, spectrum.DataArray.Count);
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(0, 0, 5, order, pArray, result_array, spectrum.DataValues.Count);
         }
 
         private void ReadEeprom()

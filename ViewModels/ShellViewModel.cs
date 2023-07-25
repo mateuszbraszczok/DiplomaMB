@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ using System.Security.AccessControl;
 using System.Text.Json;
 using System.Threading;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace DiplomaMB.ViewModels
 {
@@ -127,6 +129,10 @@ namespace DiplomaMB.ViewModels
                 {
                     spectrums_enabled++;
                     PlotModel.Series.Add(spectrum.getPlotSerie());
+                    if (spectrum.Peaks.Count > 0)
+                    {
+                        PlotModel.Series.Add(spectrum.getPeaks());
+                    }
                     double max_x = spectrum.Wavelengths.Max();
                     double min_x = spectrum.Wavelengths.Min();
                     if (max_x > max_x_value)
@@ -138,8 +144,8 @@ namespace DiplomaMB.ViewModels
                         min_x_value = min_x;
                     }
 
-                    double max_y = spectrum.DataArray.Max();
-                    double min_y = spectrum.DataArray.Min();
+                    double max_y = spectrum.DataValues.Max();
+                    double min_y = spectrum.DataValues.Min();
                     if (max_y > max_y_value)
                     {
                         max_y_value = max_y;
@@ -305,7 +311,7 @@ namespace DiplomaMB.ViewModels
             spectrum.Name = "Spectrum " + last_id.ToString();
             last_id += 1;
 
-            if (spectrum.DataArray != null)
+            if (spectrum.DataValues != null)
             {
                 spectrums.Add(spectrum);
                 UpdatePlot();
@@ -380,6 +386,18 @@ namespace DiplomaMB.ViewModels
             }
         }
 
+        public void SpectrumPeaks()
+        {
+            if (spectrums.Count > 0 && SelectedSpectrum != null)
+            {
+                SelectedSpectrum.DetectPeaks();
+            }
+            else
+            {
+                MessageBox.Show("No available spectrum to detect peak", "Spectrum peak detection error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         public void SpectrumOperations()
         {
             var windowManager = new WindowManager();
@@ -414,7 +432,7 @@ namespace DiplomaMB.ViewModels
 
                 Spectrum spectrum = Spectrometer.Smoothing(smoothing, selected_spectrum);
 
-                if (spectrum.DataArray != null)
+                if (spectrum.DataValues != null)
                 {
                     if (smoothing_dialog.CreateNewSpectrum)
                     {
@@ -428,7 +446,7 @@ namespace DiplomaMB.ViewModels
                     else
                     {
                         Spectrum edited_spectrum = selected_spectrum;
-                        edited_spectrum.DataArray = spectrum.DataArray;
+                        edited_spectrum.DataValues = spectrum.DataValues;
                         Debug.WriteLine("edit existing spectrum");
                         spectrums.Remove(selected_spectrum);
                         spectrums.Add(edited_spectrum);

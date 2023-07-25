@@ -9,7 +9,7 @@
         xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
-        Title="MB Master Project" Height="850" Width="1200"
+        Title="MB Master Project" Height="875" Width="1200"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
         Background="WhiteSmoke"
         ResizeMode="CanMinimize">
@@ -123,15 +123,16 @@
                 <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
                 <Button x:Name="SpectrumOperations">Spectrum operations</Button>
                 <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
+                <Button x:Name="SpectrumPeaks">Detect peaks</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />
 
         <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
-                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" MaxHeight="500" VerticalScrollBarVisibility="Auto">
+                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" MaxHeight="500" MaxWidth="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                 <DataGridTemplateColumn Header="Visible">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
