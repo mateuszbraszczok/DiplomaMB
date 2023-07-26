@@ -57,7 +57,7 @@ namespace DiplomaMB.Utils
 
             for (int i = 0; i < peaks_index.Length; i++)
             {
-                Peak peak = new((int)peaks_index[i], (int)peaks_begin_index[i], (int)peaks_end_index[i]);
+                Peak peak = new((int)peaks_index[i] - 1, (int)peaks_begin_index[i] - 1, (int)peaks_end_index[i] - 1);
                 peaks.Add(peak);
             }
 

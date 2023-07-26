@@ -185,13 +185,12 @@ namespace DiplomaMB.Models
 
             foreach( Peak peak in peaks )
             {
-                double peakWavelength = wavelengths[(int)peak.PeakIndex - 1];
-                double peakValue = data_values[(int)peak.PeakIndex - 1];
+                double peakWavelength = wavelengths[(int)peak.PeakIndex];
+                double peakValue = data_values[(int)peak.PeakIndex];
                 Debug.WriteLine($"Peak wavelength: {peakWavelength}, value: {peakValue}");
             }
 
             Peaks = peaks;
-
         }
 
        

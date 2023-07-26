@@ -391,6 +391,10 @@ namespace DiplomaMB.ViewModels
             if (spectrums.Count > 0 && SelectedSpectrum != null)
             {
                 SelectedSpectrum.DetectPeaks();
+
+                var windowManager = new WindowManager();
+                var peaks_dialog = new PeaksViewModel(SelectedSpectrum);
+                windowManager.ShowDialogAsync(peaks_dialog);
             }
             else
             {
