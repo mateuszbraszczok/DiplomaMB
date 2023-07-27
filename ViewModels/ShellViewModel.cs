@@ -157,6 +157,8 @@ namespace DiplomaMB.ViewModels
                 }
             }
 
+            Debug.WriteLine($"max:{max_y_value}  min:{min_y_value}");
+
             if (spectrums.Count == 0 || spectrums_enabled == 0)
             {
                 min_x_value = 100;

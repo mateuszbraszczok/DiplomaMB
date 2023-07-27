@@ -58,6 +58,7 @@ namespace DiplomaMB.ViewModels
         {
             Add,
             Subtract,
+            Multiply,
             Divide,
             BaselineRemove
         }
@@ -87,8 +88,11 @@ namespace DiplomaMB.ViewModels
                 case Operations.Subtract:
                     SubtractSelectedSpectrums();
                     break;
+                case Operations.Multiply:
+                    MultiplySelectedSpectrums();
+                    break;
                 case Operations.Divide:
-                    MessageBox.Show("Divide");
+                    DivideSelectedSpectrums();
                     break;
 
                 case Operations.BaselineRemove:
@@ -116,6 +120,26 @@ namespace DiplomaMB.ViewModels
             {
                 ResultSpectrum = SelectedSpectrum1 - SelectedSpectrum2;
                 MessageBox.Show("Subtracted two spectrums");
+                OperationDone = true;
+            }
+        }
+
+        private void MultiplySelectedSpectrums()
+        {
+            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            {
+                ResultSpectrum = SelectedSpectrum1 * SelectedSpectrum2;
+                MessageBox.Show("Multplied two spectrums");
+                OperationDone = true;
+            }
+        }
+
+        private void DivideSelectedSpectrums()
+        {
+            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            {
+                ResultSpectrum = SelectedSpectrum1 / SelectedSpectrum2;
+                MessageBox.Show("Divided two spectrums");
                 OperationDone = true;
             }
         }

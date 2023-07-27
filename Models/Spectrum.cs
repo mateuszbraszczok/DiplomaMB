@@ -119,7 +119,7 @@ namespace DiplomaMB.Models
 
             foreach (Peak peak in peaks)
             {
-                scatterSerie.Points.Add(new ScatterPoint(wavelengths[peak.PeakIndex-1], data_values[peak.PeakIndex - 1]));
+                scatterSerie.Points.Add(new ScatterPoint(wavelengths[peak.PeakIndex], data_values[peak.PeakIndex]));
             }
 
             return scatterSerie;
@@ -153,6 +153,47 @@ namespace DiplomaMB.Models
                 for (int i = 0; i < spectrum1.DataValues.Count; i++)
                 {
                     dataValues.Add(spectrum1.DataValues[i] - spectrum2.DataValues[i]);
+                }
+            }
+            Spectrum result = new(wavelengths, dataValues, name);
+            return result;
+        }
+
+        public static Spectrum operator *(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            string name = $"{spectrum1.Name}*{spectrum2.Name}";
+            List<double> wavelengths = spectrum1.wavelengths;
+            List<double> dataValues = new();
+
+            if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
+            {
+                for (int i = 0; i < spectrum1.DataValues.Count; i++)
+                {
+                    dataValues.Add(spectrum1.DataValues[i] * spectrum2.DataValues[i]);
+                }
+            }
+            Spectrum result = new(wavelengths, dataValues, name);
+            return result;
+        }
+
+        public static Spectrum operator /(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            string name = $"{spectrum1.Name}/{spectrum2.Name}";
+            List<double> wavelengths = spectrum1.wavelengths;
+            List<double> dataValues = new();
+
+            if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
+            {
+                for (int i = 0; i < spectrum1.DataValues.Count; i++)
+                {
+                    if (spectrum2.DataValues[i] != 0.0)
+                    {
+                        dataValues.Add(spectrum1.DataValues[i] / spectrum2.DataValues[i]);
+                    }
+                    else
+                    {
+                        dataValues.Add(0.0);
+                    }
                 }
             }
             Spectrum result = new(wavelengths, dataValues, name);
