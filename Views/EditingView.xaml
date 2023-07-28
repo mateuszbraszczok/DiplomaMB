@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiplomaMB.Views"
         xmlns:cal="http://www.caliburnproject.org"
+        xmlns:utils="clr-namespace:DiplomaMB.Utils"
         mc:Ignorable="d"
         Title="EditingView" Height="450" Width="800">
-
+    <Window.Resources>
+        <utils:EnumBooleanConverter x:Key="enumBooleanConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
@@ -33,9 +36,20 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <ComboBox x:Name="EnumValues" ItemsSource="{Binding OperationsValues}" Grid.Row="1" Grid.Column="2" SelectedValue="{Binding SelectedOperation}" />
+        <!--<ComboBox x:Name="EnumValues" ItemsSource="{Binding OperationsValues}" Grid.Row="1" Grid.Column="2" SelectedValue="{Binding SelectedOperation}" />-->
 
-        <ComboBox x:Name="Spectrums2" Grid.Row="1" Grid.Column="3" SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
+
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Add}">Add</RadioButton>
+            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Subtract}">Subtract</RadioButton>
+            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Multiply}">Multiply</RadioButton>
+            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Divide}">Multiply</RadioButton>
+            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=BaselineRemove}">BaselineRemove</RadioButton>
+            <Button Content="Show selected value" cal:Message.Attach="ShowSelectedValue" />
+        </StackPanel>
+
+
+        <ComboBox x:Name="Spectrums2" Grid.Row="1" Grid.Column="3" SelectedValue="{Binding SelectedSpectrum2}" IsEnabled="{Binding IsSpectrums2ComboBoxEnabled}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
@@ -43,6 +57,10 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <Button x:Name="CloseWindow" Content="Accept Operation" Grid.Row="2" Grid.Column="2" Cursor="Hand" Margin="15"/>
+        <Label Content="Enter a Double Value:" Grid.Row="2" Grid.Column="1"/>
+        <TextBox x:Name="DoubleValue" Text="{Binding TransactionDetails.TransactionAmount, Mode=TwoWay, 
+            UpdateSourceTrigger=PropertyChanged,StringFormat=N2}" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center"/>
+
+        <Button x:Name="CloseWindow" Content="Accept Operation" Grid.Row="3" Grid.Column="2" Cursor="Hand" Margin="15"/>
     </Grid>
 </Window>

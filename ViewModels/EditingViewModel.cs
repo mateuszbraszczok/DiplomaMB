@@ -3,14 +3,26 @@ using DiplomaMB.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace DiplomaMB.ViewModels
 {
+
+    public enum Operations
+    {
+        Add,
+        Subtract,
+        Multiply,
+        Divide,
+        BaselineRemove
+    }
+
     public class EditingViewModel : Screen
     {
         private BindableCollection<Spectrum> spectrums1;
@@ -54,30 +66,96 @@ namespace DiplomaMB.ViewModels
             set { operation_done = value; }
         }
 
-        public enum Operations
+        private double double_value;
+
+        public double DoubleValue
         {
-            Add,
-            Subtract,
-            Multiply,
-            Divide,
-            BaselineRemove
+            get { return double_value; }
+            set
+            {
+                double_value = value;
+                NotifyOfPropertyChange(() => DoubleValue);
+            }
         }
 
-        public string[] OperationsValues { get; } = Enum.GetNames(typeof(Operations));
-        public Operations SelectedOperation { get; set; }
+
+        private bool is_spectrums2_comboBox_enabled = true;
+
+        public bool IsSpectrums2ComboBoxEnabled
+        {
+            get { return is_spectrums2_comboBox_enabled; }
+            set
+            {
+                is_spectrums2_comboBox_enabled = value;
+                NotifyOfPropertyChange(() => IsSpectrums2ComboBoxEnabled);
+            }
+        }
+
+        private Operations selected_operation;
+
+        public Operations SelectedOperation
+        {
+            get => selected_operation;
+            set
+            {
+                if (selected_operation != value)
+                {
+                    selected_operation = value;
+                    UpdateGui();
+                    NotifyOfPropertyChange(() => SelectedOperation);
+                }
+            }
+        }
 
         public EditingViewModel(BindableCollection<Spectrum> spectrums)
         {
-            OperationDone = false;
-            Spectrums1 = spectrums;
-            Spectrums2 = spectrums;
-            ResultSpectrum = new Spectrum();
+            operation_done = false;
+            spectrums1 = spectrums;
+            spectrums2 = spectrums;
+            result_spectrum = new Spectrum();
 
-            SelectedSpectrum1 = Spectrums1.FirstOrDefault();
-            SelectedSpectrum2 = Spectrums2.FirstOrDefault();
-            SelectedOperation = Operations.Add; // Enum.GetNames(typeof(Operations)).Cast<Operations>().FirstOrDefault();
+            double_value = 1.0;
+
+            selected_spectrum1 = Spectrums1.FirstOrDefault();
+            selected_spectrum2 = Spectrums2.FirstOrDefault();
+            selected_operation = Operations.Add;
         }
 
+
+        private void UpdateGui()
+        {
+            Debug.WriteLine("Hello");
+            if (selected_operation == Operations.BaselineRemove)
+            {
+                Debug.WriteLine("Baseline");
+                IsSpectrums2ComboBoxEnabled = false;
+            }
+            else
+            {
+                Debug.WriteLine("Other");
+                IsSpectrums2ComboBoxEnabled = true;
+            }
+        }
+
+
+        public void ShowSelectedValue()
+        {
+            // Show a message box with the selected value
+            MessageBox.Show($"Selected value: {SelectedOperation}");
+
+            switch(SelectedOperation)
+            {
+                case Operations.Add:
+                    Debug.WriteLine("Add");
+                    break;
+                case Operations.Subtract:
+                    Debug.WriteLine("Subtract");
+                    break;
+                case Operations.Multiply:
+                    Debug.WriteLine("Multiply");
+                    break;
+            }
+        }
         public void CloseWindow()
         {
             switch (SelectedOperation)
