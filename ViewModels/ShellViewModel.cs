@@ -89,9 +89,9 @@ namespace DiplomaMB.ViewModels
             get => acquire_continuously;
         }
 
-
         private int last_id = 1;
         private Thread continuously_acquiring_thread;
+
         public ShellViewModel()
         {
             plot_model = new PlotModel { Title = "Spectrums Raw Data", Background = OxyColors.LightGray };
