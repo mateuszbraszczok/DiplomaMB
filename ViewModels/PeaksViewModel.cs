@@ -14,21 +14,17 @@ namespace DiplomaMB.ViewModels
     public class PeaksViewModel : Screen
     {
         private Spectrum spectrum;
-        public Spectrum Spectrum { 
-            get { return spectrum; }
-            set { spectrum = value; }
+        public Spectrum Spectrum 
+        { 
+            get => spectrum;
+            set => spectrum = value;
         }
 
         private BindableCollection<PeakInfo> peaks;
-
         public BindableCollection<PeakInfo> Peaks
         {
-            get { return peaks; }
-            set 
-            { 
-                peaks = value;
-                NotifyOfPropertyChange(() => Peaks);
-            }
+            get => peaks;
+            set { peaks = value; NotifyOfPropertyChange(() => Peaks); }
         }
 
         public PeaksViewModel(Spectrum _spectrum) 

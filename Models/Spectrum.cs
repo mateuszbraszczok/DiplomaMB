@@ -39,22 +39,22 @@ namespace DiplomaMB.Models
         private List<double> wavelengths;
         public List<double> Wavelengths
         {
-            get { return wavelengths; }
-            set { wavelengths = value; }
+            get => wavelengths;
+            set => wavelengths = value;
         }
 
         private List<double> data_values;
         public List<double> DataValues
         {
-            get { return data_values; }
-            set { data_values = value; }
+            get => data_values;
+            set => data_values = value;
         }
 
         private List<Peak> peaks;
         public List<Peak> Peaks
         {
-            get { return peaks; }
-            set { peaks = value; }
+            get => peaks;
+            set => peaks = value;
         }
 
         public Spectrum()
@@ -127,8 +127,6 @@ namespace DiplomaMB.Models
 
         public static Spectrum operator +(Spectrum spectrum1, Spectrum spectrum2)
         {
-            string name = $"{spectrum1.Name}+{spectrum2.Name}";
-            List<double> wavelengths = spectrum1.wavelengths;
             List<double> dataValues = new();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
@@ -138,14 +136,24 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] + spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(wavelengths, dataValues, name);
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+
+        public static Spectrum operator +(Spectrum spectrum1, double doubleValue)
+        {
+            List<double> dataValues = new();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add(spectrum1.DataValues[i] + doubleValue);
+            }
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator -(Spectrum spectrum1, Spectrum spectrum2)
         {
-            string name = $"{spectrum1.Name}-{spectrum2.Name}";
-            List<double> wavelengths = spectrum1.wavelengths;
             List<double> dataValues = new();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
@@ -155,14 +163,23 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] - spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(wavelengths, dataValues, name);
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+        public static Spectrum operator -(Spectrum spectrum1, double doubleValue)
+        {
+            List<double> dataValues = new();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add(spectrum1.DataValues[i] - doubleValue);
+            }
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator *(Spectrum spectrum1, Spectrum spectrum2)
         {
-            string name = $"{spectrum1.Name}*{spectrum2.Name}";
-            List<double> wavelengths = spectrum1.wavelengths;
             List<double> dataValues = new();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
@@ -172,14 +189,24 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] * spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(wavelengths, dataValues, name);
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+
+        public static Spectrum operator *(Spectrum spectrum1, double doubleValue)
+        {
+            List<double> dataValues = new();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add(spectrum1.DataValues[i] * doubleValue);
+            }
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator /(Spectrum spectrum1, Spectrum spectrum2)
         {
-            string name = $"{spectrum1.Name}/{spectrum2.Name}";
-            List<double> wavelengths = spectrum1.wavelengths;
             List<double> dataValues = new();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
@@ -196,7 +223,19 @@ namespace DiplomaMB.Models
                     }
                 }
             }
-            Spectrum result = new(wavelengths, dataValues, name);
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+
+        public static Spectrum operator /(Spectrum spectrum1, double doubleValue)
+        {
+            List<double> dataValues = new();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add(spectrum1.DataValues[i] / doubleValue);
+            }
+            Spectrum result = new(spectrum1.wavelengths, dataValues);
             return result;
         }
 

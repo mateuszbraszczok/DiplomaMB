@@ -4,19 +4,14 @@ using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
-using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net.Http.Json;
-using System.Security.AccessControl;
-using System.Text.Json;
 using System.Threading;
 using System.Windows;
-using System.Xml.Linq;
 
 namespace DiplomaMB.ViewModels
 {
@@ -25,73 +20,87 @@ namespace DiplomaMB.ViewModels
 		private PlotModel plot_model;
 		public PlotModel PlotModel
         {
-			get { return plot_model; }
+			get => plot_model;
 			set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
 		}
 
 		private BwtekSpectrometer spectrometer;
 		public BwtekSpectrometer Spectrometer
         {
-			get { return spectrometer; }
+            get => spectrometer;
 			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
 		}
 
 		private Spectrum? selected_spectrum;
 		public Spectrum? SelectedSpectrum
 		{
-			get { return selected_spectrum; }
+            get => selected_spectrum;
 			set { selected_spectrum = value; NotifyOfPropertyChange(() => SelectedSpectrum); }
         }
 
         private BindableCollection<Spectrum> spectrums;
         public BindableCollection<Spectrum> Spectrums
         {
-            get { return spectrums; }
-            set { spectrums = value; }
+            get => spectrums;
+            set
+            {
+                if (spectrums != value)
+                {
+                    spectrums = value;
+                    NotifyOfPropertyChange(() => Spectrums);
+                }
+            }
+        }
+
+        private void Spectrums_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            NotifyOfPropertyChange(() => CanSpectrumOperations);
         }
 
         private int frames_to_acquire;
         public int FramesToAcquire
         {
-            get { return frames_to_acquire; }
+            get => frames_to_acquire;
             set { frames_to_acquire = value; NotifyOfPropertyChange(() => FramesToAcquire); }
         }
 
-        private int integrationTime;
+        private int integration_time;
         public int IntegrationTime
         {
-            get { return integrationTime; }
-            set { integrationTime = value; NotifyOfPropertyChange(() => IntegrationTime); }
+            get => integration_time;
+            set { integration_time = value; NotifyOfPropertyChange(() => IntegrationTime); }
         }
 
         private SmartRead smart_read;
         public SmartRead SmartRead
         {
-            get { return smart_read; }
+            get => smart_read;
             set { smart_read = value; NotifyOfPropertyChange(() => SmartRead); }
         }
 
         private bool acquire_continuously;
         public bool AcquireContinuously
         {
-            get { return acquire_continuously; }
-            set { acquire_continuously = value; NotifyOfPropertyChange(() => AcquireContinuously); NotifyOfPropertyChange(() => NotAcquireContinuously); }
+            get => acquire_continuously;
+            set { acquire_continuously = value; NotifyOfPropertyChange(() => AcquireContinuously); }
         }
         public bool NotAcquireContinuously
         {
-            get { return !acquire_continuously; }
+            get => acquire_continuously;
         }
+
 
         private int last_id = 1;
         private Thread continuously_acquiring_thread;
         public ShellViewModel()
         {
-            PlotModel = new PlotModel { Title = "Spectrums Raw Data" };
-            Spectrometer = new BwtekSpectrometer();
-            Spectrums = new BindableCollection<Spectrum> { };
-            SmartRead = new SmartRead();
+            plot_model = new PlotModel { Title = "Spectrums Raw Data", Background = OxyColors.LightGray };
+            spectrometer = new BwtekSpectrometer();
+            spectrums = new BindableCollection<Spectrum> { };
+            Spectrums.CollectionChanged += Spectrums_CollectionChanged;
+            smart_read = new SmartRead();
 
-            FramesToAcquire = 1;
+            frames_to_acquire = 1;
             InitializePlot();
         }
 
@@ -115,7 +124,7 @@ namespace DiplomaMB.ViewModels
             PlotModel.InvalidatePlot(true);
         }
 
-        private void UpdatePlot()
+        public void UpdatePlot()
         {
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
@@ -254,7 +263,7 @@ namespace DiplomaMB.ViewModels
                 spectrum.Id = last_id;
                 spectrum.Name = "Spectrum " + last_id.ToString();
                 last_id += 1;
-                spectrums.Add(spectrum);
+                Spectrums.Add(spectrum);
             }
             UpdatePlot();
         }
@@ -315,7 +324,7 @@ namespace DiplomaMB.ViewModels
 
             if (spectrum.DataValues != null)
             {
-                spectrums.Add(spectrum);
+                Spectrums.Add(spectrum);
                 UpdatePlot();
             }
         }
@@ -342,7 +351,7 @@ namespace DiplomaMB.ViewModels
                 string file_path = dialog.FileName;
                 Spectrum spectrum = new(file_path, last_id);
                 last_id++;
-                spectrums.Add(spectrum);
+                Spectrums.Add(spectrum);
                 UpdatePlot();
             }
         }
@@ -393,6 +402,7 @@ namespace DiplomaMB.ViewModels
             if (spectrums.Count > 0 && SelectedSpectrum != null)
             {
                 SelectedSpectrum.DetectPeaks();
+                UpdatePlot();
 
                 var windowManager = new WindowManager();
                 var peaks_dialog = new PeaksViewModel(SelectedSpectrum);
@@ -404,6 +414,11 @@ namespace DiplomaMB.ViewModels
             }
         }
 
+
+        public bool CanSpectrumOperations
+        {
+            get { return Spectrums?.Count > 0; }
+        }
         public void SpectrumOperations()
         {
             var windowManager = new WindowManager();
@@ -431,41 +446,32 @@ namespace DiplomaMB.ViewModels
             var smoothing_dialog = new SmoothingViewModel();
             windowManager.ShowDialogAsync(smoothing_dialog);
 
-            if (smoothing_dialog.PerformSmoothing)
+            Smoothing smoothing = smoothing_dialog.Smoothing;
+
+            if (smoothing.PerformSmoothing)
             {
-                Smoothing smoothing = smoothing_dialog.Smoothing;
-                Debug.WriteLine("Parameter: " + smoothing.Parameter.ToString() + "Type: " + smoothing.Type.ToString());
+                Debug.WriteLine("Parameter: " + smoothing.Parameter.ToString() + ", Type: " + smoothing.Type.ToString());
+                Spectrum smoothed_spectrum = Spectrometer.Smoothing(smoothing, selected_spectrum);
 
-                Spectrum spectrum = Spectrometer.Smoothing(smoothing, selected_spectrum);
-
-                if (spectrum.DataValues != null)
+                if (smoothed_spectrum.DataValues != null)
                 {
-                    if (smoothing_dialog.CreateNewSpectrum)
+                    if (smoothing.CreateNewSpectrum)
                     {
 
                         Debug.WriteLine("create new spectrum");
-                        spectrum.Id = last_id;
-                        spectrum.Name = selected_spectrum.Name + "_smoothed";
+                        smoothed_spectrum.Id = last_id;
+                        smoothed_spectrum.Name = selected_spectrum.Name + "_smoothed";
                         last_id += 1;
-                        spectrums.Add(spectrum);
+                        Spectrums.Add(smoothed_spectrum);
                     }
                     else
                     {
-                        Spectrum edited_spectrum = selected_spectrum;
-                        edited_spectrum.DataValues = spectrum.DataValues;
                         Debug.WriteLine("edit existing spectrum");
-                        spectrums.Remove(selected_spectrum);
-                        spectrums.Add(edited_spectrum);
+                        selected_spectrum.DataValues = smoothed_spectrum.DataValues;
                     }
                     UpdatePlot();
                 }
             }
-        }
-
-        public void ChangeVisibility()
-        {
-            Debug.WriteLine("In ChangeVisibility function");
-            UpdatePlot();
         }
 
         private bool IsSpectrometerConnected()

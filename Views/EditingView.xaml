@@ -7,7 +7,10 @@
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:utils="clr-namespace:DiplomaMB.Utils"
         mc:Ignorable="d"
-        Title="EditingView" Height="450" Width="800">
+        Background="LightGray"
+        Title="Spectrum math operations" Height="270" Width="550"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize">
     <Window.Resources>
         <utils:EnumBooleanConverter x:Key="enumBooleanConverter" />
     </Window.Resources>
@@ -17,50 +20,73 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="160"></ColumnDefinition>
+            <ColumnDefinition Width="160"></ColumnDefinition>
+            <ColumnDefinition Width="170"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
 
-        <ComboBox x:Name="Spectrums1" Grid.Row="1" Grid.Column="1" SelectedValue="{Binding SelectedSpectrum1}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <Border BorderBrush="#050505" BorderThickness="1" Grid.Row="1" Grid.Column="1" Margin="5">
+            <StackPanel Margin="10">
+                <Label Content="Spectrum A:"/>
+                <ComboBox x:Name="Spectrums1"  SelectedValue="{Binding SelectedSpectrum1}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </Border>
 
-        <!--<ComboBox x:Name="EnumValues" ItemsSource="{Binding OperationsValues}" Grid.Row="1" Grid.Column="2" SelectedValue="{Binding SelectedOperation}" />-->
+
+        <Border BorderBrush="#050505" BorderThickness="1" Grid.Row="1" Grid.Column="2" Margin="5">
+            <StackPanel Margin="10">
+                <Label Content="Operation"/>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Add}">A + B</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Subtract}">A - B</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Multiply}">A * B</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Divide}">A / B</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=BaselineRemove}">BaselineRemove(A)</RadioButton>
+            </StackPanel>
+        </Border>
+
+        <Border BorderBrush="#050505" BorderThickness="1" Grid.Row="1" Grid.Column="3" Margin="5">
+            <StackPanel IsEnabled="{Binding IsSpectrums2ComboBoxEnabled}" Margin="10" >
+                <RadioButton Content="Spectrum B" IsChecked="{Binding IsPanel1Enabled}" GroupName="PanelSwitch"/>
+
+                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">   
+                    <ComboBox x:Name="Spectrums2"  SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
 
 
-        <StackPanel Grid.Row="1" Grid.Column="2">
-            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Add}">Add</RadioButton>
-            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Subtract}">Subtract</RadioButton>
-            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Multiply}">Multiply</RadioButton>
-            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Divide}">Multiply</RadioButton>
-            <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=BaselineRemove}">BaselineRemove</RadioButton>
-            <Button Content="Show selected value" cal:Message.Attach="ShowSelectedValue" />
+                <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch"/>
+                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5">
+                    <Label Content="Enter a Double Value:"/>
+                    <TextBox x:Name="DoubleValue"  VerticalAlignment="Center"
+                        Text="{Binding DoubleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N3}"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+            <Label Content="Enter a new spectrum name:" />
+            <TextBox x:Name="NewSpectrumName"  VerticalAlignment="Center"/>
         </StackPanel>
 
-
-        <ComboBox x:Name="Spectrums2" Grid.Row="1" Grid.Column="3" SelectedValue="{Binding SelectedSpectrum2}" IsEnabled="{Binding IsSpectrums2ComboBoxEnabled}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-
-        <Label Content="Enter a Double Value:" Grid.Row="2" Grid.Column="1"/>
-        <TextBox x:Name="DoubleValue" Text="{Binding TransactionDetails.TransactionAmount, Mode=TwoWay, 
-            UpdateSourceTrigger=PropertyChanged,StringFormat=N2}" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center"/>
-
-        <Button x:Name="CloseWindow" Content="Accept Operation" Grid.Row="3" Grid.Column="2" Cursor="Hand" Margin="15"/>
+        <Button x:Name="CloseWindow" Content="Accept Operation" Grid.Row="2" Grid.Column="3" Cursor="Hand" Margin="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontWeight="Bold" Padding="5"/>
     </Grid>
 </Window>

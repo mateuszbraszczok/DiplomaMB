@@ -29,8 +29,8 @@ namespace DiplomaMB.Models
 
         public List<ConfigProperty> ConfigProperties
         {
-            get { return config_properties; }
-            set { config_properties = value; }
+            get => config_properties;
+            set => config_properties = value;
         }
 
         private int usb_type;
@@ -50,8 +50,8 @@ namespace DiplomaMB.Models
         private string integration_time_unit_string;
         public string IntegrationTimeUnit
         {
-            get { return integration_time_unit_string; }
-            set { integration_time_unit_string = value; }
+            get => integration_time_unit_string;
+            set => integration_time_unit_string = value;
         }
         private int integration_time_min;
         private int timing_mode;
@@ -59,8 +59,8 @@ namespace DiplomaMB.Models
         private int integration_time;
         public int IntegrationTime
         {
-            get { return integration_time; }
-            set { integration_time = value; }
+            get => integration_time; 
+            set => integration_time = value;
         }
 
         private int xaxis_min;
@@ -72,8 +72,8 @@ namespace DiplomaMB.Models
         private bool connected;
         public bool Connected
         {
-            get { return connected; }
-            set { connected = value; }
+            get => connected;
+            set => connected = value;
         }
 
         private string status;
@@ -336,7 +336,6 @@ namespace DiplomaMB.Models
                 File.WriteAllText(saveFileDialog.FileName, csv.ToString());
             }
         }
-
 
         public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {

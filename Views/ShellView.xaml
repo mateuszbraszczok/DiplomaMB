@@ -11,7 +11,7 @@
         mc:Ignorable="d"
         Title="MB Master Project" Height="875" Width="1200"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
-        Background="WhiteSmoke"
+        Background="LightGray"
         ResizeMode="CanMinimize">
     <Grid>
         <Grid.RowDefinitions>
@@ -121,14 +121,14 @@
                 <Button x:Name="SaveDarkScan" IsEnabled="{Binding Spectrometer.DarkScanTaken}">Save dark scan to file</Button>
                 <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                 <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
-                <Button x:Name="SpectrumOperations">Spectrum operations</Button>
+                <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
                 <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
                 <Button x:Name="SpectrumPeaks">Detect peaks</Button>
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />
 
-        <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
+        <DataGrid x:Name="Spectrums" Grid.Column="4" Grid.Row="3" Background="LightGray" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
                   CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" MaxHeight="500" MaxWidth="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
@@ -137,7 +137,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             cal:Message.Attach="[Event Click] = [ChangeVisibility]"/>
+                             cal:Message.Attach="[Event Click] = [UpdatePlot]"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -145,7 +145,7 @@
         </DataGrid>
 
 
-        <StackPanel Grid.Row="6" Grid.ColumnSpan="20">
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="20" >
             <StatusBar DockPanel.Dock="Bottom" >
                 <StatusBarItem >
                     <Label Content="Status:"></Label>

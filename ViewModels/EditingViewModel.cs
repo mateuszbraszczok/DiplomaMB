@@ -28,84 +28,114 @@ namespace DiplomaMB.ViewModels
         private BindableCollection<Spectrum> spectrums1;
         public BindableCollection<Spectrum> Spectrums1
         {
-            get { return spectrums1; }
-            set { spectrums1 = value; }
+            get => spectrums1;
+            set => spectrums1 = value;
         }
         private BindableCollection<Spectrum> spectrums2;
         public BindableCollection<Spectrum> Spectrums2
         {
-            get { return spectrums2; }
-            set { spectrums2 = value; }
+            get => spectrums2;
+            set => spectrums2 = value;
         }
 
         private Spectrum? selected_spectrum1;
         public Spectrum? SelectedSpectrum1
         {
-            get { return selected_spectrum1; }
+            get => selected_spectrum1;
             set { selected_spectrum1 = value; NotifyOfPropertyChange(() => SelectedSpectrum1); }
         }
 
         private Spectrum? selected_spectrum2;
         public Spectrum? SelectedSpectrum2
         {
-            get { return selected_spectrum2; }
+            get => selected_spectrum2;
             set { selected_spectrum2 = value; NotifyOfPropertyChange(() => SelectedSpectrum2); }
         }
 
         private Spectrum result_spectrum;
         public Spectrum ResultSpectrum
         {
-            get { return result_spectrum; }
-            set { result_spectrum = value; }
-        }
-
-        private bool operation_done;
-        public bool OperationDone
-        {
-            get { return operation_done; }
-            set { operation_done = value; }
-        }
-
-        private double double_value;
-
-        public double DoubleValue
-        {
-            get { return double_value; }
-            set
-            {
-                double_value = value;
-                NotifyOfPropertyChange(() => DoubleValue);
-            }
-        }
-
-
-        private bool is_spectrums2_comboBox_enabled = true;
-
-        public bool IsSpectrums2ComboBoxEnabled
-        {
-            get { return is_spectrums2_comboBox_enabled; }
-            set
-            {
-                is_spectrums2_comboBox_enabled = value;
-                NotifyOfPropertyChange(() => IsSpectrums2ComboBoxEnabled);
-            }
+            get => result_spectrum;
+            set => result_spectrum = value;
         }
 
         private Operations selected_operation;
-
         public Operations SelectedOperation
         {
             get => selected_operation;
             set
             {
-                if (selected_operation != value)
+                selected_operation = value;
+                if (value == Operations.BaselineRemove)
                 {
-                    selected_operation = value;
-                    UpdateGui();
-                    NotifyOfPropertyChange(() => SelectedOperation);
+                    IsSpectrums2ComboBoxEnabled = false;
                 }
+                else
+                {
+                    IsSpectrums2ComboBoxEnabled = true;
+                }
+                NotifyOfPropertyChange(() => SelectedOperation);
             }
         }
+
+        private bool operation_done;
+        public bool OperationDone
+        {
+            get => operation_done;
+            set => operation_done = value;
+        }
+
+        private double double_value;
+        public double DoubleValue
+        {
+            get => double_value;
+            set { double_value = value; NotifyOfPropertyChange(() => DoubleValue); }
+        }
+
+        private string new_spectrum_name;
+        public string NewSpectrumName
+        {
+            get => new_spectrum_name;
+            set => new_spectrum_name = value;
+        }
+
+        private bool is_spectrums2_comboBox_enabled;
+        public bool IsSpectrums2ComboBoxEnabled
+        {
+            get => is_spectrums2_comboBox_enabled;
+            set { is_spectrums2_comboBox_enabled = value; NotifyOfPropertyChange(() => IsSpectrums2ComboBoxEnabled); }
+        }
+
+        private bool is_panel_1_enabled;
+        public bool IsPanel1Enabled
+        {
+            get => is_panel_1_enabled;
+            set
+            {
+                is_panel_1_enabled = value;
+                NotifyOfPropertyChange(() => IsPanel1Enabled);
+                if (value)
+                {
+                    IsPanel2Enabled = !value;
+                }  
+            }
+        }
+
+        private bool is_panel_2_enabled;
+        public bool IsPanel2Enabled
+        {
+            get => is_panel_2_enabled;
+            set
+            {
+                is_panel_2_enabled = value;
+                NotifyOfPropertyChange(() => IsPanel2Enabled);
+                if (value)
+                {
+                    IsPanel1Enabled = !value;
+                }  
+            }
+        }
+
 
         public EditingViewModel(BindableCollection<Spectrum> spectrums)
         {
@@ -114,7 +144,10 @@ namespace DiplomaMB.ViewModels
             spectrums2 = spectrums;
             result_spectrum = new Spectrum();
 
-            double_value = 1.0;
+            DoubleValue = 1.0;
+            is_spectrums2_comboBox_enabled = true;
+            is_panel_1_enabled = true;
+            new_spectrum_name = "new_spectrum";
 
             selected_spectrum1 = Spectrums1.FirstOrDefault();
             selected_spectrum2 = Spectrums2.FirstOrDefault();
@@ -122,40 +155,6 @@ namespace DiplomaMB.ViewModels
         }
 
 
-        private void UpdateGui()
-        {
-            Debug.WriteLine("Hello");
-            if (selected_operation == Operations.BaselineRemove)
-            {
-                Debug.WriteLine("Baseline");
-                IsSpectrums2ComboBoxEnabled = false;
-            }
-            else
-            {
-                Debug.WriteLine("Other");
-                IsSpectrums2ComboBoxEnabled = true;
-            }
-        }
-
-
-        public void ShowSelectedValue()
-        {
-            // Show a message box with the selected value
-            MessageBox.Show($"Selected value: {SelectedOperation}");
-
-            switch(SelectedOperation)
-            {
-                case Operations.Add:
-                    Debug.WriteLine("Add");
-                    break;
-                case Operations.Subtract:
-                    Debug.WriteLine("Subtract");
-                    break;
-                case Operations.Multiply:
-                    Debug.WriteLine("Multiply");
-                    break;
-            }
-        }
         public void CloseWindow()
         {
             switch (SelectedOperation)
@@ -179,46 +178,95 @@ namespace DiplomaMB.ViewModels
                 default:
                     break;
             }
+            ResultSpectrum.Name = NewSpectrumName;
             TryCloseAsync();
         }
 
         private void AddSelectedSpectrums()
         {
-            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            if (IsPanel1Enabled)
             {
-                ResultSpectrum = SelectedSpectrum1 + SelectedSpectrum2;
-                MessageBox.Show("Added two spectrums");
-                OperationDone = true;
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 + SelectedSpectrum2;
+                    MessageBox.Show("Added two spectrums");
+                    OperationDone = true;
+                }
+            }
+            else
+            {
+                if (SelectedSpectrum1 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 + DoubleValue;
+                    MessageBox.Show("Added value to spectrum");
+                    OperationDone = true;
+                }
             }
         }
 
         private void SubtractSelectedSpectrums()
         {
-            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            if (IsPanel1Enabled)
             {
-                ResultSpectrum = SelectedSpectrum1 - SelectedSpectrum2;
-                MessageBox.Show("Subtracted two spectrums");
-                OperationDone = true;
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 - SelectedSpectrum2;
+                    MessageBox.Show("Subtracted two spectrums");
+                    OperationDone = true;
+                }
+            }
+            else
+            {
+                if (SelectedSpectrum1 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 - DoubleValue;
+                    MessageBox.Show("Subtracted value from spectrum");
+                    OperationDone = true;
+                }
             }
         }
 
         private void MultiplySelectedSpectrums()
         {
-            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            if (IsPanel1Enabled)
             {
-                ResultSpectrum = SelectedSpectrum1 * SelectedSpectrum2;
-                MessageBox.Show("Multplied two spectrums");
-                OperationDone = true;
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 * SelectedSpectrum2;
+                    MessageBox.Show("Multiplied two spectrums");
+                    OperationDone = true;
+                }
+            }
+            else
+            {
+                if (SelectedSpectrum1 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 * DoubleValue;
+                    MessageBox.Show("Multiplied spectrum by value");
+                    OperationDone = true;
+                }
             }
         }
 
         private void DivideSelectedSpectrums()
         {
-            if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+            if (IsPanel1Enabled)
             {
-                ResultSpectrum = SelectedSpectrum1 / SelectedSpectrum2;
-                MessageBox.Show("Divided two spectrums");
-                OperationDone = true;
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 / SelectedSpectrum2;
+                    MessageBox.Show("Divided two spectrums");
+                    OperationDone = true;
+                }
+            }
+            else
+            {
+                if (SelectedSpectrum1 != null)
+                {
+                    ResultSpectrum = SelectedSpectrum1 / DoubleValue;
+                    MessageBox.Show("Divided spectrum by value");
+                    OperationDone = true;
+                }
             }
         }
 

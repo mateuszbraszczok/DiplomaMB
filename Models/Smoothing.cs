@@ -1,74 +1,100 @@
-﻿using System;
+﻿using Caliburn.Micro;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DiplomaMB.Models
 {
-    public class Smoothing
-    {
-		private int box_car_window;
+	public enum SmoothingType
+	{
+		Fft,
+		SavGolay,
+		BoxCar
+	}
 
+    public class Smoothing : PropertyChangedBase
+    {
+        private bool perform_smoothing;
+        public bool PerformSmoothing
+        {
+            get => perform_smoothing;
+            set => perform_smoothing = value;
+        }
+
+        private bool create_new_spectrum;
+        public bool CreateNewSpectrum
+        {
+            get => create_new_spectrum;
+            set => create_new_spectrum = value;
+        }
+
+        private int box_car_window;
 		public int BoxCarWindow
 		{
-			get { return box_car_window; }
+            get => box_car_window;
 			set { box_car_window = value; }
 		}
 
 		private int sav_golay_window;
-
 		public int SavGolayWindow
 		{
-			get { return sav_golay_window; }
+            get => sav_golay_window;
 			set { sav_golay_window = value; }
 		}
 
 		private int fft_smoothing_degree;
-
 		public int FftSmoothingDegree
 		{
-			get { return fft_smoothing_degree; }
+            get => fft_smoothing_degree;
 			set { fft_smoothing_degree = value; }
 		}
 
+        private SmoothingType smoothing_type;
+        public SmoothingType SmoothingType
+        {
+            get => smoothing_type;
+            set
+            {
+                smoothing_type = value;
+                NotifyOfPropertyChange(() => SmoothingType);
+                NotifyOfPropertyChange(() => IsBoxCarEnabled);
+                NotifyOfPropertyChange(() => IsFftEnabled);
+                NotifyOfPropertyChange(() => IsSavGolayEnabled);
+            }
+        }
 
-		private bool fft_smoothing;
+        public bool IsBoxCarEnabled
+        {
+            get => (SmoothingType == SmoothingType.BoxCar);
+        }
 
-		public bool FftSmoothing
+        public bool IsFftEnabled
+        {
+            get => (SmoothingType == SmoothingType.Fft);
+        }
+
+        public bool IsSavGolayEnabled
+        {
+            get => (SmoothingType == SmoothingType.SavGolay);
+        }
+
+
+        public int Parameter
 		{
-			get { return fft_smoothing; }
-			set { fft_smoothing = value; }
-		}
-
-		private bool sav_golay_smoothing;
-
-		public bool SavGolaySmoothing
-		{
-			get { return sav_golay_smoothing; }
-			set { sav_golay_smoothing = value; }
-		}
-
-		private bool boxcar_smoothing;
-
-		public bool BoxcarSmoothing
-		{
-			get { return boxcar_smoothing; }
-			set { boxcar_smoothing = value; }
-		}
-
-		public int Parameter
-		{
-			get { 
-				if (BoxcarSmoothing)
+			get 
+            { 
+				if (IsBoxCarEnabled)
 				{
 					return BoxCarWindow;
 				}
-				else if (SavGolaySmoothing) 
+				else if (IsSavGolayEnabled) 
 				{
 					return SavGolayWindow;
 				}
-				else if (FftSmoothing)
+				else if (IsFftEnabled)
 				{
 					return FftSmoothingDegree;
 				}
@@ -83,15 +109,15 @@ namespace DiplomaMB.Models
         {
             get
             {
-                if (BoxcarSmoothing)
+                if (IsBoxCarEnabled)
                 {
                     return 0;
                 }
-                else if (FftSmoothing)
+                else if (IsFftEnabled)
                 {
                     return 1;
                 }
-                else if (SavGolaySmoothing)
+                else if (IsSavGolayEnabled)
                 {
                     return 2;
                 } 

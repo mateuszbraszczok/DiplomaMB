@@ -11,7 +11,6 @@ namespace DiplomaMB.Utils
     [Serializable]
     internal class AvantesAPIWrapper
     {
-        
             public const int ERR_SUCCESS = 0;
             public const int ERR_INVALID_PARAMETER = -1;
             public const int ERR_OPERATION_NOT_SUPPORTED = -2;

@@ -8,26 +8,25 @@ namespace DiplomaMB.Models
 {
     public class SmartRead
     {
-		private int spectrums_to_avarage;
-        private bool smoothing;
-        private bool dark_compensation;
-
+        private int spectrums_to_avarage;
         public int SpectrumsToAverage
         {
-			get { return spectrums_to_avarage; }
-			set { spectrums_to_avarage = value; }
+			get => spectrums_to_avarage; 
+            set => spectrums_to_avarage = value;
 		}
 
-		public bool Smoothing
+        private bool smoothing;
+        public bool Smoothing
 		{
-			get { return smoothing; }
-			set { smoothing = value; }
+			get => smoothing;
+			set => smoothing = value;
 		}
 
-		public bool DarkCompensation
+        private bool dark_compensation;
+        public bool DarkCompensation
 		{
-			get { return dark_compensation; }
-			set { dark_compensation = value; }
+			get => dark_compensation;
+			set => dark_compensation = value;
 		}
 
         public SmartRead()
