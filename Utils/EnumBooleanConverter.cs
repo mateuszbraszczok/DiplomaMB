@@ -36,4 +36,27 @@ namespace DiplomaMB.Utils
         }
         #endregion
     }
+
+    public class BooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var boolValue = value as bool?;
+            var invert = (parameter as string)?.Equals("invert", StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (!boolValue.HasValue)
+                return Visibility.Collapsed;
+
+            if (invert)
+                return boolValue.Value ? Visibility.Collapsed : Visibility.Visible;
+
+            return boolValue.Value ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

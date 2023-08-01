@@ -11,7 +11,7 @@ namespace DiplomaMB.Utils
 
     public class SpectrumUtils
     {
-        public static double[] BaselineRemoveAirPLS(double[] data, double lambda, uint itermax)
+        public static double[] BaselineRemoveAirPLS(double[] data, double lambda, long itermax)
         {
             BaselineRemoval baseline = new();
             MWNumericArray dataArray = new(data);
@@ -40,14 +40,14 @@ namespace DiplomaMB.Utils
             return resultArray;
         }
 
-        public static List<Peak> DetectSpectrumPeaks(List<double> data, List<double> wavelengths)
+        public static List<Peak> DetectSpectrumPeaks(List<double> data, List<double> wavelengths, int min_peak_height)
         {
             PeakAnalyze peakAnalyze = new();
 
             MWNumericArray dataArray = new(data.ToArray());
             MWNumericArray wavelengthsArray = new(wavelengths.ToArray());
 
-            MWStructArray result = (MWStructArray)peakAnalyze.PeakDetector(dataArray, wavelengthsArray);
+            MWStructArray result = (MWStructArray)peakAnalyze.PeakDetector(dataArray, wavelengthsArray, min_peak_height);
 
             double[] peaks_index = (double[])((MWNumericArray)result.GetField("peaks_index")).ToVector(0);
             double[] peaks_begin_index = (double[])((MWNumericArray)result.GetField("peaks_begin_index")).ToVector(0);

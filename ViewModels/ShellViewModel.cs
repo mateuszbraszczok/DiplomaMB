@@ -407,12 +407,10 @@ namespace DiplomaMB.ViewModels
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
             {
-                SelectedSpectrum.DetectPeaks();
-                UpdatePlot();
-
                 var windowManager = new WindowManager();
                 var peaks_dialog = new PeaksViewModel(SelectedSpectrum);
                 windowManager.ShowDialogAsync(peaks_dialog);
+                UpdatePlot();
             }
             else
             {
@@ -439,15 +437,6 @@ namespace DiplomaMB.ViewModels
                 Spectrums.Add(result);
                 UpdatePlot();
             } 
-        }
-
-        public void GetDerivate()
-        {
-            Spectrum spectrum = Spectrometer.CalculateDerivative(2, HalfPoint, SelectedSpectrum);
-            spectrum.Id = last_id++;
-            spectrum.Name = "derived";
-            Spectrums.Add(spectrum);
-            UpdatePlot();
         }
 
 

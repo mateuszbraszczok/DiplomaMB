@@ -106,6 +106,13 @@ namespace DiplomaMB.ViewModels
             set { is_spectrums2_comboBox_enabled = value; NotifyOfPropertyChange(() => IsSpectrums2ComboBoxEnabled); }
         }
 
+        private long baseline_removal_lambda = 10000000L;
+        public long BaselineRemovalLambda
+        {
+            get => baseline_removal_lambda;
+            set { baseline_removal_lambda = value; NotifyOfPropertyChange(() => BaselineRemovalLambda); }
+        }
+
         private bool is_panel_1_enabled;
         public bool IsPanel1Enabled
         {
@@ -148,6 +155,8 @@ namespace DiplomaMB.ViewModels
             is_spectrums2_comboBox_enabled = true;
             is_panel_1_enabled = true;
             new_spectrum_name = "new_spectrum";
+
+            BaselineRemovalLambda = 10000000L;
 
             selected_spectrum1 = Spectrums1.FirstOrDefault();
             selected_spectrum2 = Spectrums2.FirstOrDefault();
@@ -274,7 +283,8 @@ namespace DiplomaMB.ViewModels
         {
             if (SelectedSpectrum1 != null)
             {
-                ResultSpectrum = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1, 10000000, 5);
+                MessageBox.Show($"baseline lambda: {BaselineRemovalLambda}");
+                ResultSpectrum = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1, BaselineRemovalLambda, 20);
                 MessageBox.Show("Removed baseline");
                 OperationDone = true;
             }

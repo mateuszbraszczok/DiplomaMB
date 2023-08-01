@@ -7,13 +7,16 @@
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:utils="clr-namespace:DiplomaMB.Utils"
         mc:Ignorable="d"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         Background="LightGray"
         Title="Spectrum math operations" Height="270" Width="550"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize">
     <Window.Resources>
         <utils:EnumBooleanConverter x:Key="enumBooleanConverter" />
+        <utils:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
@@ -58,28 +61,35 @@
         </Border>
 
         <Border BorderBrush="#050505" BorderThickness="1" Grid.Row="1" Grid.Column="3" Margin="5">
-            <StackPanel IsEnabled="{Binding IsSpectrums2ComboBoxEnabled}" Margin="10" >
-                <RadioButton Content="Spectrum B" IsChecked="{Binding IsPanel1Enabled}" GroupName="PanelSwitch"/>
+            <StackPanel>
+                <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="10" >
+                    <RadioButton Content="Spectrum B" IsChecked="{Binding IsPanel1Enabled}" GroupName="PanelSwitch"/>
 
-                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">   
-                    <ComboBox x:Name="Spectrums2"  SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">   
+                        <ComboBox x:Name="Spectrums2"  SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch"/>
+                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5">
+                        <Label Content="Enter a Double Value:"/>
+                        <TextBox x:Name="DoubleValue"  VerticalAlignment="Center"
+                            Text="{Binding DoubleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N3}"/>
+                    </StackPanel>
+
                 </StackPanel>
 
-
-                <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch"/>
-                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5">
-                    <Label Content="Enter a Double Value:"/>
-                    <TextBox x:Name="DoubleValue"  VerticalAlignment="Center"
-                        Text="{Binding DoubleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N3}"/>
+                <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='invert'}" Margin="5" >
+                    <Label Content="Baseline Removal Lambda:"/>
+                    <xctk:LongUpDown x:Name="BaselineRemovalLambda" Width="100" Minimum="1" Maximum="10000000000" Value="{Binding BaselineRemovalLambda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
-
             </StackPanel>
+
         </Border>
 
         <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">

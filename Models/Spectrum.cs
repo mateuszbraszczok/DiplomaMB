@@ -239,7 +239,7 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public Spectrum PerformBaselineCorrection(Spectrum spectrum, double lambda, uint itermax)
+        public Spectrum PerformBaselineCorrection(Spectrum spectrum, long lambda, uint itermax)
         {
             double[] inputArray = spectrum.DataValues.ToArray();
             double[] output = SpectrumUtils.BaselineRemoveAirPLS(inputArray, lambda, itermax);
@@ -259,9 +259,9 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public void DetectPeaks()
+        public void DetectPeaks(int min_peak_height)
         {
-            List<Peak> peaks = SpectrumUtils.DetectSpectrumPeaks(data_values, wavelengths);
+            List<Peak> peaks = SpectrumUtils.DetectSpectrumPeaks(data_values, wavelengths, min_peak_height);
 
             foreach( Peak peak in peaks )
             {

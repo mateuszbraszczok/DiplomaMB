@@ -5,10 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiplomaMB.Views"
         xmlns:cal="http://www.caliburnproject.org"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="EditingView" Height="450" Width="800">
+        Title="Peak detection" Height="450" Width="600">
     <Grid>
-        <DataGrid x:Name="Peaks" AutoGenerateColumns="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="20"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <Label Content="Minimum Absolute Peak Height" Grid.Row="1" Grid.Column="1"/>
+        <xctk:IntegerUpDown x:Name="MinPeakHeight" Grid.Row="1" Grid.Column="2" Width="100" Minimum="1" Maximum="1000000" Value="{Binding MinPeakHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Button x:Name="DetectPeaks" Content="Detect peaks" Grid.Row="2" Grid.Column="1" Cursor="Hand"  Margin="15"/>
+        <DataGrid x:Name="Peaks" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Peak Index" Binding="{Binding PeakIndex}" />
                 <DataGridTextColumn Header="Peak Value" Binding="{Binding PeakValue}" />
