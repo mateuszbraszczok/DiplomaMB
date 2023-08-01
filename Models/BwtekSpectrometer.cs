@@ -1,4 +1,6 @@
-﻿using DiplomaMB.Utils;
+﻿using Caliburn.Micro;
+using DiplomaMB.Utils;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -25,9 +27,8 @@ namespace DiplomaMB.Models
                 Value = value;
             }
         }
-        private List<ConfigProperty> config_properties;
-
-        public List<ConfigProperty> ConfigProperties
+        private BindableCollection<ConfigProperty> config_properties;
+        public BindableCollection<ConfigProperty> ConfigProperties
         {
             get => config_properties;
             set => config_properties = value;
@@ -121,7 +122,7 @@ namespace DiplomaMB.Models
             status = "Disconnected";
 
             IntegrationTimeUnit = string.Empty;
-            config_properties = new List<ConfigProperty>();
+            config_properties = new BindableCollection<ConfigProperty>();
         }
 
         public void Connect()
@@ -239,7 +240,7 @@ namespace DiplomaMB.Models
 
             if (ret != pixel_number)
             {
-                Debug.WriteLine("ReadDataSmart: Received: " + ret + " pixels");
+                Debug.WriteLine($"ReadDataSmart: Received: { ret} pixels");
                 throw new Exception("Not received data");
             }
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
@@ -258,15 +259,43 @@ namespace DiplomaMB.Models
         {
             if (dark_scan_taken)
             {
-                Debug.WriteLine(string.Format("SubtractDarkScan: Data array count: {0} Dark count: {1}", DataArray.Count, DarkScan.Count));
+                Debug.WriteLine($"SubtractDarkScan: Data array count: {DataArray.Count} Dark count: {DarkScan.Count}");
+
+                bool[] bad_pixels = new bool[DataArray.Count];
                 for (int i = 0; i < DataArray.Count; i++)
                 {
-                    DataArray[i] -= DarkScan[i];
-                    if (DataArray[i] < 0)
+                    double mean = (DarkScan[i - 2] + DarkScan[i - 1] + DarkScan[i + 1] + DarkScan[i + 2]) / 4;
+                    if (DarkScan[i] >= DataArray[i])
                     {
-                        DataArray[i] = 0;
+                        bad_pixels[i] = true;
+                    }
+                    else if ((DataArray[i] == 65535) && DarkScan[i] > 1.4 * mean)
+                    {
+                        bad_pixels[i] = true;
+                    }
+                    else
+                    {
+                        DataArray[i] -= DarkScan[i];
                     }
                 }
+
+                for (int i = 0; i < bad_pixels.Length; i++)
+                {
+                    if (bad_pixels[i])
+                    {
+                        int start_i = i;
+                        while (bad_pixels[i+1])
+                        {
+                            i++;
+                        }
+                        double factor = (DataArray[i+1] - DataArray[start_i - 1]) / (i - start_i + 1);
+                        for (int j = start_i; j <= i ; j++)
+                        {
+                            DataArray[j] = DataArray[j - 1] + factor;   
+                        }
+                    }
+                }
+
             }
         }
 

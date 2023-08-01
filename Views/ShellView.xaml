@@ -9,6 +9,7 @@
         xmlns:cal="http://www.caliburnproject.org"
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         Title="MB Master Project" Height="875" Width="1220"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
         Background="LightGray"
@@ -71,7 +72,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox x:Name="FramesToAcquire" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <xctk:IntegerUpDown x:Name="FramesToAcquire" Width="50" Minimum="0" Maximum="255" Value="{Binding FramesToAcquire, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
                 <Button x:Name="GetSpectrum" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
@@ -94,7 +95,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox x:Name="SmartRead_SpectrumsToAverage" MinWidth="30" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <xctk:IntegerUpDown x:Name="SmartRead_SpectrumsToAverage" Width="50" Minimum="0" Maximum="255" Value="{Binding SmartRead.SpectrumsToAverage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of scans to be averaged"/>
                 </StackPanel>
 
@@ -126,30 +127,39 @@
                     <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
                     <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
                     <Button x:Name="SpectrumPeaks">Detect peaks</Button>
-
                 </StackPanel>
-
-
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Width="950" Height="580" />
 
-        <DataGrid x:Name="Spectrums" Grid.Column="5" Grid.Row="3" Background="LightGray" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False" 
-                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False" MaxHeight="500" Width="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                <DataGridTemplateColumn Header="Visible">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             cal:Message.Attach="[Event Click] = [UpdatePlot]"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-
+        <TabControl Grid.Column="5" Grid.Row="3" MaxHeight="550" Width="200">
+            <TabItem Header="Spectrum List" >
+                <DataGrid x:Name="Spectrums" Background="LightGray" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False"
+                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="*"/>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTemplateColumn Header="Visible" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        cal:Message.Attach="[Event Click] = [UpdatePlot]"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Spectrometer Info" >
+                <DataGrid x:Name="Spectrometr_ConfigProperties" Background="LightGray" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                    AutoGenerateColumns="False" CanUserResizeColumns="False"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
 
         <StackPanel Grid.Row="6" Grid.ColumnSpan="20" >
             <StatusBar DockPanel.Dock="Bottom" >
