@@ -70,6 +70,12 @@ namespace DiplomaMB.ViewModels
             get => integration_time;
             set { integration_time = value; NotifyOfPropertyChange(() => IntegrationTime); }
         }
+        private int half_point;
+        public int HalfPoint
+        {
+            get => half_point;
+            set { half_point = value; NotifyOfPropertyChange(() => HalfPoint); }
+        }
 
         private SmartRead smart_read;
         public SmartRead SmartRead
@@ -81,12 +87,12 @@ namespace DiplomaMB.ViewModels
         private bool acquire_continuously;
         public bool AcquireContinuously
         {
-            get => acquire_continuously;
-            set { acquire_continuously = value; NotifyOfPropertyChange(() => AcquireContinuously); }
+            get => (acquire_continuously && Spectrometer.Connected);
+            set { acquire_continuously = value; NotifyOfPropertyChange(() => AcquireContinuously); NotifyOfPropertyChange(() => NotAcquireContinuously); }
         }
         public bool NotAcquireContinuously
         {
-            get => acquire_continuously;
+            get => (!acquire_continuously && Spectrometer.Connected);
         }
 
         private int last_id = 1;
@@ -239,7 +245,7 @@ namespace DiplomaMB.ViewModels
             }
             if (IntegrationTime == spectrometer.IntegrationTime)
             {
-                MessageBox.Show("Succesfully set integration time");
+                MessageBox.Show($"Succesfully set integration time to {IntegrationTime} ms");
             }
             else
             {
@@ -434,6 +440,16 @@ namespace DiplomaMB.ViewModels
                 UpdatePlot();
             } 
         }
+
+        public void GetDerivate()
+        {
+            Spectrum spectrum = Spectrometer.CalculateDerivative(2, HalfPoint, SelectedSpectrum);
+            spectrum.Id = last_id++;
+            spectrum.Name = "derived";
+            Spectrums.Add(spectrum);
+            UpdatePlot();
+        }
+
 
         public void EditSmoothing()
         {

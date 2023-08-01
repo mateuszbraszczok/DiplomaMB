@@ -78,8 +78,8 @@
                 </StackPanel>
                 <Button x:Name="GetSpectrum" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
                 <Button x:Name="GetDarkScan" IsEnabled="{Binding Spectrometer.Connected}">Get Dark Scan</Button>
-                <Button x:Name="StartAcquire" IsEnabled="{Binding NotAcquireContinuously}">Get Spectrums Continuously</Button>
-                <Button x:Name="StopAcquire" IsEnabled="{Binding AcquireContinuously}">Stop acquaring</Button>
+                <Button x:Name="StartAcquire" IsEnabled="{Binding NotAcquireContinuously}">Start Acquire Continuously</Button>
+                <Button x:Name="StopAcquire" IsEnabled="{Binding AcquireContinuously}">Stop Acquire</Button>
             </StackPanel>
         </Border>
 
@@ -124,6 +124,11 @@
                 <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
                 <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
                 <Button x:Name="SpectrumPeaks">Detect peaks</Button>
+                <TextBox x:Name="HalfPoint" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1"  MinWidth="50"/>
+                <Button x:Name="GetDerivate">Derivate</Button>
+
+
+                
             </StackPanel>
         </Border>
         <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Width="950" Height="500" />

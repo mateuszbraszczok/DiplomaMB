@@ -341,6 +341,8 @@ namespace DiplomaMB.Models
         {
             double[] pArray = spectrum.DataValues.ToArray();
 
+            Debug.WriteLine("Before Smoothing");
+
             int ret = BwtekAPIWrapper.bwtekSmoothingUSB(smoothing.Type, smoothing.Parameter, pArray, spectrum.DataValues.Count);
             if (ret < 0)
             {
@@ -370,12 +372,18 @@ namespace DiplomaMB.Models
             IntegrationTime = integration_time;
         }
 
-        public void CalculateDerivative(int order, Spectrum spectrum)
+        public Spectrum CalculateDerivative(int order, int half_point, Spectrum spectrum)
         {
             double[] pArray = spectrum.DataValues.ToArray();
             double[] result_array = new double[pArray.Length];
-            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(0, 0, 5, order, pArray, result_array, spectrum.DataValues.Count);
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(1, half_point, 5, order, pArray, result_array, spectrum.DataValues.Count);
+
+            Spectrum retVal = new Spectrum(spectrum.Wavelengths, result_array.ToList());
+
+            return retVal;
+
         }
+
 
         private void ReadEeprom()
         {
