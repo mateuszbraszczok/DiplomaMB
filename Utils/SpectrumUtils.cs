@@ -1,10 +1,8 @@
-﻿using Caliburn.Micro;
+﻿using DiplomaMB.Models;
 using MathWorks.Baseline;
-using MathWorks.Peaks;
 using MathWorks.MATLAB.NET.Arrays;
+using MathWorks.Peaks;
 using System.Collections.Generic;
-using DiplomaMB.Models;
-using System.Security.Cryptography;
 
 namespace DiplomaMB.Utils
 {

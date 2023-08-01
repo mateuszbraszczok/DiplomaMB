@@ -1,22 +1,15 @@
 ﻿using Caliburn.Micro;
 using DiplomaMB.Models;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiplomaMB.ViewModels
 {
     public class PeaksViewModel : Screen
     {
         private Spectrum spectrum;
-        public Spectrum Spectrum 
-        { 
+        public Spectrum Spectrum
+        {
             get => spectrum;
             set => spectrum = value;
         }
@@ -35,14 +28,14 @@ namespace DiplomaMB.ViewModels
             set { min_peak_height = value; NotifyOfPropertyChange(() => MinPeakHeight); }
         }
 
-        public PeaksViewModel(Spectrum _spectrum) 
+        public PeaksViewModel(Spectrum _spectrum)
         {
             spectrum = _spectrum;
             min_peak_height = 2000;
 
             peaks = new BindableCollection<PeakInfo> { };
             int index = 1;
-            
+
             foreach (var peak in spectrum.Peaks)
             {
                 double peakValue = spectrum.DataValues[(int)peak.PeakIndex];

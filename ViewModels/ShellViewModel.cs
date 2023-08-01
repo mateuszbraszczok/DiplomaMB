@@ -17,25 +17,25 @@ namespace DiplomaMB.ViewModels
 {
     public class ShellViewModel : Screen
     {
-		private PlotModel plot_model;
-		public PlotModel PlotModel
+        private PlotModel plot_model;
+        public PlotModel PlotModel
         {
-			get => plot_model;
-			set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
-		}
+            get => plot_model;
+            set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
+        }
 
-		private BwtekSpectrometer spectrometer;
-		public BwtekSpectrometer Spectrometer
+        private BwtekSpectrometer spectrometer;
+        public BwtekSpectrometer Spectrometer
         {
             get => spectrometer;
-			set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
-		}
+            set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
+        }
 
-		private Spectrum? selected_spectrum;
-		public Spectrum? SelectedSpectrum
-		{
+        private Spectrum? selected_spectrum;
+        public Spectrum? SelectedSpectrum
+        {
             get => selected_spectrum;
-			set { selected_spectrum = value; NotifyOfPropertyChange(() => SelectedSpectrum); }
+            set { selected_spectrum = value; NotifyOfPropertyChange(() => SelectedSpectrum); }
         }
 
         private BindableCollection<Spectrum> spectrums;
@@ -55,6 +55,7 @@ namespace DiplomaMB.ViewModels
         private void Spectrums_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             NotifyOfPropertyChange(() => CanSpectrumOperations);
+            NotifyOfPropertyChange(() => CanSpectrumPeaks);
         }
 
         private int frames_to_acquire;
@@ -249,7 +250,7 @@ namespace DiplomaMB.ViewModels
             }
             else
             {
-                MessageBox.Show("Failed to set integration time","Integration time set failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Failed to set integration time", "Integration time set failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             IntegrationTime = spectrometer.IntegrationTime;
         }
@@ -403,6 +404,10 @@ namespace DiplomaMB.ViewModels
             }
         }
 
+        public bool CanSpectrumPeaks
+        {
+            get { return Spectrums?.Count > 0; }
+        }
         public void SpectrumPeaks()
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
@@ -436,7 +441,7 @@ namespace DiplomaMB.ViewModels
 
                 Spectrums.Add(result);
                 UpdatePlot();
-            } 
+            }
         }
 
 

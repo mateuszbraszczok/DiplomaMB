@@ -1,15 +1,7 @@
 ﻿using Caliburn.Micro;
 using DiplomaMB.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace DiplomaMB.ViewModels
 {
@@ -124,7 +116,7 @@ namespace DiplomaMB.ViewModels
                 if (value)
                 {
                     IsPanel2Enabled = !value;
-                }  
+                }
             }
         }
 
@@ -139,7 +131,7 @@ namespace DiplomaMB.ViewModels
                 if (value)
                 {
                     IsPanel1Enabled = !value;
-                }  
+                }
             }
         }
 
@@ -167,7 +159,7 @@ namespace DiplomaMB.ViewModels
         public void CloseWindow()
         {
             switch (SelectedOperation)
-            {      
+            {
                 case Operations.Add:
                     AddSelectedSpectrums();
                     break;

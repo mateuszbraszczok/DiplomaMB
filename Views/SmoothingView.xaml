@@ -38,7 +38,7 @@
                 <Button x:Name="CloseWindow" Content="Accept Smoothing" Cursor="Hand" Margin="15"/>
                 <Button x:Name="CancelWindow" Content="Cancel Smoothing" Cursor="Hand"  Margin="15"/>
             </StackPanel>
-            
+
         </StackPanel>
 
     </Grid>

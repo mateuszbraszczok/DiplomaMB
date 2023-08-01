@@ -65,7 +65,7 @@
                 <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="10" >
                     <RadioButton Content="Spectrum B" IsChecked="{Binding IsPanel1Enabled}" GroupName="PanelSwitch"/>
 
-                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">   
+                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">
                         <ComboBox x:Name="Spectrums2"  SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>

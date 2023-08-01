@@ -49,7 +49,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
-                <Button x:Name="ResetSpectrometer" IsEnabled="{Binding Spectrometer.Connected}">Reset Device </Button>
+                <Button x:Name="ResetSpectrometer" IsEnabled="{Binding Spectrometer.Connected}">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="IntegrationTime" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
                     <Label x:Name="Spectrometer_IntegrationTimeUnit"/>

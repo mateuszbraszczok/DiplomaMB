@@ -1,7 +1,5 @@
 ﻿using Caliburn.Micro;
 using DiplomaMB.Models;
-using System.Diagnostics;
-using System.Windows;
 
 namespace DiplomaMB.ViewModels
 {
@@ -11,11 +9,11 @@ namespace DiplomaMB.ViewModels
         public Smoothing Smoothing
         {
             get => smoothing;
-            set 
+            set
             {
                 smoothing = value;
                 NotifyOfPropertyChange(() => Smoothing);
-            }      
+            }
         }
 
         public SmoothingViewModel()

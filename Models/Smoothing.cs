@@ -1,19 +1,13 @@
 ﻿using Caliburn.Micro;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiplomaMB.Models
 {
-	public enum SmoothingType
-	{
-		Fft,
-		SavGolay,
-		BoxCar
-	}
+    public enum SmoothingType
+    {
+        Fft,
+        SavGolay,
+        BoxCar
+    }
 
     public class Smoothing : PropertyChangedBase
     {
@@ -32,25 +26,25 @@ namespace DiplomaMB.Models
         }
 
         private int box_car_window;
-		public int BoxCarWindow
-		{
+        public int BoxCarWindow
+        {
             get => box_car_window;
-			set { box_car_window = value; }
-		}
+            set { box_car_window = value; }
+        }
 
-		private int sav_golay_window;
-		public int SavGolayWindow
-		{
+        private int sav_golay_window;
+        public int SavGolayWindow
+        {
             get => sav_golay_window;
-			set { sav_golay_window = value; }
-		}
+            set { sav_golay_window = value; }
+        }
 
-		private int fft_smoothing_degree;
-		public int FftSmoothingDegree
-		{
+        private int fft_smoothing_degree;
+        public int FftSmoothingDegree
+        {
             get => fft_smoothing_degree;
-			set { fft_smoothing_degree = value; }
-		}
+            set { fft_smoothing_degree = value; }
+        }
 
         private SmoothingType smoothing_type;
         public SmoothingType SmoothingType
@@ -83,27 +77,27 @@ namespace DiplomaMB.Models
 
 
         public int Parameter
-		{
-			get 
-            { 
-				if (IsBoxCarEnabled)
-				{
-					return BoxCarWindow;
-				}
-				else if (IsSavGolayEnabled) 
-				{
-					return SavGolayWindow;
-				}
-				else if (IsFftEnabled)
-				{
-					return FftSmoothingDegree;
-				}
-				else
-				{
-					return 0;
-				}
-			}
-		}
+        {
+            get
+            {
+                if (IsBoxCarEnabled)
+                {
+                    return BoxCarWindow;
+                }
+                else if (IsSavGolayEnabled)
+                {
+                    return SavGolayWindow;
+                }
+                else if (IsFftEnabled)
+                {
+                    return FftSmoothingDegree;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
 
         public int Type
         {
@@ -120,7 +114,7 @@ namespace DiplomaMB.Models
                 else if (IsSavGolayEnabled)
                 {
                     return 2;
-                } 
+                }
                 else
                 {
                     return 0;

@@ -59,7 +59,7 @@ namespace DiplomaMB.Models
 
         public Spectrum()
         {
-            
+
         }
 
         public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "", int _id = 0)
@@ -131,7 +131,7 @@ namespace DiplomaMB.Models
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
-                for(int i = 0; i < spectrum1.DataValues.Count; i++)
+                for (int i = 0; i < spectrum1.DataValues.Count; i++)
                 {
                     dataValues.Add(spectrum1.DataValues[i] + spectrum2.DataValues[i]);
                 }
@@ -263,7 +263,7 @@ namespace DiplomaMB.Models
         {
             List<Peak> peaks = SpectrumUtils.DetectSpectrumPeaks(data_values, wavelengths, min_peak_height);
 
-            foreach( Peak peak in peaks )
+            foreach (Peak peak in peaks)
             {
                 double peakWavelength = wavelengths[(int)peak.PeakIndex];
                 double peakValue = data_values[(int)peak.PeakIndex];
@@ -273,9 +273,9 @@ namespace DiplomaMB.Models
             Peaks = peaks;
         }
 
-       
+
         public void SaveToFile()
-        {   
+        {
             SaveFileDialog saveFileDialog = new()
             {
                 Filter = "CSV file (*.csv)|*.csv| Json files (*.json)|*.json| All Files (*.*)|*.*",
@@ -302,7 +302,7 @@ namespace DiplomaMB.Models
         private void SaveAsCsvFile(string filename)
         {
             var csv = new StringBuilder();
-            Debug.WriteLine("wavelengths: "+Wavelengths.Count + " dataArray: " + DataValues.Count);
+            Debug.WriteLine("wavelengths: " + Wavelengths.Count + " dataArray: " + DataValues.Count);
             for (int i = 0; i < Wavelengths.Count; i++)
             {
                 var first = Wavelengths[i].ToString(CultureInfo.InvariantCulture);

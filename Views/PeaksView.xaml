@@ -24,7 +24,7 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        
+
         <Label Content="Minimum Absolute Peak Height" Grid.Row="1" Grid.Column="1"/>
         <xctk:IntegerUpDown x:Name="MinPeakHeight" Grid.Row="1" Grid.Column="2" Width="100" Minimum="1" Maximum="1000000" Value="{Binding MinPeakHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <Button x:Name="DetectPeaks" Content="Detect peaks" Grid.Row="2" Grid.Column="1" Cursor="Hand"  Margin="15"/>
