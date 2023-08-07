@@ -1,9 +1,6 @@
 ﻿using DiplomaMB.Models;
-using MathWorks.Baseline;
 using MathWorks.MATLAB.NET.Arrays;
 using MathWorks.Peaks;
-using OxyPlot;
-using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -12,8 +9,11 @@ namespace DiplomaMB.Utils
 
     public class SpectrumUtils
     {
-        [DllImport("Utils\\libraries\\airPLS.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Utils\\libraries\\baselineRemove.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void airPLS(int itermax, double[] y, int size, double lambda, double[] outResult, ref int outSize);
+
+        [DllImport("Utils\\libraries\\baselineRemove.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void ALS(int itermax, double p, double[] y, int size, double lambda, double[] outResult, ref int outSize);
 
         public static double[] BaselineRemoveAirPLS(double[] y, double lambda, uint itermax)
         {
@@ -26,18 +26,13 @@ namespace DiplomaMB.Utils
         }
 
 
-        public static double[] BaselineRemoveALS(double[] data, double lambda, double p, uint itermax)
+        public static double[] BaselineRemoveALS(double[] y, double lambda, double p, uint itermax)
         {
-            BaselineRemoval baseline = new();
-            MWNumericArray dataArray = new(data);
+            int outSize = y.Length;
+            double[] outResult = new double[outSize];
 
-            MWArray baselineAray = baseline.ALS(dataArray, lambda, p, itermax);
-
-            double[] resultArray = (double[])((MWNumericArray)baselineAray).ToVector(0);
-
-            baseline.Dispose();
-
-            return resultArray;
+            ALS((int)itermax, p, y, y.Length, lambda, outResult, ref outSize);
+            return outResult;
         }
 
         public static List<Peak> DetectSpectrumPeaks(List<double> data, List<double> wavelengths, int min_peak_height)

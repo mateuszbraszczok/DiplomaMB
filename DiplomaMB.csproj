@@ -34,6 +34,9 @@
     <None Update="Utils\Libraries\avaspecx64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Utils\Libraries\baselineRemove.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Utils\Libraries\BWTEKUSB.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
