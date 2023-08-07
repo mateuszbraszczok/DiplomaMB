@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Utils\Libraries\airPLS.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Utils\Libraries\avaspecx64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

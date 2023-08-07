@@ -2,25 +2,27 @@
 using MathWorks.Baseline;
 using MathWorks.MATLAB.NET.Arrays;
 using MathWorks.Peaks;
+using OxyPlot;
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace DiplomaMB.Utils
 {
 
     public class SpectrumUtils
     {
-        public static double[] BaselineRemoveAirPLS(double[] data, double lambda, long itermax)
+        [DllImport("Utils\\libraries\\airPLS.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void airPLS(int itermax, double[] y, int size, double lambda, double[] outResult, ref int outSize);
+
+        public static double[] BaselineRemoveAirPLS(double[] y, double lambda, uint itermax)
         {
-            BaselineRemoval baseline = new();
-            MWNumericArray dataArray = new(data);
+            int outSize = y.Length;
+            double[] outResult = new double[outSize];
 
-            MWArray baselineAray = baseline.airPLS(dataArray, lambda, itermax);
+            airPLS((int)itermax, y, y.Length, lambda, outResult, ref outSize);
 
-            double[] resultArray = (double[])((MWNumericArray)baselineAray).ToVector(0);
-
-            baseline.Dispose();
-
-            return resultArray;
+            return outResult;
         }
 
 

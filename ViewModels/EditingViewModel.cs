@@ -275,7 +275,6 @@ namespace DiplomaMB.ViewModels
         {
             if (SelectedSpectrum1 != null)
             {
-                MessageBox.Show($"baseline lambda: {BaselineRemovalLambda}");
                 ResultSpectrum = SelectedSpectrum1.PerformBaselineCorrection(SelectedSpectrum1, BaselineRemovalLambda, 20);
                 MessageBox.Show("Removed baseline");
                 OperationDone = true;
