@@ -48,6 +48,9 @@
     <None Update="Utils\Libraries\libgomp-1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Utils\Libraries\libopenblas.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Utils\Libraries\libquadmath-0.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
