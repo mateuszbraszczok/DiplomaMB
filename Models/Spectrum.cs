@@ -259,20 +259,6 @@ namespace DiplomaMB.Models
             return result;
         }
 
-        public void DetectPeaks(int min_peak_height)
-        {
-            List<Peak> peaks = SpectrumUtils.DetectSpectrumPeaks(data_values, wavelengths, min_peak_height);
-
-            foreach (Peak peak in peaks)
-            {
-                double peakWavelength = wavelengths[(int)peak.PeakIndex];
-                double peakValue = data_values[(int)peak.PeakIndex];
-                Debug.WriteLine($"Peak wavelength: {peakWavelength}, value: {peakValue}");
-            }
-
-            Peaks = peaks;
-        }
-
 
         public void SaveToFile()
         {
