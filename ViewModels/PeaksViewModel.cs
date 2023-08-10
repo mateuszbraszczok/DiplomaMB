@@ -43,7 +43,7 @@ namespace DiplomaMB.ViewModels
                 double endWavelength = spectrum.Wavelengths[(int)peak.PeakEndIndex];
                 double peakWavelength = spectrum.Wavelengths[(int)peak.PeakIndex];
 
-                PeakInfo peak_info = new(index++, peakValue, startWavelength, endWavelength, peakWavelength);
+                PeakInfo peak_info = new PeakInfo(index++, peakValue, startWavelength, endWavelength, peakWavelength);
                 peaks.Add(peak_info);
             }
             NotifyOfPropertyChange(() => Peaks);
@@ -62,7 +62,7 @@ namespace DiplomaMB.ViewModels
                 double endWavelength = spectrum.Wavelengths[(int)peak.PeakEndIndex];
                 double peakWavelength = spectrum.Wavelengths[(int)peak.PeakIndex];
 
-                PeakInfo peak_info = new(index++, peakValue, startWavelength, endWavelength, peakWavelength);
+                PeakInfo peak_info = new PeakInfo(index++, peakValue, startWavelength, endWavelength, peakWavelength);
                 Peaks.Add(peak_info);
             }
         }

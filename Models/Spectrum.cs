@@ -127,7 +127,7 @@ namespace DiplomaMB.Models
 
         public static Spectrum operator +(Spectrum spectrum1, Spectrum spectrum2)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
@@ -136,25 +136,25 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] + spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator +(Spectrum spectrum1, double doubleValue)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             for (int i = 0; i < spectrum1.DataValues.Count; i++)
             {
                 dataValues.Add(spectrum1.DataValues[i] + doubleValue);
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator -(Spectrum spectrum1, Spectrum spectrum2)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
@@ -163,24 +163,24 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] - spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
         public static Spectrum operator -(Spectrum spectrum1, double doubleValue)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             for (int i = 0; i < spectrum1.DataValues.Count; i++)
             {
                 dataValues.Add(spectrum1.DataValues[i] - doubleValue);
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator *(Spectrum spectrum1, Spectrum spectrum2)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
@@ -189,25 +189,25 @@ namespace DiplomaMB.Models
                     dataValues.Add(spectrum1.DataValues[i] * spectrum2.DataValues[i]);
                 }
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator *(Spectrum spectrum1, double doubleValue)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             for (int i = 0; i < spectrum1.DataValues.Count; i++)
             {
                 dataValues.Add(spectrum1.DataValues[i] * doubleValue);
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator /(Spectrum spectrum1, Spectrum spectrum2)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             if (spectrum1.DataValues.Count == spectrum2.DataValues.Count)
             {
@@ -223,19 +223,19 @@ namespace DiplomaMB.Models
                     }
                 }
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
         public static Spectrum operator /(Spectrum spectrum1, double doubleValue)
         {
-            List<double> dataValues = new();
+            List<double> dataValues = new List<double>();
 
             for (int i = 0; i < spectrum1.DataValues.Count; i++)
             {
                 dataValues.Add(spectrum1.DataValues[i] / doubleValue);
             }
-            Spectrum result = new(spectrum1.wavelengths, dataValues);
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;
         }
 
@@ -255,7 +255,7 @@ namespace DiplomaMB.Models
             List<double> wavelengths = spectrum.wavelengths;
             List<double> dataValues = output.ToList();
 
-            Spectrum result = new(wavelengths, dataValues, name);
+            Spectrum result = new Spectrum(wavelengths, dataValues, name);
             return result;
         }
 
@@ -276,7 +276,7 @@ namespace DiplomaMB.Models
 
         public void SaveToFile()
         {
-            SaveFileDialog saveFileDialog = new()
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
                 Filter = "CSV file (*.csv)|*.csv| Json files (*.json)|*.json| All Files (*.*)|*.*",
                 FilterIndex = 1,

@@ -195,8 +195,8 @@ namespace DiplomaMB.Models
 
             Debug.WriteLine("ReadData: received data");
 
-            List<Spectrum> spectrum_list = new();
-            List<double> data_list = new();
+            List<Spectrum> spectrum_list = new List<Spectrum>();
+            List<double> data_list = new List<double>();
             int i = 1;
             foreach (ushort value in pArray)
             {
@@ -320,7 +320,7 @@ namespace DiplomaMB.Models
 
         public void LoadDarkScan()
         {
-            OpenFileDialog dialog = new()
+            OpenFileDialog dialog = new OpenFileDialog()
             {
                 Title = "Open CSV File",
                 Filter = "CSV file (*.csv)|*.csv| All Files (*.*)|*.*"
@@ -342,7 +342,7 @@ namespace DiplomaMB.Models
 
         public void SaveDarkScan()
         {
-            SaveFileDialog saveFileDialog = new()
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
                 Filter = "CSV file (*.csv)|*.csv",
                 FilterIndex = 1,

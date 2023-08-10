@@ -136,7 +136,8 @@ namespace DiplomaMB.Models
         }
         public List<Spectrum> ReadData(int frames_to_acquire)
         {
-            List<Spectrum> spectrum_list = new();
+            List<Spectrum> spectrums = new List<Spectrum>();
+            List<Spectrum> spectrum_list = spectrums;
             return spectrum_list;
         }
 

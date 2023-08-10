@@ -37,10 +37,10 @@ namespace DiplomaMB.Utils
 
         public static List<Peak> DetectSpectrumPeaks(List<double> data, List<double> wavelengths, int min_peak_height)
         {
-            PeakAnalyze peakAnalyze = new();
+            PeakAnalyze peakAnalyze = new PeakAnalyze();
 
-            MWNumericArray dataArray = new(data.ToArray());
-            MWNumericArray wavelengthsArray = new(wavelengths.ToArray());
+            MWNumericArray dataArray = new MWNumericArray(data.ToArray());
+            MWNumericArray wavelengthsArray = new MWNumericArray(wavelengths.ToArray());
 
             MWStructArray result = (MWStructArray)peakAnalyze.PeakDetector(dataArray, wavelengthsArray, min_peak_height);
 
@@ -48,11 +48,11 @@ namespace DiplomaMB.Utils
             double[] peaks_begin_index = (double[])((MWNumericArray)result.GetField("peaks_begin_index")).ToVector(0);
             double[] peaks_end_index = (double[])((MWNumericArray)result.GetField("peaks_end_index")).ToVector(0);
 
-            List<Peak> peaks = new();
+            List<Peak> peaks = new List<Peak>();
 
             for (int i = 0; i < peaks_index.Length; i++)
             {
-                Peak peak = new((int)peaks_index[i] - 1, (int)peaks_begin_index[i] - 1, (int)peaks_end_index[i] - 1);
+                Peak peak = new Peak((int)peaks_index[i] - 1, (int)peaks_begin_index[i] - 1, (int)peaks_end_index[i] - 1);
                 peaks.Add(peak);
             }
 

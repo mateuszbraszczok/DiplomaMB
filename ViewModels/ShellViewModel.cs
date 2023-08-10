@@ -348,7 +348,7 @@ namespace DiplomaMB.ViewModels
 
         public void LoadSpectrum()
         {
-            OpenFileDialog dialog = new()
+            OpenFileDialog dialog = new OpenFileDialog()
             {
                 Title = "Open Spectrum File",
                 Filter = "CSV file (*.csv)|*.csv| Json files (*.json)|*.json| All Files (*.*)|*.*"
@@ -356,7 +356,7 @@ namespace DiplomaMB.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 string file_path = dialog.FileName;
-                Spectrum spectrum = new(file_path, last_id);
+                Spectrum spectrum = new Spectrum(file_path, last_id);
                 last_id++;
                 Spectrums.Add(spectrum);
                 UpdatePlot();
