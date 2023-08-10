@@ -65,9 +65,8 @@ namespace DiplomaMB.ViewModels
             Spectrum secondDerivative = Spectrometer.CalculateDerivative(2, 3, Spectrum);
             bool inMinimum = false;
             int x1 = 0;
-            int x2 = 0;
+            int x2;
             int peakCount = 0;
-            double minPeakHeight = 200; // Define this value as appropriate for your context
 
             List<double> fwhmList = new List<double>();
             List<int> peaksIndex = new List<int>();
@@ -102,9 +101,9 @@ namespace DiplomaMB.ViewModels
                             }
                         }
 
-                        if (spectrum.DataValues[indexx] > minPeakHeight)
+                        if (spectrum.DataValues[indexx] > min_peak_height)
                         {
-                            if (indexx - 5 > 0 && indexx + 5 < spectrum.DataValues.Count && spectrum.DataValues[indexx] >= spectrum.DataValues.GetRange(indexx - 5, 11).Max())
+                            if (indexx - 4 > 0 && indexx + 4 < spectrum.DataValues.Count && spectrum.DataValues[indexx] >= spectrum.DataValues.GetRange(indexx - 4, 9).Max())
                             {
                                 peakCount++;
                                 double fwhm = Math.Sqrt(2 * Math.Log(2)) * distance;

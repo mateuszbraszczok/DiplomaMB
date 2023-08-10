@@ -403,7 +403,7 @@ namespace DiplomaMB.Models
         {
             double[] pArray = spectrum.DataValues.ToArray();
             double[] result_array = new double[pArray.Length];
-            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(1, half_point, 5, order, pArray, result_array, spectrum.DataValues.Count);
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(1, half_point, 3, order, pArray, result_array, spectrum.DataValues.Count);
 
             Spectrum retVal = new Spectrum(spectrum.Wavelengths, result_array.ToList());
 
