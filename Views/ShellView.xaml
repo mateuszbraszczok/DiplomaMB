@@ -125,8 +125,9 @@
                     <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                     <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
                     <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
-                    <Button x:Name="EditSmoothing" IsEnabled="{Binding Spectrometer.Connected}">Perform Smoothing</Button>
+                    <Button x:Name="EditSmoothing">Perform Smoothing</Button>
                     <Button x:Name="SpectrumPeaks">Detect peaks</Button>
+                    <Button x:Name="Derivative">Derivative</Button>
                 </StackPanel>
             </StackPanel>
         </Border>
