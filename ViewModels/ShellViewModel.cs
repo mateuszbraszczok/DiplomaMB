@@ -56,6 +56,7 @@ namespace DiplomaMB.ViewModels
         {
             NotifyOfPropertyChange(() => CanSpectrumOperations);
             NotifyOfPropertyChange(() => CanSpectrumPeaks);
+            NotifyOfPropertyChange(() => CanEditSmoothing);
         }
 
         private int frames_to_acquire;
@@ -507,6 +508,10 @@ namespace DiplomaMB.ViewModels
         }
 
 
+        public bool CanEditSmoothing
+        {
+            get { return Spectrums?.Count > 0; }
+        }
         public void EditSmoothing()
         {
             if (selected_spectrum == null)
@@ -544,6 +549,17 @@ namespace DiplomaMB.ViewModels
                     UpdatePlot();
                 }
             }
+        }
+
+        public void Derivative()
+        {
+
+            Spectrum result = Spectrometer.CalculateDerivative(1, 3, SelectedSpectrum);
+
+            result.Id = last_id++;
+
+            Spectrums.Add(result);
+            UpdatePlot();
         }
 
         private bool IsSpectrometerConnected()
