@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using DiplomaMB.Models;
+using MathWorks.MATLAB.NET.Arrays;
 using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Markup;
 
 namespace DiplomaMB.ViewModels
 {
@@ -413,70 +415,8 @@ namespace DiplomaMB.ViewModels
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
             {
-
-                bool inMinimum = false;
-                bool inMaximum = false;
-
-                int x1 = 0;
-                int x2 = 0;
-                int peakCount = 0;
-
-                List<double> fwhmList = new List<double>();
-                List<int> peaksIndex = new List<int>();
-
-                double dt = 0.01; // Assuming a fixed time step - you'll need to set this appropriately
-
-                for (int i = 0; i < secondDerivative.Length; i++)
-                {
-                    if (secondDerivative[i] < 0 && !inMinimum)
-                    {
-                        x1 = i;
-                        inMinimum = true;
-                    }
-                    else if ( secondDerivative[i] > 0 && inMinimum)
-                    {
-                        inMinimum = false;
-                        x2 = i;
-                        double distance = wavelength[x2] - wavelength[x1];
-                        double A = 0;
-                        for (int j = x1; j < x2 - 1; j++)
-                        {
-                            A += (secondDerivative[j] + secondDerivative[j + 1]) / 2 * dt;
-                        }
-
-                        A = -A;
-                        double h = (Math.Exp(1 / 2.0) / 4) * A * distance;
-
-                        if (h > 200)
-                        {
-                            double fwhm = Math.Sqrt(2 * Math.Log(2)) * distance;
-                            double maxValue = 0;
-                            int index = 0;
-                            for (int j = x1; j < x2; j++)
-                            {
-                                if (red[j] > maxValue)
-                                {
-                                    maxValue = red[j];
-                                    index = j;
-                                }
-                            }
-
-                            if (index - 5 > 0 && index + 5 < red.Length && red[index] >= red.Skip(index - 5).Take(11).Max())
-                            {
-                                peakCount++;
-                                fwhmList.Add(fwhm);
-                                peaksIndex.Add(index);
-                            }
-                        }
-                    }
-                }
-
-                // Further code to use fwhmList and peaksIndex as needed
-
-
-
                 var windowManager = new WindowManager();
-                var peaks_dialog = new PeaksViewModel(SelectedSpectrum);
+                var peaks_dialog = new PeaksViewModel(SelectedSpectrum, Spectrometer);
                 windowManager.ShowDialogAsync(peaks_dialog);
                 UpdatePlot();
             }
@@ -485,6 +425,8 @@ namespace DiplomaMB.ViewModels
                 MessageBox.Show("No available spectrum to detect peak", "Spectrum peak detection error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        
 
 
         public bool CanSpectrumOperations

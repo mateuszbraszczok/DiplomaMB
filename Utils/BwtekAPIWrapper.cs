@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 class BwtekAPIWrapper
 {
-    private const string DLLNAME = "BWTEKUSB.dll";
+    private const string DLLNAME = "Utils\\Libraries\\BWTEKUSB.dll";
     [DllImport(DLLNAME)]
     public static extern bool InitDevices();
 
