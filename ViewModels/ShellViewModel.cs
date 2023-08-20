@@ -24,8 +24,8 @@ namespace DiplomaMB.ViewModels
             set { plot_model = value; NotifyOfPropertyChange(() => PlotModel); }
         }
 
-        private BwtekSpectrometer spectrometer;
-        public BwtekSpectrometer Spectrometer
+        private ISpectrometer spectrometer;
+        public ISpectrometer Spectrometer
         {
             get => spectrometer;
             set { spectrometer = value; NotifyOfPropertyChange(() => Spectrometer); }
@@ -97,6 +97,12 @@ namespace DiplomaMB.ViewModels
             get => (!acquire_continuously && Spectrometer.Connected);
         }
 
+        public bool GuiLocked
+        {
+            get => (!lock_gui && Spectrometer.Connected);
+        }
+
+        private bool lock_gui = false;
         private int last_id = 1;
         private Thread continuously_acquiring_thread;
 
@@ -222,6 +228,7 @@ namespace DiplomaMB.ViewModels
             if (Spectrometer.Connected == true)
             {
                 IntegrationTime = Spectrometer.IntegrationTime;
+                NotifyOfPropertyChange(() => AcquireContinuously); NotifyOfPropertyChange(() => NotAcquireContinuously);
             }
             else
             {
@@ -278,6 +285,7 @@ namespace DiplomaMB.ViewModels
 
         public void StartAcquire()
         {
+            lock_gui = false;
             AcquireContinuously = true;
             continuously_acquiring_thread = new Thread(AcquiringSpectrums);
             continuously_acquiring_thread.Start();
@@ -309,6 +317,7 @@ namespace DiplomaMB.ViewModels
         }
         public void StopAcquire()
         {
+            lock_gui = false;
             AcquireContinuously = false;
             Debug.WriteLine("Stopping acquiring");
             //while(continuously_acquiring_thread.IsAlive)
@@ -321,7 +330,7 @@ namespace DiplomaMB.ViewModels
 
         public bool CanGetSpectrumSmart()
         {
-            return IsSpectrometerConnected();
+            return IsSpectrometerConnected() && lock_gui;
         }
         public void GetSpectrumSmart()
         {
@@ -424,8 +433,6 @@ namespace DiplomaMB.ViewModels
             }
         }
 
-        
-
 
         public bool CanSpectrumOperations
         {
@@ -493,7 +500,6 @@ namespace DiplomaMB.ViewModels
 
         public void Derivative()
         {
-
             Spectrum result = Spectrometer.CalculateDerivative(1, 3, SelectedSpectrum);
 
             result.Id = last_id++;

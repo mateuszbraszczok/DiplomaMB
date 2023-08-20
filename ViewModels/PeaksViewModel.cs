@@ -16,8 +16,8 @@ namespace DiplomaMB.ViewModels
             set => spectrum = value;
         }
 
-        private BwtekSpectrometer spectrometer;
-        public BwtekSpectrometer Spectrometer
+        private ISpectrometer spectrometer;
+        public ISpectrometer Spectrometer
         {
             get => spectrometer;
             set => spectrometer = value;
@@ -37,7 +37,7 @@ namespace DiplomaMB.ViewModels
             set { min_peak_height = value; NotifyOfPropertyChange(() => MinPeakHeight); }
         }
 
-        public PeaksViewModel(Spectrum _spectrum, BwtekSpectrometer _spectrometer)
+        public PeaksViewModel(Spectrum _spectrum, ISpectrometer _spectrometer)
         {
             spectrum = _spectrum;
             spectrometer = _spectrometer;

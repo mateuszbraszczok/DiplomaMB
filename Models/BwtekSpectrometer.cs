@@ -4,27 +4,20 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Windows;
 
 namespace DiplomaMB.Models
 {
-    public class BwtekSpectrometer
+    public class BwtekSpectrometer : ISpectrometer
     {
-        public class ConfigProperty
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-            public ConfigProperty(string name, string value)
-            {
-                Name = name;
-                Value = value;
-            }
-        }
         private BindableCollection<ConfigProperty> config_properties;
         public BindableCollection<ConfigProperty> ConfigProperties
         {
@@ -32,101 +25,74 @@ namespace DiplomaMB.Models
             set => config_properties = value;
         }
 
-        private int usb_type;
-        private int channel;
+        public bool Connected { get; set; }
 
-        private string c_code;
-        private string model;
-
-        private int pixel_number;
-
-        private double a0_coefficient;
-        private double a1_coefficient;
-        private double a2_coefficient;
-        private double a3_coefficient;
-
-        private int integration_time_unit;
-        private string integration_time_unit_string;
-        public string IntegrationTimeUnit
-        {
-            get => integration_time_unit_string;
-            set => integration_time_unit_string = value;
-        }
-        private int integration_time_min;
-        private int timing_mode;
-        private int input_mode;
         private int integration_time;
         public int IntegrationTime
         {
-            get => integration_time; 
+            get => integration_time;
             set => integration_time = value;
         }
 
-        private int xaxis_min;
-        private int xaxis_max;
-
-
-        private string eeprom_filename = $"{Assembly.GetEntryAssembly().Location}\\..\\para.ini";
-
-        private bool connected;
-        public bool Connected
+        private int integration_time_min;
+        public int IntegrationTimeMin
         {
-            get => connected;
-            set => connected = value;
+            get => integration_time_min;
+            set => integration_time_min = value;
+        }
+
+        public IntegrationTimeUnit IntegrationTimeUnit { get; set; }
+        public string IntegrationTimeUnitStr
+        {
+            get => IntegrationTimeUnit == IntegrationTimeUnit.Microseconds ? "\xE6s" : "ms";
         }
 
         private string status;
         public string Status
         {
-            get { return status; }
-            set { status = value; }
-        }
-
-        private List<double> wavelengths;
-        public List<double> Wavelengths
-        {
-            get { return wavelengths; }
-            set { wavelengths = value; }
-        }
-
-        private List<double> data_array;
-        public List<double> DataArray
-        {
-            get { return data_array; }
-            set { data_array = value; }
-        }
-
-        private List<double> dark_scan;
-        public List<double> DarkScan
-        {
-            get { return dark_scan; }
-            set { dark_scan = value; }
+            get => status;
         }
 
         private bool dark_scan_taken;
         public bool DarkScanTaken
         {
-            get { return dark_scan_taken; }
-            set { dark_scan_taken = value; }
+            get => dark_scan_taken;
         }
+
+        private int usb_type;
+        private int channel;
+
+        private int pixel_number;
+        private int timing_mode;
+        private int input_mode;
+
+        private int xaxis_min;
+        private int xaxis_max;
+
+        private readonly string eeprom_filename = $"{Assembly.GetEntryAssembly().Location}\\..\\para.ini";
+
+        private List<double> wavelengths;
+
+        private List<double> dark_scan;
 
 
         public BwtekSpectrometer()
         {
-            c_code = string.Empty;
-            model = string.Empty;
-            connected = false;
+            Connected = false;
             dark_scan_taken = false;
             status = "Disconnected";
+            integration_time_min = 1;
 
-            IntegrationTimeUnit = string.Empty;
+            IntegrationTimeUnit = IntegrationTimeUnit.Miliseconds;
             config_properties = new BindableCollection<ConfigProperty>();
+            wavelengths = new List<double>();
+            dark_scan = new List<double>();
         }
 
         public void Connect()
         {
             Connected = false;
-            Status = "Connection failed";
+            status = "Connection failed";
             do
             {
                 bool retCode = BwtekAPIWrapper.InitDevices();
@@ -141,6 +107,7 @@ namespace DiplomaMB.Models
                 channel = 0;
                 ret = BwtekAPIWrapper.GetUSBType(ref usb_type, channel);
                 if (ret != 1) { break; }
+                
                 ReadEeprom();
 
                 ret = BwtekAPIWrapper.bwtekTestUSB(timing_mode, pixel_number, input_mode, channel, 0);
@@ -150,7 +117,7 @@ namespace DiplomaMB.Models
                 Debug.WriteLine("Test Usb success");
 
                 int new_integration_time = integration_time_min;
-                if (integration_time_unit == 1)
+                if (IntegrationTimeUnit == IntegrationTimeUnit.Miliseconds)
                 {
                     new_integration_time *= 1000;
                 }
@@ -160,7 +127,7 @@ namespace DiplomaMB.Models
                 int lTriggerExit = 0;
                 ret = BwtekAPIWrapper.bwtekSetTimingsUSB(lTriggerExit, 1, channel);
                 if (ret != lTriggerExit) { break; }
-                connected = true;
+                Connected = true;
                 status = "Connected";
             }
             while (false);
@@ -170,7 +137,7 @@ namespace DiplomaMB.Models
         {
             _ = BwtekAPIWrapper.bwtekCloseUSB(channel);
             _ = BwtekAPIWrapper.CloseDevices();
-            connected = false;
+            Connected = false;
             status = "Disconnected";
         }
 
@@ -197,15 +164,16 @@ namespace DiplomaMB.Models
 
             List<Spectrum> spectrum_list = new List<Spectrum>();
             List<double> data_list = new List<double>();
+            List<double> data_array = new List<double>();
             int i = 1;
             foreach (ushort value in pArray)
             {
                 if (i == pixel_number)
                 {
                     i = 1;
-                    DataArray = data_list;
-                    SubtractDarkScan();
-                    spectrum_list.Add(new Spectrum(Wavelengths, DataArray));
+                    data_array = data_list;
+                    SubtractDarkScan(data_array);
+                    spectrum_list.Add(new Spectrum(wavelengths, data_array));
                     data_list = new List<double>();
                 }
 
@@ -216,19 +184,6 @@ namespace DiplomaMB.Models
                 i++;
             }
             return spectrum_list;
-        }
-
-        public Spectrum GenerateDummySpectrum()
-        {
-            Wavelengths = new List<double>();
-            DataArray = new List<double>();
-            Random r = new Random();
-            for(int i=1; i<200;i++)
-            {
-                Wavelengths.Add((double)i); 
-                DataArray.Add((double)r.NextDouble());  
-            }
-            return new Spectrum(Wavelengths,DataArray);
         }
 
         public Spectrum ReadDataSmart(SmartRead smart_read)
@@ -243,37 +198,37 @@ namespace DiplomaMB.Models
             }
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            DataArray = new List<double>();
+            List<double> data_array = new List<double>();
             for (int i = xaxis_min; i <= xaxis_max; i++)
             {
-                DataArray.Add((double)pArray[i]);
+                data_array.Add((double)pArray[i]);
             }
-            SubtractDarkScan();
+            SubtractDarkScan(data_array);
                 
-            return new Spectrum(Wavelengths, DataArray);
+            return new Spectrum(wavelengths, data_array);
         }
 
-        private void SubtractDarkScan()
+        private void SubtractDarkScan(List<double> data_array)
         {
             if (dark_scan_taken)
             {
-                Debug.WriteLine($"SubtractDarkScan: Data array count: {DataArray.Count} Dark count: {DarkScan.Count}");
+                Debug.WriteLine($"SubtractDarkScan: Data array count: {data_array.Count} Dark count: {dark_scan.Count}");
 
-                bool[] bad_pixels = new bool[DataArray.Count];
-                for (int i = 0; i < DataArray.Count; i++)
+                bool[] bad_pixels = new bool[data_array.Count];
+                for (int i = 0; i < data_array.Count; i++)
                 {
-                    double mean = (DarkScan[i - 2] + DarkScan[i - 1] + DarkScan[i + 1] + DarkScan[i + 2]) / 4;
-                    if (DarkScan[i] >= DataArray[i])
+                    double mean = (dark_scan[i - 2] + dark_scan[i - 1] + dark_scan[i + 1] + dark_scan[i + 2]) / 4;
+                    if (dark_scan[i] >= data_array[i])
                     {
                         bad_pixels[i] = true;
                     }
-                    else if ((DataArray[i] == 65535) && DarkScan[i] > 1.4 * mean)
+                    else if ((data_array[i] == 65535) && dark_scan[i] > 1.4 * mean)
                     {
                         bad_pixels[i] = true;
                     }
                     else
                     {
-                        DataArray[i] -= DarkScan[i];
+                        data_array[i] -= dark_scan[i];
                     }
                 }
 
@@ -286,10 +241,10 @@ namespace DiplomaMB.Models
                         {
                             i++;
                         }
-                        double factor = (DataArray[i+1] - DataArray[start_i - 1]) / (i - start_i + 1);
+                        double factor = (data_array[i+1] - data_array[start_i - 1]) / (i - start_i + 1);
                         for (int j = start_i; j <= i ; j++)
                         {
-                            DataArray[j] = DataArray[j - 1] + factor;   
+                            data_array[j] = data_array[j - 1] + factor;   
                         }
                     }
                 }
@@ -308,13 +263,13 @@ namespace DiplomaMB.Models
             }
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
 
-            DarkScan = new List<double>();
+            dark_scan = new List<double>();
             for (int i = xaxis_min; i <= xaxis_max; i++)
             {
-                DarkScan.Add((double)pArray[i]);
+                dark_scan.Add((double)pArray[i]);
             }
 
-            DarkScanTaken = true;
+            dark_scan_taken = true;
             Debug.WriteLine("Received dark scan");
         }
 
@@ -328,15 +283,15 @@ namespace DiplomaMB.Models
             if (dialog.ShowDialog() == true)
             {
                 string file_path = dialog.FileName;
-                DarkScan = new List<double>();
+                dark_scan = new List<double>();
                 using var reader = new StreamReader(file_path);
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    DarkScan.Add(Convert.ToUInt16(line));
+                    dark_scan.Add(Convert.ToUInt16(line));
                 }
             }
-            DarkScanTaken = true;
+            dark_scan_taken = true;
             Debug.WriteLine("Read dark scan from file");
         }
 
@@ -353,10 +308,10 @@ namespace DiplomaMB.Models
             if (saveFileDialog.ShowDialog() == true)
             {
                 var csv = new StringBuilder();
-                Debug.WriteLine("dark_scan: " + DarkScan.Count);
-                for (int i = 0; i < DarkScan.Count; i++)
+                Debug.WriteLine("dark_scan: " + dark_scan.Count);
+                for (int i = 0; i < dark_scan.Count; i++)
                 {
-                    var first = DarkScan[i].ToString(CultureInfo.InvariantCulture);
+                    var first = dark_scan[i].ToString(CultureInfo.InvariantCulture);
                     var newLine = $"{first}";
                     csv.AppendLine(newLine);
                 }
@@ -376,15 +331,15 @@ namespace DiplomaMB.Models
                 throw new Exception("Smoothing failed");
             }
             Debug.WriteLine("Smoothing success");
-            DataArray = pArray.ToList().ConvertAll(x => (double)x);
+            List<double> data_array = pArray.ToList().ConvertAll(x => (double)x);
 
-            return new Spectrum(Wavelengths, DataArray);
+            return new Spectrum(wavelengths, data_array);
         }
 
         public void SetIntegrationTime(int integration_time)
         {
             int new_integration_time = integration_time;
-            if (integration_time_unit == 1)
+            if (IntegrationTimeUnit == IntegrationTimeUnit.Miliseconds)
             {
                 new_integration_time *= 1000;
             }
@@ -418,30 +373,32 @@ namespace DiplomaMB.Models
 
             var iniFile = new IniFile(eeprom_filename);
 
-            model = iniFile.Read("model", "COMMON");
+            string model = iniFile.Read("model", "COMMON");
             config_properties.Add(new ConfigProperty("model", model));
-            c_code = iniFile.Read("c_code", "COMMON");
-            config_properties.Add(new ConfigProperty("c_code", c_code));
+            config_properties.Add(new ConfigProperty("c_code", iniFile.Read("c_code", "COMMON")));
+            config_properties.Add(new ConfigProperty("Vid&Pid", iniFile.Read("VID and PID", "EEPROM")));
+            config_properties.Add(new ConfigProperty("Manufacture date", iniFile.Read("Manufacture date", "EEPROM")));
+            config_properties.Add(new ConfigProperty("AD Frequency", iniFile.Read("AD Frequency", "EEPROM")));
+            config_properties.Add(new ConfigProperty("Slit size", iniFile.Read("Slit size", "EEPROM")));
+            config_properties.Add(new ConfigProperty("DLL Vversion", iniFile.Read("DLL Version", "EEPROM")));
+            config_properties.Add(new ConfigProperty("USB type", usb_type.ToString()));
 
             pixel_number = Convert.ToInt32(iniFile.Read("pixelnumber", "BRC115"));
-            config_properties.Add(new ConfigProperty("pixelNumber", pixel_number.ToString()));
+            config_properties.Add(new ConfigProperty("Pixel Number", pixel_number.ToString()));
 
+
+            int integration_time_unit = Convert.ToInt32(iniFile.Read("inttime_unit", model));
+            IntegrationTimeUnit = integration_time_unit switch
+            {
+                0 => IntegrationTimeUnit.Microseconds,
+                1 => IntegrationTimeUnit.Miliseconds,
+                _ => IntegrationTimeUnit // default value or throw exception if needed
+            };
             integration_time_min = Convert.ToInt32(iniFile.Read("inttime_min", model));
+            IntegrationTime = integration_time_min;
             config_properties.Add(new ConfigProperty("inttime_min", integration_time_min.ToString()));
 
-            IntegrationTime = integration_time_min;
-
-            integration_time_unit = Convert.ToInt32(iniFile.Read("inttime_unit", model));
-            config_properties.Add(new ConfigProperty("inttime_unit", integration_time_unit.ToString()));
-
-            if (integration_time_unit == 0)
-            {
-                IntegrationTimeUnit = "\xE6s";
-            }
-            else if (integration_time_unit == 1)
-            {
-                IntegrationTimeUnit = "ms";
-            }
+            config_properties.Add(new ConfigProperty("Integration Time Unit", IntegrationTimeUnitStr));
 
             timing_mode = Convert.ToInt32(iniFile.Read("timing_mode", model));
             config_properties.Add(new ConfigProperty("timing_mode", timing_mode.ToString()));
@@ -452,16 +409,28 @@ namespace DiplomaMB.Models
             xaxis_max = Convert.ToInt32(iniFile.Read("xaxis_max", "COMMON"));
             xaxis_min = Convert.ToInt32(iniFile.Read("xaxis_min", "COMMON"));
 
-            a0_coefficient = double.Parse(iniFile.Read("coefs_a0", "COMMON"), CultureInfo.InvariantCulture);
-            a1_coefficient = double.Parse(iniFile.Read("coefs_a1", "COMMON"), CultureInfo.InvariantCulture);
-            a2_coefficient = double.Parse(iniFile.Read("coefs_a2", "COMMON"), CultureInfo.InvariantCulture);
-            a3_coefficient = double.Parse(iniFile.Read("coefs_a3", "COMMON"), CultureInfo.InvariantCulture);
+            double a0_coefficient = double.Parse(iniFile.Read("coefs_a0", "COMMON"), CultureInfo.InvariantCulture);
+            double a1_coefficient = double.Parse(iniFile.Read("coefs_a1", "COMMON"), CultureInfo.InvariantCulture);
+            double a2_coefficient = double.Parse(iniFile.Read("coefs_a2", "COMMON"), CultureInfo.InvariantCulture);
+            double a3_coefficient = double.Parse(iniFile.Read("coefs_a3", "COMMON"), CultureInfo.InvariantCulture);
 
-            Wavelengths = new List<double>();
             for (int i = xaxis_min; i <= xaxis_max; i++)
             {
-                Wavelengths.Add(a0_coefficient + a1_coefficient * i + a2_coefficient * Math.Pow(i, 2) + a3_coefficient * Math.Pow(i, 3));
+                wavelengths.Add(a0_coefficient + a1_coefficient * i + a2_coefficient * Math.Pow(i, 2) + a3_coefficient * Math.Pow(i, 3));
             }
+        }
+
+        public Spectrum GenerateDummySpectrum()
+        {
+            List<double> dummy_wavelengths = new List<double>();
+            List<double> dummy_data_array = new List<double>();
+            Random r = new Random();
+            for (int i = 1; i < 200; i++)
+            {
+                dummy_wavelengths.Add((double)i);
+                dummy_data_array.Add((double)r.NextDouble());
+            }
+            return new Spectrum(dummy_wavelengths, dummy_data_array);
         }
 
     }

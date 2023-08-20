@@ -10,10 +10,11 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:ShellViewModel}"
         mc:Ignorable="d"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        Title="MB Master Project" Height="875" Width="1220"
+        Title="MB Master Project" Height="885" Width="1220"
         cal:Message.Attach="[Event Closing] = [Action OnClose($eventArgs)]"
         Background="LightGray"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
@@ -51,8 +52,8 @@
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
                 <Button x:Name="ResetSpectrometer" IsEnabled="{Binding Spectrometer.Connected}">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox x:Name="IntegrationTime" TextWrapping="NoWrap" AcceptsReturn="False" MaxLines="1" IsEnabled="{Binding Spectrometer.Connected}" MinWidth="50"/>
-                    <Label x:Name="Spectrometer_IntegrationTimeUnit"/>
+                    <xctk:IntegerUpDown x:Name="Spectrometer_IntegrationTime" Width="100" Minimum="1" Value="{Binding IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label x:Name="Spectrometer_IntegrationTimeUnitStr"/>
                 </StackPanel>
                 <Button x:Name="SetIntegrationTime" IsEnabled="{Binding Spectrometer.Connected}">Set integration time</Button>
                 <Button x:Name="ExitProgram">Exit program</Button>
@@ -101,7 +102,7 @@
 
                 <CheckBox IsChecked="{Binding SmartRead.Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
                 <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">Dark compensate enabled</CheckBox>
-                <Button x:Name="GetSpectrumSmart" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
+                <Button x:Name="GetSpectrumSmart" IsEnabled="{Binding GuiLocked}">Get Spectrum</Button>
             </StackPanel>
         </Border>
 
@@ -152,8 +153,8 @@
                 </DataGrid>
             </TabItem>
             <TabItem Header="Spectrometer Info" >
-                <DataGrid x:Name="Spectrometr_ConfigProperties" Background="LightGray" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
-                    AutoGenerateColumns="False" CanUserResizeColumns="False"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <DataGrid x:Name="Spectrometer_ConfigProperties" Background="LightGray" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                    AutoGenerateColumns="False" CanUserResizeColumns="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>

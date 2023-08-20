@@ -5,7 +5,6 @@ using System.Windows;
 
 namespace DiplomaMB.ViewModels
 {
-
     public enum Operations
     {
         Add,
@@ -58,14 +57,7 @@ namespace DiplomaMB.ViewModels
             set
             {
                 selected_operation = value;
-                if (value == Operations.BaselineRemove)
-                {
-                    IsSpectrums2ComboBoxEnabled = false;
-                }
-                else
-                {
-                    IsSpectrums2ComboBoxEnabled = true;
-                }
+                IsSpectrums2ComboBoxEnabled = value != Operations.BaselineRemove;
                 NotifyOfPropertyChange(() => SelectedOperation);
             }
         }
@@ -112,11 +104,9 @@ namespace DiplomaMB.ViewModels
             set
             {
                 is_panel_1_enabled = value;
+                is_panel_2_enabled = !value;
                 NotifyOfPropertyChange(() => IsPanel1Enabled);
-                if (value)
-                {
-                    IsPanel2Enabled = !value;
-                }
+                NotifyOfPropertyChange(() => IsPanel2Enabled);
             }
         }
 
@@ -126,12 +116,10 @@ namespace DiplomaMB.ViewModels
             get => is_panel_2_enabled;
             set
             {
+                is_panel_1_enabled = !value;
                 is_panel_2_enabled = value;
-                NotifyOfPropertyChange(() => IsPanel2Enabled);
-                if (value)
-                {
-                    IsPanel1Enabled = !value;
-                }
+                NotifyOfPropertyChange(() => IsPanel1Enabled);
+                NotifyOfPropertyChange(() => IsPanel2Enabled);         
             }
         }
 

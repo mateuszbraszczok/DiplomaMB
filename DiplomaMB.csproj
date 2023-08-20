@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
@@ -12,18 +12,6 @@
     <PackageReference Include="Caliburn.Micro.Core" Version="4.0.212" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Baseline">
-      <HintPath>Utils\Baseline.dll</HintPath>
-    </Reference>
-    <Reference Include="MWArray">
-      <HintPath>Utils\MWArray.dll</HintPath>
-    </Reference>
-    <Reference Include="Peaks">
-      <HintPath>Utils\Libraries\Peaks.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
