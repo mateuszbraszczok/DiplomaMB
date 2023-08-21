@@ -50,12 +50,12 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
-                <Button x:Name="ResetSpectrometer" IsEnabled="{Binding Spectrometer.Connected}">Reset Device</Button>
+                <Button x:Name="ResetSpectrometer">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
                     <xctk:IntegerUpDown x:Name="Spectrometer_IntegrationTime" Width="100" Minimum="1" Value="{Binding IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label x:Name="Spectrometer_IntegrationTimeUnitStr"/>
                 </StackPanel>
-                <Button x:Name="SetIntegrationTime" IsEnabled="{Binding Spectrometer.Connected}">Set integration time</Button>
+                <Button x:Name="SetIntegrationTime">Set integration time</Button>
                 <Button x:Name="ExitProgram">Exit program</Button>
             </StackPanel>
         </Border>
@@ -76,10 +76,10 @@
                     <xctk:IntegerUpDown x:Name="FramesToAcquire" Width="50" Minimum="0" Maximum="255" Value="{Binding FramesToAcquire, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
-                <Button x:Name="GetSpectrum" IsEnabled="{Binding Spectrometer.Connected}">Get Spectrum</Button>
-                <Button x:Name="GetDarkScan" IsEnabled="{Binding Spectrometer.Connected}">Get Dark Scan</Button>
-                <Button x:Name="StartAcquire" IsEnabled="{Binding NotAcquireContinuously}">Start Acquire Continuously</Button>
-                <Button x:Name="StopAcquire" IsEnabled="{Binding AcquireContinuously}">Stop Acquire</Button>
+                <Button x:Name="GetSpectrum">Get Spectrum</Button>
+                <Button x:Name="GetDarkScan">Get Dark Scan</Button>
+                <Button x:Name="StartAcquire">Start Acquire Continuously</Button>
+                <Button x:Name="StopAcquire">Stop Acquire</Button>
             </StackPanel>
         </Border>
 
@@ -102,7 +102,7 @@
 
                 <CheckBox IsChecked="{Binding SmartRead.Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
                 <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">Dark compensate enabled</CheckBox>
-                <Button x:Name="GetSpectrumSmart" IsEnabled="{Binding GuiLocked}">Get Spectrum</Button>
+                <Button x:Name="GetSpectrumSmart">Get Spectrum</Button>
             </StackPanel>
         </Border>
 
@@ -119,8 +119,8 @@
                 <StackPanel>
                     <Button x:Name="SaveSelectedSpectrum">Save selected spectrum</Button>
                     <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
-                    <Button x:Name="SaveDarkScan" IsEnabled="{Binding Spectrometer.DarkScanTaken}">Save dark scan to file</Button>
-                    <Button x:Name="LoadDarkScan" IsEnabled="{Binding Spectrometer.Connected}">Load dark scan from file</Button>
+                    <Button x:Name="SaveDarkScan">Save dark scan to file</Button>
+                    <Button x:Name="LoadDarkScan">Load dark scan from file</Button>
                 </StackPanel>
                 <StackPanel>
                     <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
@@ -164,7 +164,7 @@
         </TabControl>
 
         <StackPanel Grid.Row="6" Grid.ColumnSpan="20" >
-            <StatusBar DockPanel.Dock="Bottom" >
+            <StatusBar DockPanel.Dock="Bottom" Cursor="" >
                 <StatusBarItem >
                     <Label Content="Status:"></Label>
                 </StatusBarItem>

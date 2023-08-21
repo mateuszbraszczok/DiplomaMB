@@ -6,11 +6,11 @@ using OxyPlot.Axes;
 using OxyPlot.Legends;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace DiplomaMB.ViewModels
@@ -52,13 +52,6 @@ namespace DiplomaMB.ViewModels
             }
         }
 
-        private void Spectrums_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            NotifyOfPropertyChange(() => CanSpectrumOperations);
-            NotifyOfPropertyChange(() => CanSpectrumPeaks);
-            NotifyOfPropertyChange(() => CanEditSmoothing);
-        }
-
         private int frames_to_acquire;
         public int FramesToAcquire
         {
@@ -86,32 +79,16 @@ namespace DiplomaMB.ViewModels
             set { smart_read = value; NotifyOfPropertyChange(() => SmartRead); }
         }
 
-        private bool acquire_continuously;
-        public bool AcquireContinuously
-        {
-            get => (acquire_continuously && Spectrometer.Connected);
-            set { acquire_continuously = value; NotifyOfPropertyChange(() => AcquireContinuously); NotifyOfPropertyChange(() => NotAcquireContinuously); }
-        }
-        public bool NotAcquireContinuously
-        {
-            get => (!acquire_continuously && Spectrometer.Connected);
-        }
-
-        public bool GuiLocked
-        {
-            get => (!lock_gui && Spectrometer.Connected);
-        }
-
-        private bool lock_gui = false;
+        private bool should_acquire = false;
+        private bool gui_locked = false;
         private int last_id = 1;
-        private Thread continuously_acquiring_thread;
+        private Thread? continuously_acquiring_thread = null;
 
         public ShellViewModel()
         {
             plot_model = new PlotModel { Title = "Spectrums Raw Data", Background = OxyColors.LightGray };
             spectrometer = new BwtekSpectrometer();
             spectrums = new BindableCollection<Spectrum> { };
-            Spectrums.CollectionChanged += Spectrums_CollectionChanged;
             smart_read = new SmartRead();
 
             frames_to_acquire = 1;
@@ -138,7 +115,29 @@ namespace DiplomaMB.ViewModels
             PlotModel.InvalidatePlot(true);
         }
 
-        public void UpdatePlot()
+        private void UpdateGui()
+        {
+            NotifyOfPropertyChange(() => CanConnectSpectrometer);
+            NotifyOfPropertyChange(() => CanResetSpectrometer);
+            NotifyOfPropertyChange(() => CanSetIntegrationTime);
+            NotifyOfPropertyChange(() => CanGetSpectrum);
+            NotifyOfPropertyChange(() => CanGetSpectrumSmart);
+            NotifyOfPropertyChange(() => CanGetDarkScan);
+            NotifyOfPropertyChange(() => CanStartAcquire);
+            NotifyOfPropertyChange(() => CanStopAcquire);
+            NotifyOfPropertyChange(() => CanLoadSpectrum);
+            NotifyOfPropertyChange(() => CanLoadDarkScan);
+            NotifyOfPropertyChange(() => CanSaveDarkScan);
+            NotifyOfPropertyChange(() => CanDeleteSelectedSpectrum);
+            NotifyOfPropertyChange(() => CanDeleteAllSpectrums);
+            NotifyOfPropertyChange(() => CanSaveSelectedSpectrum);
+            NotifyOfPropertyChange(() => CanSpectrumPeaks);
+            NotifyOfPropertyChange(() => CanSpectrumOperations);
+            NotifyOfPropertyChange(() => CanEditSmoothing);
+            NotifyOfPropertyChange(() => CanDerivative);
+        }
+
+        private void UpdatePlot()
         {
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
@@ -179,7 +178,6 @@ namespace DiplomaMB.ViewModels
                     }
                 }
             }
-
             Debug.WriteLine($"max:{max_y_value}  min:{min_y_value}");
 
             if (spectrums.Count == 0 || spectrums_enabled == 0)
@@ -222,30 +220,38 @@ namespace DiplomaMB.ViewModels
             Application.Current.Shutdown();
         }
 
+        public bool CanConnectSpectrometer
+        {
+            get { return !IsSpectrometerConnected() && !gui_locked; }
+        }
         public void ConnectSpectrometer()
         {
             Spectrometer.Connect();
             if (Spectrometer.Connected == true)
             {
                 IntegrationTime = Spectrometer.IntegrationTime;
-                NotifyOfPropertyChange(() => AcquireContinuously); NotifyOfPropertyChange(() => NotAcquireContinuously);
             }
             else
             {
                 MessageBox.Show("Can't connect with spectrometer", "Can't connect with spectrometer", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
             NotifyOfPropertyChange(() => Spectrometer);
+            UpdateGui();
         }
 
-        public bool CanResetSpectrometer()
+        public bool CanResetSpectrometer
         {
-            return Spectrometer.Connected;
+            get { return IsSpectrometerConnected() && !gui_locked; }
         }
         public void ResetSpectrometer()
         {
             Spectrometer.ResetDevice();
         }
 
+        public bool CanSetIntegrationTime
+        {
+            get { return IsSpectrometerConnected() && !gui_locked; }
+        }
         public void SetIntegrationTime()
         {
             if (Spectrometer.Connected)
@@ -261,16 +267,19 @@ namespace DiplomaMB.ViewModels
                 MessageBox.Show("Failed to set integration time", "Integration time set failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             IntegrationTime = spectrometer.IntegrationTime;
+            UpdateGui();
         }
 
-        public bool CanGetSpectrum()
+        public bool CanGetSpectrum
         {
-            return IsSpectrometerConnected();
+            get { return IsSpectrometerConnected() && !gui_locked; }
         }
-        public void GetSpectrum()
+        public async void GetSpectrum()
         {
+            gui_locked = true;
+            UpdateGui();
             Debug.WriteLine("before read data");
-            List<Spectrum> spectrum_list = Spectrometer.ReadData(FramesToAcquire);
+            List<Spectrum> spectrum_list = await Task.Run(() => Spectrometer.ReadData(FramesToAcquire));
 
             Debug.WriteLine("readed data");
             foreach (Spectrum spectrum in spectrum_list)
@@ -281,60 +290,96 @@ namespace DiplomaMB.ViewModels
                 Spectrums.Add(spectrum);
             }
             UpdatePlot();
+            gui_locked = false;
+            UpdateGui();
         }
 
+        public bool CanGetDarkScan
+        {
+            get { return IsSpectrometerConnected() && !gui_locked; }
+        }
+        public async void GetDarkScan()
+        {
+            gui_locked = true;
+            UpdateGui();
+            await Task.Run(() => Spectrometer.GetDarkScan());
+
+            NotifyOfPropertyChange(() => Spectrometer);
+            gui_locked = false;
+            UpdateGui();
+        }
+
+        public bool CanStartAcquire
+        {
+            get { return IsSpectrometerConnected() && !gui_locked && !should_acquire; }
+        }
         public void StartAcquire()
         {
-            lock_gui = false;
-            AcquireContinuously = true;
-            continuously_acquiring_thread = new Thread(AcquiringSpectrums);
-            continuously_acquiring_thread.Start();
+            if (continuously_acquiring_thread == null || !continuously_acquiring_thread.IsAlive)
+            {
+                gui_locked = true;
+                should_acquire = true;
+                UpdateGui();
+
+                continuously_acquiring_thread = new Thread(AcquiringSpectrums);
+                continuously_acquiring_thread.Start();
+            }
+        }
+
+        public bool CanStopAcquire
+        {
+            get { return IsSpectrometerConnected() && should_acquire; }
+        }
+        public void StopAcquire()
+        {
+            should_acquire = false;
+            while (continuously_acquiring_thread != null && continuously_acquiring_thread.IsAlive)
+            {
+                Thread.Sleep(10);
+                break;
+            }  
+            gui_locked = false;
+            UpdateGui();
         }
 
         private void AcquiringSpectrums()
         {
-            bool acquired_first_spectrum = false;
+            bool acquiredFirstSpectrum = false;
             int id = last_id;
             last_id++;
-            while (AcquireContinuously)
+
+            while (should_acquire)
             {
                 Spectrum spectrum = Spectrometer.ReadData(1).First();
                 //Spectrum spectrum = Spectrometer.GenerateDummySpectrum();
                 spectrum.Id = id;
                 spectrum.Name = "Spectrum " + id.ToString();
-                if (acquired_first_spectrum)
+
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    Spectrums.RemoveAt(Spectrums.Count - 1);
-                }
-                Spectrums.Add(spectrum);
-                UpdatePlot();
-                acquired_first_spectrum = true;
+                    if (acquiredFirstSpectrum)
+                    {
+                        Spectrums.RemoveAt(Spectrums.Count - 1);
+                    }
+                    Spectrums.Add(spectrum);
+                    UpdatePlot();
+                });
+
+                acquiredFirstSpectrum = true;
 
                 Debug.WriteLine("iteration");
             }
-            Debug.WriteLine("returned");
-            return;
-        }
-        public void StopAcquire()
-        {
-            lock_gui = false;
-            AcquireContinuously = false;
-            Debug.WriteLine("Stopping acquiring");
-            //while(continuously_acquiring_thread.IsAlive)
-            //{
-            //    Thread.Sleep(50);
-            //}
-            //continuously_acquiring_thread.Join();
-            Debug.WriteLine("Stopped acquiring");
         }
 
-        public bool CanGetSpectrumSmart()
+        public bool CanGetSpectrumSmart
         {
-            return IsSpectrometerConnected() && lock_gui;
+            get { return IsSpectrometerConnected() && !gui_locked && spectrometer is BwtekSpectrometer; }
         }
-        public void GetSpectrumSmart()
+        public async void GetSpectrumSmart()
         {
-            Spectrum spectrum = Spectrometer.ReadDataSmart(SmartRead);
+            gui_locked = true;
+            UpdateGui();
+            Spectrum spectrum = await Task.Run(() => Spectrometer.ReadDataSmart(SmartRead));
             spectrum.Id = last_id;
             spectrum.Name = "Spectrum " + last_id.ToString();
             last_id += 1;
@@ -344,18 +389,15 @@ namespace DiplomaMB.ViewModels
                 Spectrums.Add(spectrum);
                 UpdatePlot();
             }
+
+            gui_locked = false;
+            UpdateGui();
         }
 
-        public bool CanGetDarkScan()
+        public bool CanLoadSpectrum
         {
-            return IsSpectrometerConnected();
+            get {return !gui_locked; }
         }
-        public void GetDarkScan()
-        {
-            Spectrometer.GetDarkScan();
-            NotifyOfPropertyChange(() => Spectrometer);
-        }
-
         public void LoadSpectrum()
         {
             OpenFileDialog dialog = new OpenFileDialog()
@@ -371,20 +413,35 @@ namespace DiplomaMB.ViewModels
                 Spectrums.Add(spectrum);
                 UpdatePlot();
             }
+            UpdateGui();
         }
 
+        public bool CanLoadDarkScan
+        {
+            get { return !gui_locked; }
+        }
         public void LoadDarkScan()
         {
             Spectrometer.LoadDarkScan();
             NotifyOfPropertyChange(() => Spectrometer);
+            UpdateGui();
         }
 
+        public bool CanSaveDarkScan
+        {
+            get { return !gui_locked; }
+        }
         public void SaveDarkScan()
         {
             Spectrometer.SaveDarkScan();
             NotifyOfPropertyChange(() => Spectrometer);
+            UpdateGui();
         }
 
+        public bool CanDeleteSelectedSpectrum
+        {
+            get { return !gui_locked && spectrums.Count > 0; }
+        }
         public void DeleteSelectedSpectrum()
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
@@ -393,15 +450,25 @@ namespace DiplomaMB.ViewModels
                 SelectedSpectrum = null;
                 UpdatePlot();
             }
+            UpdateGui();
         }
 
+        public bool CanDeleteAllSpectrums
+        {
+            get { return !gui_locked; }
+        }
         public void DeleteAllSpectrums()
         {
             Spectrums.Clear();
             SelectedSpectrum = null;
             UpdatePlot();
+            UpdateGui();
         }
 
+        public bool CanSaveSelectedSpectrum
+        {
+            get { return !gui_locked; }
+        }
         public void SaveSelectedSpectrum()
         {
             if (spectrums.Count > 0 && SelectedSpectrum != null)
@@ -412,11 +479,12 @@ namespace DiplomaMB.ViewModels
             {
                 MessageBox.Show("No available spectrum to save", "Spectrum save error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            UpdateGui();
         }
 
         public bool CanSpectrumPeaks
         {
-            get { return Spectrums?.Count > 0; }
+            get { return Spectrums?.Count > 0 && !gui_locked; }
         }
         public void SpectrumPeaks()
         {
@@ -431,12 +499,13 @@ namespace DiplomaMB.ViewModels
             {
                 MessageBox.Show("No available spectrum to detect peak", "Spectrum peak detection error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            UpdateGui();
         }
 
 
         public bool CanSpectrumOperations
         {
-            get { return Spectrums?.Count > 0; }
+            get { return Spectrums?.Count > 0 && !gui_locked; }
         }
         public void SpectrumOperations()
         {
@@ -452,12 +521,13 @@ namespace DiplomaMB.ViewModels
                 Spectrums.Add(result);
                 UpdatePlot();
             }
+            UpdateGui();
         }
 
 
         public bool CanEditSmoothing
         {
-            get { return Spectrums?.Count > 0; }
+            get { return (Spectrums?.Count > 0 && !gui_locked); }
         }
         public void EditSmoothing()
         {
@@ -496,8 +566,13 @@ namespace DiplomaMB.ViewModels
                     UpdatePlot();
                 }
             }
+            UpdateGui();
         }
 
+        public bool CanDerivative
+        {
+            get { return (Spectrums?.Count > 0 && !gui_locked); }
+        }
         public void Derivative()
         {
             Spectrum result = Spectrometer.CalculateDerivative(1, 3, SelectedSpectrum);
@@ -506,11 +581,11 @@ namespace DiplomaMB.ViewModels
 
             Spectrums.Add(result);
             UpdatePlot();
+            UpdateGui();
         }
 
         private bool IsSpectrometerConnected()
         {
-            if (!Spectrometer.Connected) { MessageBox.Show("Spectrometer is not connected"); }
             return Spectrometer.Connected;
         }
 
