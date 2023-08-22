@@ -215,9 +215,18 @@ namespace DiplomaMB.Models
                 Debug.WriteLine($"SubtractDarkScan: Data array count: {data_array.Count} Dark count: {dark_scan.Count}");
 
                 bool[] bad_pixels = new bool[data_array.Count];
-                for (int i = 0; i < data_array.Count; i++)
+                data_array[0]  = (dark_scan[0] >= data_array[0])? 0 : data_array[0] -= dark_scan[0];
+                data_array[data_array.Count - 1] = (dark_scan[data_array.Count - 1] >= data_array[data_array.Count - 1]) ? 0 : data_array[data_array.Count - 1] -= dark_scan[data_array.Count - 1];
+                for (int i = 1; i < data_array.Count - 1; i++)
                 {
-                    double mean = (dark_scan[i - 2] + dark_scan[i - 1] + dark_scan[i + 1] + dark_scan[i + 2]) / 4;
+                    double mean = 0;
+                    int validNeighborCount = 0;
+                    if (i >= 2) { mean += dark_scan[i - 2]; validNeighborCount++; }
+                    if (i >= 1) { mean += dark_scan[i - 1]; validNeighborCount++; }
+                    if (i < data_array.Count - 1) { mean += dark_scan[i + 1]; validNeighborCount++; }
+                    if (i < data_array.Count - 2) { mean += dark_scan[i + 2]; validNeighborCount++; }
+                    mean /= validNeighborCount;
+
                     if (dark_scan[i] >= data_array[i])
                     {
                         bad_pixels[i] = true;
@@ -237,18 +246,21 @@ namespace DiplomaMB.Models
                     if (bad_pixels[i])
                     {
                         int start_i = i;
-                        while (bad_pixels[i+1])
+                        while (i + 1 < bad_pixels.Length && bad_pixels[i + 1]) 
                         {
                             i++;
                         }
-                        double factor = (data_array[i+1] - data_array[start_i - 1]) / (i - start_i + 1);
-                        for (int j = start_i; j <= i ; j++)
+
+                        if (i + 1 < data_array.Count && start_i > 0)
                         {
-                            data_array[j] = data_array[j - 1] + factor;   
+                            double factor = (data_array[i + 1] - data_array[start_i - 1]) / (i - start_i + 2);
+                            for (int j = start_i; j <= i; j++)
+                            {
+                                data_array[j] = (j == start_i) ? data_array[start_i - 1] + factor : data_array[j - 1] + factor;
+                            }
                         }
                     }
                 }
-
             }
         }
 
@@ -354,22 +366,21 @@ namespace DiplomaMB.Models
             IntegrationTime = integration_time;
         }
 
-        public Spectrum CalculateDerivative(int order, int half_point, Spectrum spectrum)
+        public Spectrum CalculateDerivative(Spectrum spectrum, DerivativeConfig derivative_config)
         {
             double[] pArray = spectrum.DataValues.ToArray();
             double[] result_array = new double[pArray.Length];
-            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble(1, half_point, 3, order, pArray, result_array, spectrum.DataValues.Count);
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble((int) derivative_config.DerivativeMethod, (derivative_config.WindowSize - 1)/2, derivative_config.DegreeOfPolynomial, derivative_config.DerivativeOrder, pArray, result_array, spectrum.DataValues.Count);
 
             Spectrum retVal = new Spectrum(spectrum.Wavelengths, result_array.ToList());
 
             return retVal;
-
         }
 
 
         private void ReadEeprom()
         {
-            int ret = BwtekAPIWrapper.bwtekReadEEPROMUSB(eeprom_filename, channel);
+            _ = BwtekAPIWrapper.bwtekReadEEPROMUSB(eeprom_filename, channel);
 
             var iniFile = new IniFile(eeprom_filename);
 

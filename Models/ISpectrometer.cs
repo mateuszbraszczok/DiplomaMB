@@ -59,6 +59,6 @@ namespace DiplomaMB.Models
 
         public void SetIntegrationTime(int integration_time);
 
-        public Spectrum CalculateDerivative(int order, int half_point, Spectrum spectrum);
+        public Spectrum CalculateDerivative(Spectrum spectrum, DerivativeConfig derivative_config);
     }
 }

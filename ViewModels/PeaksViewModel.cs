@@ -61,8 +61,14 @@ namespace DiplomaMB.ViewModels
 
         public void DetectPeaks()
         {
-
-            Spectrum secondDerivative = Spectrometer.CalculateDerivative(2, 3, Spectrum);
+            DerivativeConfig derivative_config = new DerivativeConfig
+            {
+                DerivativeOrder = 2,
+                DerivativeMethod = DerivativeMethod.Savitzky_Golay,
+                DegreeOfPolynomial = 3,
+                WindowSize = 7,
+            };
+            Spectrum secondDerivative = Spectrometer.CalculateDerivative(Spectrum, derivative_config);
             bool inMinimum = false;
             int x1 = 0;
             int x2;
@@ -88,7 +94,7 @@ namespace DiplomaMB.ViewModels
                     double A = -Trapz(secondDerivative.Wavelengths.GetRange(x1, x2 - x1 + 1), secondDerivative.DataValues.GetRange(x1, x2 - x1 + 1));
                     double h = (Math.Exp(1 / 2.0) / 4) * A * distance;
 
-                    if (h > 200)
+                    if (h > 50)
                     {
                         double maxValue = 0;
                         int indexx = 0;

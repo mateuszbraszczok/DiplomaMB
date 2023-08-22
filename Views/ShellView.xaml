@@ -137,7 +137,7 @@
         <TabControl Grid.Column="5" Grid.Row="3" MaxHeight="550" Width="200">
             <TabItem Header="Spectrum List" >
                 <DataGrid x:Name="Spectrums" Background="LightGray" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False"
-                  CanUserReorderColumns="False" AutoGenerateColumns="False"  CanUserResizeColumns="False"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                  CanUserReorderColumns="False" AutoGenerateColumns="False" CanUserResizeColumns="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="*"/>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>

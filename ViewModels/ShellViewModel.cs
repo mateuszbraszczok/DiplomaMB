@@ -137,7 +137,7 @@ namespace DiplomaMB.ViewModels
             NotifyOfPropertyChange(() => CanDerivative);
         }
 
-        private void UpdatePlot()
+        public void UpdatePlot()
         {
             PlotModel.Series.Clear();
             double min_x_value = double.MaxValue;
@@ -551,7 +551,6 @@ namespace DiplomaMB.ViewModels
                 {
                     if (smoothing.CreateNewSpectrum)
                     {
-
                         Debug.WriteLine("create new spectrum");
                         smoothed_spectrum.Id = last_id;
                         smoothed_spectrum.Name = selected_spectrum.Name + "_smoothed";
@@ -575,12 +574,23 @@ namespace DiplomaMB.ViewModels
         }
         public void Derivative()
         {
-            Spectrum result = Spectrometer.CalculateDerivative(1, 3, SelectedSpectrum);
+            if (selected_spectrum == null)
+            {
+                MessageBox.Show("No Spectrum selected");
+                return;
+            }
+            var windowManager = new WindowManager();
+            var derivative_dialog = new DerivativeViewModel(SelectedSpectrum, Spectrometer);
+            windowManager.ShowDialogAsync(derivative_dialog);
 
-            result.Id = last_id++;
+            if (derivative_dialog.OperationDone)
+            {
+                Spectrum result = derivative_dialog.ResultSpectrum;
+                result.Id = last_id++;
 
-            Spectrums.Add(result);
-            UpdatePlot();
+                Spectrums.Add(result);
+                UpdatePlot();
+            }
             UpdateGui();
         }
 

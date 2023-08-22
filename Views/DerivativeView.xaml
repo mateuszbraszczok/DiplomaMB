@@ -1,0 +1,40 @@
+﻿<Window x:Class="DiplomaMB.Views.DerivativeView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DiplomaMB.Views"
+        xmlns:utils="clr-namespace:DiplomaMB.Utils"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Derivative Control" Height="200" Width="400" WindowStartupLocation="CenterOwner" Background="LightGray" ResizeMode="CanMinimize">
+    <Window.Resources>
+        <utils:EnumBooleanConverter x:Key="enumBooleanConverter" />
+    </Window.Resources>
+    <Grid>
+        <StackPanel Margin="5">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Derivative Order:" Margin="14,0,0,0"/>
+                <xctk:IntegerUpDown x:Name="DerivativeConfig_DerivativeOrder" Width="50" Minimum="1" Maximum="2" Value="{Binding DerivativeConfig.DerivativeOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <RadioButton IsChecked="{Binding DerivativeConfig.DerivativeMethod, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Point_Diff}">Point Diff</RadioButton>
+            <RadioButton IsChecked="{Binding DerivativeConfig.DerivativeMethod, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Savitzky_Golay}">Savitzky Golay</RadioButton>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding DerivativeConfig.IsSavitzkyGolayEnabled}">
+                <StackPanel>
+                    <Label Content="Degree of polynomial:" Margin="14,0,0,0"/>
+                    <xctk:IntegerUpDown x:Name="DerivativeConfig_DegreeOfPolynomial" Width="50" Minimum="2" Maximum="99" Value="{Binding DerivativeConfig.DegreeOfPolynomial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel>
+                    <Label Content="Window Size:" Margin="14,0,0,0"/>
+                    <xctk:IntegerUpDown x:Name="DerivativeConfig_WindowSize" Width="50" Minimum="5" Maximum="99" Increment="2" Value="{Binding DerivativeConfig.WindowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </StackPanel>
+           
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2">
+                <Button x:Name="CloseWindow" Content="Accept Derivative" Cursor="Hand" Margin="15"/>
+                <Button x:Name="CancelWindow" Content="Cancel Derivative" Cursor="Hand"  Margin="15"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</Window>
