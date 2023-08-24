@@ -2,7 +2,6 @@
 using DiplomaMB.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace DiplomaMB.ViewModels
@@ -136,11 +135,11 @@ namespace DiplomaMB.ViewModels
                 double startWavelength = spectrum.Wavelengths[(int)peak.PeakBeginIndex];
                 double endWavelength = spectrum.Wavelengths[(int)peak.PeakEndIndex];
                 double peakWavelength = spectrum.Wavelengths[(int)peak.PeakIndex];
-                PeakInfo peak_info = new PeakInfo(i+1, peakValue, startWavelength, endWavelength, peakWavelength);
+                PeakInfo peak_info = new PeakInfo(i + 1, peakValue, startWavelength, endWavelength, peakWavelength);
                 Peaks.Add(peak_info);
             }
             Spectrum.Peaks = peaks;
-            
+
         }
 
         private double Trapz(List<double> x, List<double> y)

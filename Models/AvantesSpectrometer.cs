@@ -107,13 +107,13 @@
 //                {
 //                    MessageBox.Show("AVS_GetLambda failed", "Avantes");
 //                }
-                    
+
 //            }
 //            else
 //            {
 //                MessageBox.Show("Error opening port!", "Avantes");
 //            }
-                
+
 //        }
 
 //        public void Disconnect()
@@ -226,5 +226,5 @@
 //        }
 //    }
 
-   
+
 //}

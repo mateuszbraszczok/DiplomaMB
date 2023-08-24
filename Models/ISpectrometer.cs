@@ -1,10 +1,5 @@
 ﻿using Caliburn.Micro;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiplomaMB.Models
 {
@@ -35,7 +30,7 @@ namespace DiplomaMB.Models
 
         public BindableCollection<ConfigProperty> ConfigProperties { get; set; }
 
-        public IntegrationTimeUnit IntegrationTimeUnit{ get; set; }
+        public IntegrationTimeUnit IntegrationTimeUnit { get; set; }
 
         public string IntegrationTimeUnitStr { get; }
 

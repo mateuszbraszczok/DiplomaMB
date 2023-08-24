@@ -119,7 +119,7 @@ namespace DiplomaMB.ViewModels
                 is_panel_1_enabled = !value;
                 is_panel_2_enabled = value;
                 NotifyOfPropertyChange(() => IsPanel1Enabled);
-                NotifyOfPropertyChange(() => IsPanel2Enabled);         
+                NotifyOfPropertyChange(() => IsPanel2Enabled);
             }
         }
 

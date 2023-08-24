@@ -337,7 +337,7 @@ namespace DiplomaMB.ViewModels
             {
                 Thread.Sleep(10);
                 break;
-            }  
+            }
             gui_locked = false;
             UpdateGui();
         }
@@ -396,7 +396,7 @@ namespace DiplomaMB.ViewModels
 
         public bool CanLoadSpectrum
         {
-            get {return !gui_locked; }
+            get { return !gui_locked; }
         }
         public void LoadSpectrum()
         {

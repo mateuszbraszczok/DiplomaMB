@@ -4,13 +4,10 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
 using System.Windows;
 
@@ -107,7 +104,7 @@ namespace DiplomaMB.Models
                 channel = 0;
                 ret = BwtekAPIWrapper.GetUSBType(ref usb_type, channel);
                 if (ret != 1) { break; }
-                
+
                 ReadEeprom();
 
                 ret = BwtekAPIWrapper.bwtekTestUSB(timing_mode, pixel_number, input_mode, channel, 0);
@@ -177,7 +174,7 @@ namespace DiplomaMB.Models
                     data_list = new List<double>();
                 }
 
-                if (i > xaxis_min && i <= xaxis_max+1)
+                if (i > xaxis_min && i <= xaxis_max + 1)
                 {
                     data_list.Add((double)value);
                 }
@@ -193,7 +190,7 @@ namespace DiplomaMB.Models
 
             if (ret != pixel_number)
             {
-                Debug.WriteLine($"ReadDataSmart: Received: { ret} pixels");
+                Debug.WriteLine($"ReadDataSmart: Received: {ret} pixels");
                 throw new Exception("Not received data");
             }
             _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
@@ -204,7 +201,7 @@ namespace DiplomaMB.Models
                 data_array.Add((double)pArray[i]);
             }
             SubtractDarkScan(data_array);
-                
+
             return new Spectrum(wavelengths, data_array);
         }
 
@@ -215,7 +212,7 @@ namespace DiplomaMB.Models
                 Debug.WriteLine($"SubtractDarkScan: Data array count: {data_array.Count} Dark count: {dark_scan.Count}");
 
                 bool[] bad_pixels = new bool[data_array.Count];
-                data_array[0]  = (dark_scan[0] >= data_array[0])? 0 : data_array[0] -= dark_scan[0];
+                data_array[0] = (dark_scan[0] >= data_array[0]) ? 0 : data_array[0] -= dark_scan[0];
                 data_array[data_array.Count - 1] = (dark_scan[data_array.Count - 1] >= data_array[data_array.Count - 1]) ? 0 : data_array[data_array.Count - 1] -= dark_scan[data_array.Count - 1];
                 for (int i = 1; i < data_array.Count - 1; i++)
                 {
@@ -246,7 +243,7 @@ namespace DiplomaMB.Models
                     if (bad_pixels[i])
                     {
                         int start_i = i;
-                        while (i + 1 < bad_pixels.Length && bad_pixels[i + 1]) 
+                        while (i + 1 < bad_pixels.Length && bad_pixels[i + 1])
                         {
                             i++;
                         }
@@ -370,7 +367,7 @@ namespace DiplomaMB.Models
         {
             double[] pArray = spectrum.DataValues.ToArray();
             double[] result_array = new double[pArray.Length];
-            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble((int) derivative_config.DerivativeMethod, (derivative_config.WindowSize - 1)/2, derivative_config.DegreeOfPolynomial, derivative_config.DerivativeOrder, pArray, result_array, spectrum.DataValues.Count);
+            int ret = BwtekAPIWrapper.bwtekConvertDerivativeDouble((int)derivative_config.DerivativeMethod, (derivative_config.WindowSize - 1) / 2, derivative_config.DegreeOfPolynomial, derivative_config.DerivativeOrder, pArray, result_array, spectrum.DataValues.Count);
 
             Spectrum retVal = new Spectrum(spectrum.Wavelengths, result_array.ToList());
 
