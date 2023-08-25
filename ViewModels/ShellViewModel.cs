@@ -422,7 +422,7 @@ namespace DiplomaMB.ViewModels
         }
         public void LoadDarkScan()
         {
-            Spectrometer.LoadDarkScan();
+            Spectrometer.LoadDarkScanFromFile();
             NotifyOfPropertyChange(() => Spectrometer);
             UpdateGui();
         }
@@ -433,7 +433,7 @@ namespace DiplomaMB.ViewModels
         }
         public void SaveDarkScan()
         {
-            Spectrometer.SaveDarkScan();
+            Spectrometer.SaveDarkScanToFile();
             NotifyOfPropertyChange(() => Spectrometer);
             UpdateGui();
         }

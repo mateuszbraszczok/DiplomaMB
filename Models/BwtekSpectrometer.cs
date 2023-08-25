@@ -1,4 +1,11 @@
-﻿using Caliburn.Micro;
+﻿/**
+ * @file BwtekSpectrometer.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-26
+ * @brief BwtekSpectrometer class for handling spectrometer functionalities.
+ */
+
+using Caliburn.Micro;
 using DiplomaMB.Utils;
 using Microsoft.Win32;
 using System;
@@ -13,18 +20,31 @@ using System.Windows;
 
 namespace DiplomaMB.Models
 {
+    /// <summary>
+    /// Represents a Bwtek spectrometer.
+    /// Implements the <see cref="ISpectrometer"/> interface.
+    /// </summary>
     public class BwtekSpectrometer : ISpectrometer
     {
         private BindableCollection<ConfigProperty> config_properties;
+        /// <summary>
+        /// Gets or sets the configuration properties for the spectrometer.
+        /// </summary>
         public BindableCollection<ConfigProperty> ConfigProperties
         {
             get => config_properties;
             set => config_properties = value;
         }
 
+        /// <summary>
+        /// Gets or sets the connection status of the spectrometer.
+        /// </summary>
         public bool Connected { get; set; }
 
         private int integration_time;
+        /// <summary>
+        /// Gets or sets the integration time for the spectrometer.
+        /// </summary>
         public int IntegrationTime
         {
             get => integration_time;
@@ -32,6 +52,9 @@ namespace DiplomaMB.Models
         }
 
         private int integration_time_min;
+        /// <summary>
+        /// Gets or sets the minimum allowable integration time for the spectrometer.
+        /// </summary>
         public int IntegrationTimeMin
         {
             get => integration_time_min;
@@ -39,40 +62,81 @@ namespace DiplomaMB.Models
         }
 
         public IntegrationTimeUnit IntegrationTimeUnit { get; set; }
+        /// <summary>
+        /// Gets the unit for integration time as a string.
+        /// </summary>
         public string IntegrationTimeUnitStr
         {
             get => IntegrationTimeUnit == IntegrationTimeUnit.Microseconds ? "\xE6s" : "ms";
         }
 
         private string status;
+        /// <summary>
+        /// Gets the current status of the spectrometer.
+        /// </summary>
         public string Status
         {
             get => status;
         }
 
         private bool dark_scan_taken;
+        /// <summary>
+        /// Gets whether a dark scan has been taken.
+        /// </summary>
         public bool DarkScanTaken
         {
             get => dark_scan_taken;
         }
 
+        /// <summary>
+        /// Stores the USB type.
+        /// </summary>
         private int usb_type;
+        /// <summary>
+        /// Stores the channel.
+        /// </summary>
         private int channel;
 
+        /// <summary>
+        /// Stores the number of pixels.
+        /// </summary>
         private int pixel_number;
+        /// <summary>
+        /// Stores the timing mode.
+        /// </summary>
         private int timing_mode;
+        /// <summary>
+        /// Stores the input mode.
+        /// </summary>
         private int input_mode;
 
+        /// <summary>
+        /// Stores the minimum wavelength value on the x-axis.
+        /// </summary>
         private int xaxis_min;
+        /// <summary>
+        /// Stores the maximum wavelength value on the x-axis.
+        /// </summary>
         private int xaxis_max;
 
+        /// <summary>
+        /// Filename for EEPROM parameters.
+        /// </summary>
         private readonly string eeprom_filename = $"{Assembly.GetEntryAssembly().Location}\\..\\para.ini";
 
+        /// <summary>
+        /// Stores the wavelengths.
+        /// </summary>
         private List<double> wavelengths;
 
+        /// <summary>
+        /// Stores the dark scan.
+        /// </summary>
         private List<double> dark_scan;
 
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BwtekSpectrometer"/> class.
+        /// </summary>
         public BwtekSpectrometer()
         {
             Connected = false;
@@ -86,6 +150,9 @@ namespace DiplomaMB.Models
             dark_scan = new List<double>();
         }
 
+        /// <summary>
+        /// Attempts to connect the spectrometer.
+        /// </summary>
         public void Connect()
         {
             Connected = false;
@@ -130,6 +197,9 @@ namespace DiplomaMB.Models
             while (false);
         }
 
+        /// <summary>
+        /// Disconnects the spectrometer.
+        /// </summary>
         public void Disconnect()
         {
             _ = BwtekAPIWrapper.bwtekCloseUSB(channel);
@@ -138,6 +208,9 @@ namespace DiplomaMB.Models
             status = "Disconnected";
         }
 
+        /// <summary>
+        /// Resets the device.
+        /// </summary>
         public void ResetDevice()
         {
             int ret = BwtekAPIWrapper.bwtekSoftReset_CEnP(channel);
@@ -147,6 +220,11 @@ namespace DiplomaMB.Models
             }
         }
 
+        /// <summary>
+        /// Reads spectrum data from the spectrometer.
+        /// </summary>
+        /// <param name="frames_to_acquire">Number of frames to acquire.</param>
+        /// <returns>A list of spectrum data.</returns>
         public List<Spectrum> ReadData(int frames_to_acquire)
         {
             ushort[] pArray = new ushort[frames_to_acquire * pixel_number];
@@ -183,6 +261,11 @@ namespace DiplomaMB.Models
             return spectrum_list;
         }
 
+        /// <summary>
+        /// Reads spectrum data from the spectrometer with smart settings.
+        /// </summary>
+        /// <param name="smart_read">The smart read configuration.</param>
+        /// <returns>A spectrum object containing the read data.</returns>
         public Spectrum ReadDataSmart(SmartRead smart_read)
         {
             ushort[] pArray = new ushort[pixel_number];
@@ -205,6 +288,10 @@ namespace DiplomaMB.Models
             return new Spectrum(wavelengths, data_array);
         }
 
+        /// <summary>
+        /// Subtracts the dark scan from the data array.
+        /// </summary>
+        /// <param name="data_array">The data array to subtract from.</param>
         private void SubtractDarkScan(List<double> data_array)
         {
             if (dark_scan_taken)
@@ -261,6 +348,9 @@ namespace DiplomaMB.Models
             }
         }
 
+        /// <summary>
+        /// Acquires a dark scan from the spectrometer.
+        /// </summary>
         public void GetDarkScan()
         {
             ushort[] pArray = new ushort[pixel_number];
@@ -282,7 +372,10 @@ namespace DiplomaMB.Models
             Debug.WriteLine("Received dark scan");
         }
 
-        public void LoadDarkScan()
+        /// <summary>
+        /// Loads a dark scan from a CSV file.
+        /// </summary>
+        public void LoadDarkScanFromFile()
         {
             OpenFileDialog dialog = new OpenFileDialog()
             {
@@ -304,7 +397,10 @@ namespace DiplomaMB.Models
             Debug.WriteLine("Read dark scan from file");
         }
 
-        public void SaveDarkScan()
+        /// <summary>
+        /// Saves the current dark scan to a CSV file.
+        /// </summary>
+        public void SaveDarkScanToFile()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
@@ -328,6 +424,12 @@ namespace DiplomaMB.Models
             }
         }
 
+        /// <summary>
+        /// Applies smoothing to a given spectrum.
+        /// </summary>
+        /// <param name="smoothing">Smoothing configuration.</param>
+        /// <param name="spectrum">Spectrum to be smoothed.</param>
+        /// <returns>Smoothed spectrum.</returns>
         public Spectrum Smoothing(Smoothing smoothing, Spectrum spectrum)
         {
             double[] pArray = spectrum.DataValues.ToArray();
@@ -345,6 +447,10 @@ namespace DiplomaMB.Models
             return new Spectrum(wavelengths, data_array);
         }
 
+        /// <summary>
+        /// Sets the integration time of the spectrometer.
+        /// </summary>
+        /// <param name="integration_time">Integration time to set.</param>
         public void SetIntegrationTime(int integration_time)
         {
             int new_integration_time = integration_time;
@@ -363,6 +469,12 @@ namespace DiplomaMB.Models
             IntegrationTime = integration_time;
         }
 
+        /// <summary>
+        /// Calculates the derivative of a given spectrum.
+        /// </summary>
+        /// <param name="spectrum">The spectrum for which to calculate the derivative.</param>
+        /// <param name="derivative_config">Derivative configuration parameters.</param>
+        /// <returns>The spectrum after derivative calculation.</returns>
         public Spectrum CalculateDerivative(Spectrum spectrum, DerivativeConfig derivative_config)
         {
             double[] pArray = spectrum.DataValues.ToArray();
@@ -374,7 +486,10 @@ namespace DiplomaMB.Models
             return retVal;
         }
 
-
+        /// <summary>
+        /// Reads configuration and calibration information from the EEPROM of the device.
+        /// Populates various configuration properties based on the information read.
+        /// </summary>
         private void ReadEeprom()
         {
             _ = BwtekAPIWrapper.bwtekReadEEPROMUSB(eeprom_filename, channel);
@@ -428,6 +543,10 @@ namespace DiplomaMB.Models
             }
         }
 
+        /// <summary>
+        /// Generates a dummy spectrum for testing purposes.
+        /// </summary>
+        /// <returns>A dummy spectrum with random data.</returns>
         public Spectrum GenerateDummySpectrum()
         {
             List<double> dummy_wavelengths = new List<double>();

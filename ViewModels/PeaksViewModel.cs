@@ -1,4 +1,11 @@
-﻿using Caliburn.Micro;
+﻿/**
+ * @file PeaksViewModel.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-25
+ * @brief ViewModel for peak detection.
+ */
+
+using Caliburn.Micro;
 using DiplomaMB.Models;
 using System;
 using System.Collections.Generic;
@@ -6,9 +13,15 @@ using System.Linq;
 
 namespace DiplomaMB.ViewModels
 {
+    /// <summary>
+    /// ViewModel responsible for peak detection and display in a spectrum.
+    /// </summary>
     public class PeaksViewModel : Screen
     {
         private Spectrum spectrum;
+        /// <summary>
+        /// Gets or sets the current spectrum.
+        /// </summary>
         public Spectrum Spectrum
         {
             get => spectrum;
@@ -16,6 +29,9 @@ namespace DiplomaMB.ViewModels
         }
 
         private ISpectrometer spectrometer;
+        /// <summary>
+        /// Gets or sets the spectrometer instance.
+        /// </summary>
         public ISpectrometer Spectrometer
         {
             get => spectrometer;
@@ -23,6 +39,9 @@ namespace DiplomaMB.ViewModels
         }
 
         private BindableCollection<PeakInfo> peaks;
+        /// <summary>
+        /// Gets or sets the collection of peaks.
+        /// </summary>
         public BindableCollection<PeakInfo> Peaks
         {
             get => peaks;
@@ -30,12 +49,20 @@ namespace DiplomaMB.ViewModels
         }
 
         private int min_peak_height;
+        /// <summary>
+        /// Gets or sets the minimum peak height for peak detection.
+        /// </summary>
         public int MinPeakHeight
         {
             get => min_peak_height;
             set { min_peak_height = value; NotifyOfPropertyChange(() => MinPeakHeight); }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the PeaksViewModel class.
+        /// </summary>
+        /// <param name="_spectrum">The spectrum to be used.</param>
+        /// <param name="_spectrometer">The spectrometer to be used.</param>
         public PeaksViewModel(Spectrum _spectrum, ISpectrometer _spectrometer)
         {
             spectrum = _spectrum;
@@ -58,6 +85,9 @@ namespace DiplomaMB.ViewModels
             NotifyOfPropertyChange(() => Peaks);
         }
 
+        /// <summary>
+        /// Detects the peaks within the spectrum based on various parameters.
+        /// </summary>
         public void DetectPeaks()
         {
             DerivativeConfig derivative_config = new DerivativeConfig
@@ -142,6 +172,12 @@ namespace DiplomaMB.ViewModels
 
         }
 
+        /// <summary>
+        /// Implements the Trapezoidal Rule to calculate the area under a curve.
+        /// </summary>
+        /// <param name="x">The list of x-values.</param>
+        /// <param name="y">The list of y-values.</param>
+        /// <returns>The area under the curve.</returns>
         private double Trapz(List<double> x, List<double> y)
         {
             double result = 0;
@@ -152,6 +188,9 @@ namespace DiplomaMB.ViewModels
             return result;
         }
 
+        /// <summary>
+        /// Represents a peak with its details.
+        /// </summary>
         public class PeakInfo
         {
             public int PeakIndex { get; set; }
@@ -160,6 +199,14 @@ namespace DiplomaMB.ViewModels
             public double EndWavelength { get; set; }
             public double PeakWavelength { get; set; }
 
+            // <summary>
+            /// Initializes a new instance of the PeakInfo class.
+            /// </summary>
+            /// <param name="index">The index of the peak.</param>
+            /// <param name="peak_value">The value of the peak.</param>
+            /// <param name="start_wavelength">The starting wavelength of the peak.</param>
+            /// <param name="end_wavelength">The ending wavelength of the peak.</param>
+            /// <param name="peak_wavelength">The peak wavelength.</param>
             public PeakInfo(int index, double peak_value, double start_wavelength, double end_wavelength, double peak_wavelength)
             {
                 PeakIndex = index;

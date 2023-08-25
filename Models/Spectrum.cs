@@ -1,4 +1,11 @@
-﻿using DiplomaMB.Utils;
+﻿/**
+ * @file Spectrum.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-25
+ * @brief This file contains the Spectrum class which represents a spectrum with wavelengths and data values.
+ */
+
+using DiplomaMB.Utils;
 using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Series;
@@ -13,8 +20,17 @@ using System.Text.Json;
 
 namespace DiplomaMB.Models
 {
+    /// <summary>
+    /// Represents a spectrum with wavelengths and data values.
+    /// </summary>
     public class Spectrum
     {
+        /// <summary>
+        /// Gets or sets the identifier for this instance.
+        /// </summary>
+        /// <value>
+        /// An integer representing the unique identifier.
+        /// </value>
         private int id;
         public int Id
         {
@@ -22,6 +38,12 @@ namespace DiplomaMB.Models
             set => id = value;
         }
 
+        /// <summary>
+        /// Gets or sets the name associated with this instance.
+        /// </summary>
+        /// <value>
+        /// A string representing the name.
+        /// </value>
         private string name;
         public string Name
         {
@@ -29,6 +51,12 @@ namespace DiplomaMB.Models
             set => name = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is enabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+        /// </value>
         private bool enabled;
         public bool Enabled
         {
@@ -36,6 +64,12 @@ namespace DiplomaMB.Models
             set => enabled = value;
         }
 
+        /// <summary>
+        /// Gets or sets the list of wavelengths.
+        /// </summary>
+        /// <value>
+        /// The list of wavelengths.
+        /// </value>
         private List<double> wavelengths;
         public List<double> Wavelengths
         {
@@ -43,6 +77,12 @@ namespace DiplomaMB.Models
             set => wavelengths = value;
         }
 
+        /// <summary>
+        /// Gets or sets the list of data values.
+        /// </summary>
+        /// <value>
+        /// The list of data values.
+        /// </value>
         private List<double> data_values;
         public List<double> DataValues
         {
