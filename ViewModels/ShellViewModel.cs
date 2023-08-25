@@ -107,7 +107,6 @@ namespace DiplomaMB.ViewModels
 
         private bool should_acquire = false;
         private bool gui_locked = false;
-        private int last_id = 1;
         private Thread? continuously_acquiring_thread = null;
 
         /// <summary>
@@ -356,9 +355,9 @@ namespace DiplomaMB.ViewModels
             Debug.WriteLine("readed data");
             foreach (Spectrum spectrum in spectrum_list)
             {
-                spectrum.Id = last_id;
-                spectrum.Name = "Spectrum " + last_id.ToString();
-                last_id += 1;
+                //spectrum.Id = last_id;
+                //spectrum.Name = "Spectrum " + last_id.ToString();
+                //last_id += 1;
                 Spectrums.Add(spectrum);
             }
             UpdatePlot();
@@ -439,15 +438,12 @@ namespace DiplomaMB.ViewModels
         private void AcquiringSpectrums()
         {
             bool acquiredFirstSpectrum = false;
-            int id = last_id;
-            last_id++;
 
             while (should_acquire)
             {
                 Spectrum spectrum = Spectrometer.ReadData(1).First();
                 //Spectrum spectrum = Spectrometer.GenerateDummySpectrum();
-                spectrum.Id = id;
-                spectrum.Name = "Spectrum " + id.ToString();
+                spectrum.Name = "Spectrum " + spectrum.Id.ToString();
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -480,9 +476,7 @@ namespace DiplomaMB.ViewModels
             gui_locked = true;
             UpdateGui();
             Spectrum spectrum = await Task.Run(() => Spectrometer.ReadDataSmart(SmartRead));
-            spectrum.Id = last_id;
-            spectrum.Name = "Spectrum " + last_id.ToString();
-            last_id += 1;
+            spectrum.Name = "Spectrum " + spectrum.Id.ToString();
 
             if (spectrum.DataValues != null)
             {
@@ -514,8 +508,7 @@ namespace DiplomaMB.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 string file_path = dialog.FileName;
-                Spectrum spectrum = new Spectrum(file_path, last_id);
-                last_id++;
+                Spectrum spectrum = new Spectrum(file_path);
                 Spectrums.Add(spectrum);
                 UpdatePlot();
             }
@@ -527,7 +520,7 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public bool CanLoadDarkScan
         {
-            get { return !gui_locked; }
+            get { return !gui_locked && IsSpectrometerConnected(); }
         }
         /// <summary>
         /// Loads a dark scan from a file.
@@ -544,7 +537,7 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public bool CanSaveDarkScan
         {
-            get { return !gui_locked; }
+            get { return !gui_locked && IsSpectrometerConnected() && Spectrometer.DarkScanTaken; }
         }
         /// <summary>
         /// Saves the current dark scan to a file.
@@ -582,7 +575,7 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public bool CanDeleteAllSpectrums
         {
-            get { return !gui_locked; }
+            get { return !gui_locked && spectrums.Count > 0; }
         }
         /// <summary>
         /// Deletes all spectra and updates the plot.
@@ -600,7 +593,7 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public bool CanSaveSelectedSpectrum
         {
-            get { return !gui_locked; }
+            get { return !gui_locked && spectrums.Count > 0; }
         }
         /// <summary>
         /// Saves the selected spectrum to a file. If no spectrum is selected, shows an error message.
@@ -663,7 +656,6 @@ namespace DiplomaMB.ViewModels
             if (editing_dialog.OperationDone)
             {
                 Spectrum result = editing_dialog.ResultSpectrum;
-                result.Id = last_id++;
 
                 Spectrums.Add(result);
                 UpdatePlot();
@@ -704,9 +696,7 @@ namespace DiplomaMB.ViewModels
                     if (smoothing.CreateNewSpectrum)
                     {
                         Debug.WriteLine("create new spectrum");
-                        smoothed_spectrum.Id = last_id;
                         smoothed_spectrum.Name = selected_spectrum.Name + "_smoothed";
-                        last_id += 1;
                         Spectrums.Add(smoothed_spectrum);
                     }
                     else
@@ -744,7 +734,6 @@ namespace DiplomaMB.ViewModels
             if (derivative_dialog.OperationDone)
             {
                 Spectrum result = derivative_dialog.ResultSpectrum;
-                result.Id = last_id++;
 
                 Spectrums.Add(result);
                 UpdatePlot();

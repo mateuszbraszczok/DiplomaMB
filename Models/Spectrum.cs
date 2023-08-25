@@ -106,6 +106,31 @@ namespace DiplomaMB.Models
             set => peaks = value;
         }
 
+        private static int last_spectrum_id = 1;
+
+        private static List<OxyColor> colors = new List<OxyColor>
+        {
+            OxyColor.FromRgb((byte)(0 * 255), (byte)(0.4470 * 255), (byte)(0.7410 * 255)),  // Blue
+            OxyColor.FromRgb((byte)(0.8500 * 255), (byte)(0.3250 * 255), (byte)(0.0980 * 255)),  // Orange
+            OxyColor.FromRgb((byte)(0.9290 * 255), (byte)(0.6940 * 255), (byte)(0.1250 * 255)),  // Yellow
+            OxyColor.FromRgb((byte)(0.4940 * 255), (byte)(0.1840 * 255), (byte)(0.5560 * 255)),  // Purple
+            OxyColor.FromRgb((byte)(0.4660 * 255), (byte)(0.6740 * 255), (byte)(0.1880 * 255)),  // Green
+            OxyColor.FromRgb((byte)(0.3010 * 255), (byte)(0.7450 * 255), (byte)(0.9330 * 255)),  // Light Blue
+            OxyColor.FromRgb((byte)(0.6350 * 255), (byte)(0.0780 * 255), (byte)(0.1840 * 255)),  // Red
+
+            OxyColor.FromRgb(255, 140, 0),  // Dark Orange
+            OxyColor.FromRgb(0, 255, 255),  // Cyan
+            OxyColor.FromRgb(148, 0, 211),  // Dark Violet
+            OxyColor.FromRgb(0, 255, 127),  // Spring Green
+            OxyColor.FromRgb(220, 20, 60),  // Crimson
+            OxyColor.FromRgb(210, 105, 30), // Chocolate
+            OxyColor.FromRgb(255, 20, 147), // Deep Pink
+            OxyColor.FromRgb(128, 128, 0),  // Olive
+            OxyColor.FromRgb(106, 90, 205), // Slate Blue
+            OxyColor.FromRgb(46, 139, 87)   // Sea Green
+        };
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Spectrum"/> class with default values.
         /// </summary>
@@ -114,7 +139,7 @@ namespace DiplomaMB.Models
         /// </remarks>
         public Spectrum()
         {
-
+            id = last_spectrum_id++;
         }
 
         /// <summary>
@@ -123,17 +148,16 @@ namespace DiplomaMB.Models
         /// <param name="_wavelengths">A list of wavelengths to be assigned to this instance.</param>
         /// <param name="_dataValues">A list of data values to be assigned to this instance.</param>
         /// <param name="_name">A string representing the name of the Spectrum. Default is an empty string.</param>
-        /// <param name="_id">An integer ID to be assigned to this Spectrum instance. Default is 0.</param>
         /// <remarks>
-        /// The constructor initializes the Wavelengths, DataValues, Name, and ID properties with the provided values.
+        /// The constructor initializes the Wavelengths, DataValues, Name properties with the provided values.
         /// It also sets the Enabled property to true and initializes an empty list for storing peaks.
         /// </remarks>
-        public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "", int _id = 0)
+        public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "")
         {
             Wavelengths = _wavelengths;
             data_values = _dataValues;
             Name = _name;
-            Id = _id;
+            id = last_spectrum_id++;
             Enabled = true;
             Peaks = new List<Peak>();
         }
@@ -150,12 +174,12 @@ namespace DiplomaMB.Models
         /// 
         /// Note: The given file should conform to the expected CSV or JSON format. Otherwise, the behavior is undefined.
         /// </remarks>
-        public Spectrum(string file_path, int _id)
+        public Spectrum(string file_path)
         {
             string extension = Path.GetExtension(file_path);
             if (extension == ".csv")
             {
-                LoadCsvFile(file_path, _id);
+                LoadCsvFile(file_path);
             }
             else if (extension == ".json")
             {
@@ -181,6 +205,7 @@ namespace DiplomaMB.Models
                 StrokeThickness = 2,
                 MarkerSize = 3,
                 Title = Name,
+                Color = colors[(Id - 1) % colors.Count],
                 //MarkerStroke = colors[data.Key],
                 //MarkerType = markerTypes[data.Key],
                 //CanTrackerInterpolatePoints = false,
@@ -568,13 +593,12 @@ namespace DiplomaMB.Models
         /// 
         /// Parameters:
         /// file_path - The path to the CSV file to read.
-        /// id - The identifier to assign to the loaded data.
         /// 
         /// The CSV file should have two columns separated by a comma. The first column is interpreted as wavelengths (in double format), and the second column is interpreted as data values (also in double format).
         /// 
-        /// The method also sets the Id and Name properties based on the input parameters and the file name.
+        /// The method also sets the Name property based on the input parameters and the file name.
         /// </remarks>
-        private void LoadCsvFile(string file_path, int id)
+        private void LoadCsvFile(string file_path)
         {
             using var reader = new StreamReader(file_path);
             Wavelengths = new List<double>();
@@ -587,8 +611,8 @@ namespace DiplomaMB.Models
                 Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
                 DataValues.Add(Convert.ToDouble(values[1]));
             }
-            Id = id;
             Name = Path.GetFileNameWithoutExtension(file_path);
+            Id = last_spectrum_id++;
             Enabled = true;
         }
 
@@ -615,7 +639,7 @@ namespace DiplomaMB.Models
             {
                 Wavelengths = spectrum.Wavelengths;
                 DataValues = spectrum.DataValues;
-                Id = spectrum.Id;
+                id = last_spectrum_id++;
                 Name = spectrum.Name;
                 Enabled = spectrum.Enabled;
             }

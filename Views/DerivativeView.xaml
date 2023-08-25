@@ -15,18 +15,18 @@
         <StackPanel Margin="5">
             <StackPanel Orientation="Horizontal">
                 <Label Content="Derivative Order:" Margin="14,0,0,0"/>
-                <xctk:IntegerUpDown x:Name="DerivativeConfig_DerivativeOrder" Width="50" Minimum="1" Maximum="2" Value="{Binding DerivativeConfig.DerivativeOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <xctk:IntegerUpDown Width="50" Minimum="1" Maximum="2" Value="{Binding DerivativeConfig.DerivativeOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
             <RadioButton IsChecked="{Binding DerivativeConfig.DerivativeMethod, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Point_Diff}">Point Diff</RadioButton>
             <RadioButton IsChecked="{Binding DerivativeConfig.DerivativeMethod, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Savitzky_Golay}">Savitzky Golay</RadioButton>
             <StackPanel Orientation="Horizontal" IsEnabled="{Binding DerivativeConfig.IsSavitzkyGolayEnabled}">
                 <StackPanel>
                     <Label Content="Degree of polynomial:" Margin="14,0,0,0"/>
-                    <xctk:IntegerUpDown x:Name="DerivativeConfig_DegreeOfPolynomial" Width="50" Minimum="2" Maximum="99" Value="{Binding DerivativeConfig.DegreeOfPolynomial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <xctk:IntegerUpDown Width="50" Minimum="2" Maximum="99" Value="{Binding DerivativeConfig.DegreeOfPolynomial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="Window Size:" Margin="14,0,0,0"/>
-                    <xctk:IntegerUpDown x:Name="DerivativeConfig_WindowSize" Width="50" Minimum="5" Maximum="99" Increment="2" Value="{Binding DerivativeConfig.WindowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <xctk:IntegerUpDown Width="50" Minimum="5" Maximum="99" Increment="2" Value="{Binding DerivativeConfig.WindowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </StackPanel>
            

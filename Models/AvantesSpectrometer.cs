@@ -1,10 +1,5 @@
 ﻿using Caliburn.Micro;
-using DiplomaMB.Utils;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Windows;
 
 namespace DiplomaMB.Models
 {

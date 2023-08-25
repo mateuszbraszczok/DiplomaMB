@@ -86,7 +86,7 @@
 
                 <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='invert'}" Margin="5" >
                     <Label Content="Baseline Removal Lambda:"/>
-                    <xctk:LongUpDown x:Name="BaselineRemovalLambda" Width="100" Minimum="1" Maximum="10000000000" Value="{Binding BaselineRemovalLambda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <xctk:LongUpDown Width="100" Minimum="1" Maximum="10000000000" Value="{Binding BaselineRemovalLambda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </StackPanel>
 

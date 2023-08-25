@@ -100,7 +100,7 @@ namespace DiplomaMB.ViewModels
                 return;
             }
             result_spectrum = spectrometer.CalculateDerivative(spectrum, derivative_config);
-            result_spectrum.Name = spectrum.Name + (derivative_config.DerivativeOrder == 1 ? "1st_derivative" : "2nd_derivative");
+            result_spectrum.Name = spectrum.Name + "_" + (derivative_config.DerivativeOrder == 1 ? "1st" : "2nd") + "_derivative";
 
             operation_done = true;
             TryCloseAsync();

@@ -444,7 +444,7 @@ namespace DiplomaMB.Models
             Debug.WriteLine("Smoothing success");
             List<double> data_array = pArray.ToList().ConvertAll(x => (double)x);
 
-            return new Spectrum(wavelengths, data_array);
+            return new Spectrum(spectrum.Wavelengths, data_array);
         }
 
         /// <summary>

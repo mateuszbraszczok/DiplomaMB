@@ -52,7 +52,7 @@
                 <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
                 <Button x:Name="ResetSpectrometer">Reset Device</Button>
                 <StackPanel Orientation="Horizontal">
-                    <xctk:IntegerUpDown x:Name="Spectrometer_IntegrationTime" Width="100" Minimum="1" Value="{Binding IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <xctk:IntegerUpDown Width="100" Minimum="1" Value="{Binding IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label x:Name="Spectrometer_IntegrationTimeUnitStr"/>
                 </StackPanel>
                 <Button x:Name="SetIntegrationTime">Set integration time</Button>
@@ -73,7 +73,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <xctk:IntegerUpDown x:Name="FramesToAcquire" Width="50" Minimum="0" Maximum="255" Value="{Binding FramesToAcquire, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <xctk:IntegerUpDown Width="50" Minimum="0" Maximum="255" Value="{Binding FramesToAcquire, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of frames of data to acquire"/>
                 </StackPanel>
                 <Button x:Name="GetSpectrum">Get Spectrum</Button>
@@ -96,7 +96,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
-                    <xctk:IntegerUpDown x:Name="SmartRead_SpectrumsToAverage" Width="50" Minimum="0" Maximum="255" Value="{Binding SmartRead.SpectrumsToAverage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
+                    <xctk:IntegerUpDown Width="50" Minimum="0" Maximum="255" Value="{Binding SmartRead.SpectrumsToAverage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
                     <Label Content="Number of scans to be averaged"/>
                 </StackPanel>
 
@@ -119,22 +119,24 @@
                 <StackPanel>
                     <Button x:Name="SaveSelectedSpectrum">Save selected spectrum</Button>
                     <Button x:Name="LoadSpectrum">Load spectrum from file</Button>
-                    <Button x:Name="SaveDarkScan">Save dark scan to file</Button>
-                    <Button x:Name="LoadDarkScan">Load dark scan from file</Button>
-                </StackPanel>
-                <StackPanel>
-                    <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
                     <Button x:Name="DeleteSelectedSpectrum">Delete selected spectrum</Button>
-                    <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
-                    <Button x:Name="EditSmoothing">Perform Smoothing</Button>
+                    
                     <Button x:Name="SpectrumPeaks">Detect peaks</Button>
                     <Button x:Name="Derivative">Derivative</Button>
                 </StackPanel>
+                <StackPanel>
+                    <Button x:Name="SaveDarkScan">Save dark scan to file</Button>
+                    <Button x:Name="LoadDarkScan">Load dark scan from file</Button>
+                    <Button x:Name="DeleteAllSpectrums">Delete all spectrums</Button>
+                    
+                    <Button x:Name="SpectrumOperations" >Spectrum operations</Button>
+                    <Button x:Name="EditSmoothing">Perform Smoothing</Button>
+                </StackPanel>
             </StackPanel>
         </Border>
-        <oxy:PlotView x:Name="PlotModel" Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Width="950" Height="580" />
+        <oxy:PlotView Model="{Binding PlotModel}" Margin="5" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Width="950" Height="580" />
 
-        <TabControl Grid.Column="5" Grid.Row="3" MaxHeight="550" Width="200">
+        <TabControl Grid.Row="3" Grid.Column="5" MaxHeight="550" Width="200">
             <TabItem Header="Spectrum List" >
                 <DataGrid x:Name="Spectrums" Background="LightGray" SelectedValue="{Binding SelectedSpectrum}" CanUserAddRows="False" CanUserDeleteRows="False"
                   CanUserReorderColumns="False" AutoGenerateColumns="False" CanUserResizeColumns="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
