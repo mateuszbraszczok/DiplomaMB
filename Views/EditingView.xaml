@@ -57,6 +57,7 @@
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Multiply}">A * B</RadioButton>
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Divide}">A / B</RadioButton>
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=BaselineRemove}">BaselineRemove(A)</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Average}">Average(A,B)</RadioButton>
             </StackPanel>
         </Border>
 
@@ -66,7 +67,7 @@
                     <RadioButton Content="Spectrum B" IsChecked="{Binding IsPanel1Enabled}" GroupName="PanelSwitch"/>
 
                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel1Enabled}" Margin="5">
-                        <ComboBox x:Name="Spectrums2"  SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
+                        <ComboBox x:Name="Spectrums2" SelectedValue="{Binding SelectedSpectrum2}" IsSynchronizedWithCurrentItem="True" SelectedIndex="1">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}"/>
@@ -75,10 +76,10 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch"/>
+                    <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch" IsEnabled="{Binding CanSecondValueBeNumber}"/>
                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5">
                         <Label Content="Enter a Double Value:"/>
-                        <TextBox x:Name="DoubleValue"  VerticalAlignment="Center"
+                        <TextBox x:Name="DoubleValue" VerticalAlignment="Center"
                             Text="{Binding DoubleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N3}"/>
                     </StackPanel>
 

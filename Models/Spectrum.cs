@@ -139,7 +139,6 @@ namespace DiplomaMB.Models
         /// </remarks>
         public Spectrum()
         {
-            id = last_spectrum_id++;
         }
 
         /// <summary>
@@ -154,12 +153,12 @@ namespace DiplomaMB.Models
         /// </remarks>
         public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "")
         {
-            Wavelengths = _wavelengths;
+            wavelengths = _wavelengths;
             data_values = _dataValues;
-            Name = _name;
+            name = _name;
             id = last_spectrum_id++;
-            Enabled = true;
-            Peaks = new List<Peak>();
+            enabled = true;
+            peaks = new List<Peak>();
         }
 
         /// <summary>
@@ -185,7 +184,7 @@ namespace DiplomaMB.Models
             {
                 LoadJsonFile(file_path);
             }
-            Peaks = new List<Peak>();
+            peaks = new List<Peak>();
         }
 
         /// <summary>
@@ -466,6 +465,18 @@ namespace DiplomaMB.Models
             for (int i = 0; i < spectrum1.DataValues.Count; i++)
             {
                 dataValues.Add(spectrum1.DataValues[i] / doubleValue);
+            }
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+
+        public static Spectrum AverageSpectrums(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            List<double> dataValues = new List<double>();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add((spectrum1.DataValues[i] + spectrum2.DataValues[i]) / 2);
             }
             Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
             return result;

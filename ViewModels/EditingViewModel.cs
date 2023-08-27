@@ -22,7 +22,8 @@ namespace DiplomaMB.ViewModels
         Subtract,
         Multiply,
         Divide,
-        BaselineRemove
+        BaselineRemove,
+        Average
     }
 
     /// <summary>
@@ -91,6 +92,7 @@ namespace DiplomaMB.ViewModels
             {
                 selected_operation = value;
                 IsSpectrums2ComboBoxEnabled = value != Operations.BaselineRemove;
+                CanSecondValueBeNumber = value != Operations.Average;
                 NotifyOfPropertyChange(() => SelectedOperation);
             }
         }
@@ -133,6 +135,16 @@ namespace DiplomaMB.ViewModels
         {
             get => is_spectrums2_comboBox_enabled;
             set { is_spectrums2_comboBox_enabled = value; NotifyOfPropertyChange(() => IsSpectrums2ComboBoxEnabled); }
+        }
+
+        private bool can_second_value_be_number = true;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool CanSecondValueBeNumber
+        {
+            get => can_second_value_be_number;
+            set { can_second_value_be_number = value; NotifyOfPropertyChange(() => CanSecondValueBeNumber); }
         }
 
         private long baseline_removal_lambda = 10000000L;
@@ -218,6 +230,9 @@ namespace DiplomaMB.ViewModels
                     break;
                 case Operations.Divide:
                     DivideSelectedSpectrums();
+                    break;
+                case Operations.Average:
+                    AverageSelectedSpectrums();
                     break;
 
                 case Operations.BaselineRemove:
@@ -333,6 +348,19 @@ namespace DiplomaMB.ViewModels
                 {
                     ResultSpectrum = SelectedSpectrum1 / DoubleValue;
                     MessageBox.Show("Divided spectrum by value");
+                    OperationDone = true;
+                }
+            }
+        }
+
+        private void AverageSelectedSpectrums()
+        {
+            if (IsPanel1Enabled)
+            {
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = Spectrum.AverageSpectrums(SelectedSpectrum1, SelectedSpectrum2);
+                    MessageBox.Show("Averaged two spectrums");
                     OperationDone = true;
                 }
             }
