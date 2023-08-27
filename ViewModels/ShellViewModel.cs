@@ -653,7 +653,7 @@ namespace DiplomaMB.ViewModels
             var editing_dialog = new EditingViewModel(Spectrums);
             windowManager.ShowDialogAsync(editing_dialog);
 
-            if (editing_dialog.OperationDone)
+            if (editing_dialog.OperationDone && editing_dialog.ResultSpectrum != null)
             {
                 Spectrum result = editing_dialog.ResultSpectrum;
 
@@ -722,23 +722,27 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public void Derivative()
         {
-            if (selected_spectrum == null)
+            if (SelectedSpectrum != null)
+            {
+                var windowManager = new WindowManager();
+                var derivative_dialog = new DerivativeViewModel(SelectedSpectrum, Spectrometer);
+                windowManager.ShowDialogAsync(derivative_dialog);
+
+                if (derivative_dialog.OperationDone)
+                {
+                    Spectrum result = derivative_dialog.ResultSpectrum;
+
+                    Spectrums.Add(result);
+                    UpdatePlot();
+                }
+                UpdateGui();
+            }
+            else
             {
                 MessageBox.Show("No Spectrum selected");
                 return;
             }
-            var windowManager = new WindowManager();
-            var derivative_dialog = new DerivativeViewModel(SelectedSpectrum, Spectrometer);
-            windowManager.ShowDialogAsync(derivative_dialog);
-
-            if (derivative_dialog.OperationDone)
-            {
-                Spectrum result = derivative_dialog.ResultSpectrum;
-
-                Spectrums.Add(result);
-                UpdatePlot();
-            }
-            UpdateGui();
+            
         }
 
         /// <summary>

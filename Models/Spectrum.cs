@@ -130,17 +130,6 @@ namespace DiplomaMB.Models
             OxyColor.FromRgb(46, 139, 87)   // Sea Green
         };
 
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spectrum"/> class with default values.
-        /// </summary>
-        /// <remarks>
-        /// This constructor initializes all properties to their default values.
-        /// </remarks>
-        public Spectrum()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Spectrum"/> class with the provided wavelengths and data values.
         /// </summary>
@@ -175,6 +164,10 @@ namespace DiplomaMB.Models
         /// </remarks>
         public Spectrum(string file_path)
         {
+            data_values = new List<double>();
+            wavelengths = new List<double>();
+            name = "";
+
             string extension = Path.GetExtension(file_path);
             if (extension == ".csv")
             {
@@ -617,7 +610,7 @@ namespace DiplomaMB.Models
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
-                var values = line.Split(',');
+                var values = (line ?? string.Empty).Split(',');
 
                 Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
                 DataValues.Add(Convert.ToDouble(values[1]));
@@ -645,15 +638,12 @@ namespace DiplomaMB.Models
             string json_content = File.ReadAllText(file_path);
             Debug.WriteLine(json_content);
 
-            Spectrum spectrum = JsonSerializer.Deserialize<Spectrum?>(json_content);
-            if (spectrum != null)
-            {
-                Wavelengths = spectrum.Wavelengths;
-                DataValues = spectrum.DataValues;
-                id = last_spectrum_id++;
-                Name = spectrum.Name;
-                Enabled = spectrum.Enabled;
-            }
+            JsonElement json_root = JsonDocument.Parse(json_content).RootElement;
+            Wavelengths = json_root.GetProperty(nameof(Wavelengths)).EnumerateArray().Select(e => e.GetDouble()).ToList();
+            DataValues = json_root.GetProperty(nameof(DataValues)).EnumerateArray().Select(e => e.GetDouble()).ToList();
+            Name = json_root.GetProperty(nameof(Name)).GetString() ?? "";
+            Enabled = json_root.GetProperty(nameof(Enabled)).GetBoolean();
+            Id = last_spectrum_id++;
         }
     }
 }

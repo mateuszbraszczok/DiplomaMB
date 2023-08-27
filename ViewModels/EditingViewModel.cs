@@ -71,11 +71,11 @@ namespace DiplomaMB.ViewModels
             set { selected_spectrum2 = value; NotifyOfPropertyChange(() => SelectedSpectrum2); }
         }
 
-        private Spectrum result_spectrum;
+        private Spectrum? result_spectrum;
         /// <summary>
         /// Gets or sets the resulting spectrum after an operation is performed.
         /// </summary>
-        public Spectrum ResultSpectrum
+        public Spectrum? ResultSpectrum
         {
             get => result_spectrum;
             set => result_spectrum = value;
@@ -198,7 +198,6 @@ namespace DiplomaMB.ViewModels
             operation_done = false;
             spectrums1 = spectrums;
             spectrums2 = spectrums;
-            result_spectrum = new Spectrum();
 
             DoubleValue = 1.0;
             is_spectrums2_comboBox_enabled = true;
@@ -241,7 +240,11 @@ namespace DiplomaMB.ViewModels
                 default:
                     break;
             }
-            ResultSpectrum.Name = NewSpectrumName;
+            if(ResultSpectrum != null)
+            {
+                ResultSpectrum.Name = NewSpectrumName;
+            }
+            
             TryCloseAsync();
         }
 
