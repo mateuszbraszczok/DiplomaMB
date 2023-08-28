@@ -463,6 +463,21 @@ namespace DiplomaMB.Models
             return result;
         }
 
+        /// <summary>
+        /// Averages the data values of two Spectrum objects element-wise.
+        /// </summary>
+        /// <param name="spectrum1">The first Spectrum object whose data values are to be averaged.</param>
+        /// <param name="spectrum2">The second Spectrum object whose data values are to be averaged.</param>
+        /// <returns>A new Spectrum object where each data value is the average of the corresponding data values in the input Spectrums.</returns>
+        /// <remarks>
+        /// This function allows for easy averaging of data values from two Spectrum objects.
+        /// It creates a new Spectrum object that contains the averaged data values.
+        /// 
+        /// Note: This operation does not alter the original Spectrum objects.
+        /// 
+        /// Caution: The function assumes that both Spectrum objects have the same length of data values.
+        /// If they do not, this will result in an index out-of-range exception.
+        /// </remarks>
         public static Spectrum AverageSpectrums(Spectrum spectrum1, Spectrum spectrum2)
         {
             List<double> dataValues = new List<double>();

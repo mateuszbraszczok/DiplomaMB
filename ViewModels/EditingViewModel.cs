@@ -356,6 +356,16 @@ namespace DiplomaMB.ViewModels
             }
         }
 
+        /// <summary>
+        /// Averages the selected spectrums if certain conditions are met.
+        /// </summary>
+        /// <remarks>
+        /// This function performs the averaging operation if the following conditions are met:
+        /// 1. The panel (presumably a UI element or a functional module) is enabled (IsPanel1Enabled = true).
+        /// 2. Both SelectedSpectrum1 and SelectedSpectrum2 are not null.
+        ///
+        /// If the averaging is successful, a message box is shown, and the OperationDone flag is set to true.
+        /// </remarks>
         private void AverageSelectedSpectrums()
         {
             if (IsPanel1Enabled)
