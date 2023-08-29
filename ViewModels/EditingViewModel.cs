@@ -23,7 +23,8 @@ namespace DiplomaMB.ViewModels
         Multiply,
         Divide,
         BaselineRemove,
-        Average
+        Average,
+        Merging
     }
 
     /// <summary>
@@ -92,8 +93,9 @@ namespace DiplomaMB.ViewModels
             {
                 selected_operation = value;
                 IsSpectrums2ComboBoxEnabled = value != Operations.BaselineRemove;
-                CanSecondValueBeNumber = value != Operations.Average;
+                CanSecondValueBeNumber = (value != Operations.Average) && (value != Operations.Merging);
                 NotifyOfPropertyChange(() => SelectedOperation);
+                NotifyOfPropertyChange(() => MergingWindowVisible);
             }
         }
 
@@ -115,6 +117,28 @@ namespace DiplomaMB.ViewModels
         {
             get => double_value;
             set { double_value = value; NotifyOfPropertyChange(() => DoubleValue); }
+        }
+
+        private int merging_threshold = 50000;
+
+        public int MergingThreshold
+        {
+            get => merging_threshold;
+            set { merging_threshold = value; NotifyOfPropertyChange(() => MergingThreshold); }
+        }
+
+        private int new_max_value = 90000;
+
+        public int NewMaxValue
+        {
+            get => new_max_value;
+            set { new_max_value = value; NotifyOfPropertyChange(() => NewMaxValue); }
+        }
+
+
+        public bool MergingWindowVisible
+        {
+            get => SelectedOperation ==Operations.Merging;
         }
 
         private string new_spectrum_name;
@@ -232,6 +256,9 @@ namespace DiplomaMB.ViewModels
                     break;
                 case Operations.Average:
                     AverageSelectedSpectrums();
+                    break;
+                case Operations.Merging:
+                    MergeSelectedSpectrums();
                     break;
 
                 case Operations.BaselineRemove:
@@ -374,6 +401,19 @@ namespace DiplomaMB.ViewModels
                 {
                     ResultSpectrum = Spectrum.AverageSpectrums(SelectedSpectrum1, SelectedSpectrum2);
                     MessageBox.Show("Averaged two spectrums");
+                    OperationDone = true;
+                }
+            }
+        }
+
+        private void MergeSelectedSpectrums()
+        {
+            if (IsPanel1Enabled)
+            {
+                if (SelectedSpectrum1 != null && SelectedSpectrum2 != null)
+                {
+                    ResultSpectrum = Spectrum.MergeSpectrums(SelectedSpectrum1, SelectedSpectrum2, MergingThreshold, NewMaxValue);
+                    MessageBox.Show("Merged two spectrums");
                     OperationDone = true;
                 }
             }

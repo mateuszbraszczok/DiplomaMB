@@ -490,6 +490,126 @@ namespace DiplomaMB.Models
             return result;
         }
 
+        public static Spectrum MergeSpectrums(Spectrum spectrum1, Spectrum spectrum2, int threshold, int spectrum_max_value)
+        {
+            bool[] in_merged_region = spectrum2.GetMergingRegions(threshold);
+            // Initialize new signal array
+            List<double> newsignal = new List<double>();
+
+            // Loop through all data and write true when in a merged region
+            bool in_region = false;
+            double[] arith_seq = null;
+            double OldMax = 0;
+            double OldMin = 0;
+            int next_false_idx = 0;
+
+            for (int i = 0; i < spectrum2.DataValues.Count; i++)
+            {
+                if (in_merged_region[i])
+                {
+                    if (!in_region)
+                    {
+                        next_false_idx = Array.FindIndex(in_merged_region, i, x => !x);
+                        double ratio_begin = spectrum2.DataValues[i] / spectrum1.DataValues[i];
+                        double ratio_end = spectrum2.DataValues[next_false_idx] / spectrum1.DataValues[next_false_idx];
+
+                        arith_seq = Enumerable.Range(0, next_false_idx - i)
+                                              .Select(n => ratio_begin + n * (ratio_end - ratio_begin) / (next_false_idx - i - 1))
+                                              .ToArray();
+
+                        var data_series = spectrum1.DataValues.GetRange(i, next_false_idx - i)
+                                             .Select((val, idx) => val * arith_seq[idx])
+                                             .ToList();
+
+                        OldMax = data_series.Max();
+                        OldMin = data_series.Min();
+
+                        in_region = true;
+                    }
+                    double normalized_data = ((spectrum1.DataValues[i] * arith_seq[next_false_idx - i - 1] - OldMin) / (OldMax - OldMin)) * (spectrum_max_value - OldMin) + OldMin;
+                    newsignal.Add(normalized_data);
+                }
+                else
+                {
+                    in_region = false;
+                    newsignal.Add(spectrum2.DataValues[i]);
+                }
+            }
+
+            Spectrum result = new Spectrum(spectrum1.wavelengths, newsignal);
+            return result;
+        }
+
+        private bool[] GetMergingRegions(int threshold)
+        {
+            List<Tuple<int, int>> above_threshold_regions = new List<Tuple<int, int>>();
+            int? start_idx = null;
+
+            // Loop through the data series
+            for (int i = 0; i < DataValues.Count; i++)
+            {
+                double value = DataValues[i];
+
+                if (value > threshold)
+                {
+                    if (start_idx == null)
+                    {
+                        start_idx = i;
+                    }
+                }
+                else
+                {
+                    if (start_idx != null)
+                    {
+                        above_threshold_regions.Add(new Tuple<int, int>((int)start_idx, i - 1));
+                        start_idx = null;
+                    }
+                }
+            }
+
+            // Capture trailing regions
+            if (start_idx != null)
+            {
+                above_threshold_regions.Add(new Tuple<int, int>((int)start_idx, DataValues.Count - 1));
+            }
+
+            // Merging regions
+            List<Tuple<int, int>> merged_regions = new List<Tuple<int, int>>();
+            int current_start = above_threshold_regions[0].Item1;
+            int current_end = above_threshold_regions[0].Item2;
+
+            for (int i = 1; i < above_threshold_regions.Count; i++)
+            {
+                if (above_threshold_regions[i].Item1 - current_end <= 5)
+                {
+                    // Merge the region with the previous one
+                    current_end = above_threshold_regions[i].Item2;
+                }
+                else
+                {
+                    // Add the current merged region to the list and reset
+                    merged_regions.Add(new Tuple<int, int>(current_start, current_end));
+                    current_start = above_threshold_regions[i].Item1;
+                    current_end = above_threshold_regions[i].Item2;
+                }
+            }
+
+            merged_regions.Add(new Tuple<int, int>(current_start, current_end));
+
+            bool[] in_merged_region = new bool[DataValues.Count];
+
+            // Loop through each merged region and set corresponding indices to true
+            foreach (var region in merged_regions)
+            {
+                for (int i = region.Item1; i <= region.Item2; i++)
+                {
+                    in_merged_region[i] = true;
+                }
+            }
+
+            return in_merged_region;
+        }
+
 
         /// <summary>
         /// Performs baseline correction on a given Spectrum object using the AirPLS algorithm.

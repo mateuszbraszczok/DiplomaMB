@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         Background="LightGray"
-        Title="Spectrum math operations" Height="270" Width="550"
+        Title="Spectrum math operations" Height="300" Width="550"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize">
     <Window.Resources>
@@ -58,6 +58,7 @@
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Divide}">A / B</RadioButton>
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=BaselineRemove}">BaselineRemove(A)</RadioButton>
                 <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Average}">Average(A,B)</RadioButton>
+                <RadioButton IsChecked="{Binding Path=SelectedOperation, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Merging}">Merge(A,B)</RadioButton>
             </StackPanel>
         </Border>
 
@@ -76,15 +77,23 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch" IsEnabled="{Binding CanSecondValueBeNumber}"/>
-                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5">
+                    <RadioButton Content="Value B" IsChecked="{Binding IsPanel2Enabled}" GroupName="PanelSwitch" IsEnabled="{Binding CanSecondValueBeNumber}" Visibility="{Binding CanSecondValueBeNumber, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsPanel2Enabled}" Margin="5" Visibility="{Binding CanSecondValueBeNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Label Content="Enter a Double Value:"/>
                         <TextBox x:Name="DoubleValue" VerticalAlignment="Center"
                             Text="{Binding DoubleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N3}"/>
                     </StackPanel>
-
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="5" Visibility="{Binding MergingWindowVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Label Content="Merging Threshold:"/>
+                    <xctk:IntegerUpDown Width="100" Minimum="1" Maximum="1000000" Value="{Binding MergingThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
+                <StackPanel Orientation="Vertical" Margin="5" Visibility="{Binding MergingWindowVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Label Content="New Max Value:"/>
+                    <xctk:IntegerUpDown Width="100" Minimum="1" Maximum="1000000" Value="{Binding NewMaxValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                </StackPanel>
                 <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='invert'}" Margin="5" >
                     <Label Content="Baseline Removal Lambda:"/>
                     <xctk:LongUpDown Width="100" Minimum="1" Maximum="10000000000" Value="{Binding BaselineRemovalLambda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
