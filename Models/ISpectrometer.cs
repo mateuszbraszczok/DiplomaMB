@@ -110,8 +110,9 @@ namespace DiplomaMB.Models
         /// Reads data from the spectrometer.
         /// </summary>
         /// <param name="frames_to_acquire">Number of frames to acquire.</param>
+        /// <param name="new_id">A boolean indicating whether to generate a new ID for each acquired spectrum. Default is true.</param>
         /// <returns>A list of spectra.</returns>
-        public List<Spectrum> ReadData(int frames_to_acquire);
+        public List<Spectrum> ReadData(int frames_to_acquire, bool new_id = true);
 
         /// <summary>
         /// Reads data from the spectrometer using smart reading techniques.

@@ -224,39 +224,39 @@ namespace DiplomaMB.Models
         /// Reads spectrum data from the spectrometer.
         /// </summary>
         /// <param name="frames_to_acquire">Number of frames to acquire.</param>
+        /// <param name="new_id">A boolean indicating whether to generate new IDs for each acquired spectrum. Default is true.</param>
         /// <returns>A list of spectrum data.</returns>
-        public List<Spectrum> ReadData(int frames_to_acquire)
+        /// <remarks>
+        /// This method acquires a specified number of frames from the spectrometer, one frame at a time, and returns them as a list of Spectrum objects.
+        /// The method throws an exception if it fails to receive the expected amount of data for each frame.
+        /// If new_id is true, each Spectrum object will have a unique ID.
+        /// </remarks>
+        public List<Spectrum> ReadData(int frames_to_acquire, bool new_id = true)
         {
-            ushort[] pArray = new ushort[frames_to_acquire * pixel_number];
-            int ret = BwtekAPIWrapper.bwtekFrameDataReadUSB(frames_to_acquire, 0, pArray, channel);
-            if (ret != (frames_to_acquire * pixel_number))
-            {
-                throw new Exception("Not received data");
-            }
-            _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
-
-            Debug.WriteLine("ReadData: received data");
-
             List<Spectrum> spectrum_list = new List<Spectrum>();
-            List<double> data_list = new List<double>();
-            List<double> data_array = new List<double>();
-            int i = 1;
-            foreach (ushort value in pArray)
+            ushort[] pArray = new ushort[pixel_number];
+            for (int i = 1; i <= frames_to_acquire; i++)
             {
-                if (i == pixel_number)
+                int ret = BwtekAPIWrapper.bwtekDataReadUSB(0, pArray, channel);
+                if (ret != pixel_number)
                 {
-                    i = 1;
-                    data_array = data_list;
-                    SubtractDarkScan(data_array);
-                    spectrum_list.Add(new Spectrum(wavelengths, data_array));
-                    data_list = new List<double>();
+                    throw new Exception("Not received data");
                 }
+                _ = BwtekAPIWrapper.bwtekStopIntegration(channel);
+                List<double> data_list = new List<double>();
+                List<double> data_array = new List<double>();
 
-                if (i > xaxis_min && i <= xaxis_max + 1)
+                int index = 1;
+                foreach (ushort value in pArray)
                 {
-                    data_list.Add((double)value);
+                    if (index > xaxis_min && index <= xaxis_max + 1)
+                    {
+                        data_list.Add((double)value);
+                    }
+                    index++;
                 }
-                i++;
+                SubtractDarkScan(data_list);
+                spectrum_list.Add(new Spectrum(wavelengths, data_list, new_id));
             }
             return spectrum_list;
         }

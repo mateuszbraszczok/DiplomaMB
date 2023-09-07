@@ -43,7 +43,7 @@ namespace DiplomaMB.Models
             throw new System.NotImplementedException();
         }
 
-        public List<Spectrum> ReadData(int frames_to_acquire)
+        public List<Spectrum> ReadData(int frames_to_acquire, bool new_id = true)
         {
             throw new System.NotImplementedException();
         }

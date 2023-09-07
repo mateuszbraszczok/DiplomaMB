@@ -135,17 +135,21 @@ namespace DiplomaMB.Models
         /// </summary>
         /// <param name="_wavelengths">A list of wavelengths to be assigned to this instance.</param>
         /// <param name="_dataValues">A list of data values to be assigned to this instance.</param>
-        /// <param name="_name">A string representing the name of the Spectrum. Default is an empty string.</param>
+        /// <param name="update_id">A boolean indicating whether to increment the last_spectrum_id. Default is true.</param>
+        /// <param name="_name">A string representing the name of the Spectrum. If an empty string is provided, a default name based on the spectrum ID will be used.</param>
         /// <remarks>
-        /// The constructor initializes the Wavelengths, DataValues, Name properties with the provided values.
-        /// It also sets the Enabled property to true and initializes an empty list for storing peaks.
+        /// The constructor initializes the Wavelengths, DataValues, and Name properties with the provided values.
+        /// If update_id is true, it also increments the last_spectrum_id.
+        /// It sets the Enabled property to true and initializes an empty list for storing peaks.
         /// </remarks>
-        public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "")
+        public Spectrum(List<double> _wavelengths, List<double> _dataValues, bool update_id = true, string _name = "")
         {
             wavelengths = _wavelengths;
             data_values = _dataValues;
-            name = _name;
-            id = last_spectrum_id++;
+
+            id = last_spectrum_id;
+            if (update_id) { last_spectrum_id++; }
+            name = (_name != "") ? _name : "Spectrum " + id.ToString();
             enabled = true;
             peaks = new List<Peak>();
         }
@@ -643,8 +647,16 @@ namespace DiplomaMB.Models
             List<double> wavelengths = spectrum.wavelengths;
             List<double> dataValues = output.ToList();
 
-            Spectrum result = new Spectrum(wavelengths, dataValues, name);
+            Spectrum result = new Spectrum(wavelengths, dataValues, true, name);
             return result;
+        }
+
+        /// <summary>
+        /// Increments last_spectrum_id value.
+        /// </summary>
+        public static void IncrementLastId()
+        {
+            last_spectrum_id++;
         }
 
         /// <summary>

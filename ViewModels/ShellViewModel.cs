@@ -441,9 +441,8 @@ namespace DiplomaMB.ViewModels
 
             while (should_acquire)
             {
-                Spectrum spectrum = Spectrometer.ReadData(1).First();
+                Spectrum spectrum = Spectrometer.ReadData(1, false).First();
                 //Spectrum spectrum = Spectrometer.GenerateDummySpectrum();
-                spectrum.Name = "Spectrum " + spectrum.Id.ToString();
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -459,6 +458,7 @@ namespace DiplomaMB.ViewModels
 
                 Debug.WriteLine("iteration");
             }
+            Spectrum.IncrementLastId();
         }
 
         /// <summary>
@@ -742,7 +742,7 @@ namespace DiplomaMB.ViewModels
                 MessageBox.Show("No Spectrum selected");
                 return;
             }
-            
+
         }
 
         /// <summary>
