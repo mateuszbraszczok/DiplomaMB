@@ -1,4 +1,11 @@
-﻿using System;
+﻿/**
+ * @file AvantesAPIWrapper.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-25
+ * @brief AvantesAPIWrapper class for interfacing with Avantes spectrometer API.
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 namespace DiplomaMB.Utils

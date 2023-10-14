@@ -1,4 +1,11 @@
-﻿using DiplomaMB.Utils;
+﻿/**
+ * @file Spectrum.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-25
+ * @brief This file contains the Spectrum class which represents a spectrum with wavelengths and data values.
+ */
+
+using DiplomaMB.Utils;
 using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Series;
@@ -13,8 +20,17 @@ using System.Text.Json;
 
 namespace DiplomaMB.Models
 {
+    /// <summary>
+    /// Represents a spectrum with wavelengths and data values.
+    /// </summary>
     public class Spectrum
     {
+        /// <summary>
+        /// Gets or sets the identifier for this instance.
+        /// </summary>
+        /// <value>
+        /// An integer representing the unique identifier.
+        /// </value>
         private int id;
         public int Id
         {
@@ -22,6 +38,12 @@ namespace DiplomaMB.Models
             set => id = value;
         }
 
+        /// <summary>
+        /// Gets or sets the name associated with this instance.
+        /// </summary>
+        /// <value>
+        /// A string representing the name.
+        /// </value>
         private string name;
         public string Name
         {
@@ -29,6 +51,12 @@ namespace DiplomaMB.Models
             set => name = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is enabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+        /// </value>
         private bool enabled;
         public bool Enabled
         {
@@ -36,6 +64,12 @@ namespace DiplomaMB.Models
             set => enabled = value;
         }
 
+        /// <summary>
+        /// Gets or sets the list of wavelengths.
+        /// </summary>
+        /// <value>
+        /// The list of wavelengths.
+        /// </value>
         private List<double> wavelengths;
         public List<double> Wavelengths
         {
@@ -43,6 +77,12 @@ namespace DiplomaMB.Models
             set => wavelengths = value;
         }
 
+        /// <summary>
+        /// Gets or sets the list of data values.
+        /// </summary>
+        /// <value>
+        /// The list of data values.
+        /// </value>
         private List<double> data_values;
         public List<double> DataValues
         {
@@ -66,36 +106,52 @@ namespace DiplomaMB.Models
             set => peaks = value;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spectrum"/> class with default values.
-        /// </summary>
-        /// <remarks>
-        /// This constructor initializes all properties to their default values.
-        /// </remarks>
-        public Spectrum()
-        {
+        private static int last_spectrum_id = 1;
 
-        }
+        private static List<OxyColor> colors = new List<OxyColor>
+        {
+            OxyColor.FromRgb((byte)(0 * 255), (byte)(0.4470 * 255), (byte)(0.7410 * 255)),  // Blue
+            OxyColor.FromRgb((byte)(0.8500 * 255), (byte)(0.3250 * 255), (byte)(0.0980 * 255)),  // Orange
+            OxyColor.FromRgb((byte)(0.9290 * 255), (byte)(0.6940 * 255), (byte)(0.1250 * 255)),  // Yellow
+            OxyColor.FromRgb((byte)(0.4940 * 255), (byte)(0.1840 * 255), (byte)(0.5560 * 255)),  // Purple
+            OxyColor.FromRgb((byte)(0.4660 * 255), (byte)(0.6740 * 255), (byte)(0.1880 * 255)),  // Green
+            OxyColor.FromRgb((byte)(0.3010 * 255), (byte)(0.7450 * 255), (byte)(0.9330 * 255)),  // Light Blue
+            OxyColor.FromRgb((byte)(0.6350 * 255), (byte)(0.0780 * 255), (byte)(0.1840 * 255)),  // Red
+
+            OxyColor.FromRgb(255, 140, 0),  // Dark Orange
+            OxyColor.FromRgb(0, 255, 255),  // Cyan
+            OxyColor.FromRgb(148, 0, 211),  // Dark Violet
+            OxyColor.FromRgb(0, 255, 127),  // Spring Green
+            OxyColor.FromRgb(220, 20, 60),  // Crimson
+            OxyColor.FromRgb(210, 105, 30), // Chocolate
+            OxyColor.FromRgb(255, 20, 147), // Deep Pink
+            OxyColor.FromRgb(128, 128, 0),  // Olive
+            OxyColor.FromRgb(106, 90, 205), // Slate Blue
+            OxyColor.FromRgb(46, 139, 87)   // Sea Green
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Spectrum"/> class with the provided wavelengths and data values.
         /// </summary>
         /// <param name="_wavelengths">A list of wavelengths to be assigned to this instance.</param>
         /// <param name="_dataValues">A list of data values to be assigned to this instance.</param>
-        /// <param name="_name">A string representing the name of the Spectrum. Default is an empty string.</param>
-        /// <param name="_id">An integer ID to be assigned to this Spectrum instance. Default is 0.</param>
+        /// <param name="update_id">A boolean indicating whether to increment the last_spectrum_id. Default is true.</param>
+        /// <param name="_name">A string representing the name of the Spectrum. If an empty string is provided, a default name based on the spectrum ID will be used.</param>
         /// <remarks>
-        /// The constructor initializes the Wavelengths, DataValues, Name, and ID properties with the provided values.
-        /// It also sets the Enabled property to true and initializes an empty list for storing peaks.
+        /// The constructor initializes the Wavelengths, DataValues, and Name properties with the provided values.
+        /// If update_id is true, it also increments the last_spectrum_id.
+        /// It sets the Enabled property to true and initializes an empty list for storing peaks.
         /// </remarks>
-        public Spectrum(List<double> _wavelengths, List<double> _dataValues, string _name = "", int _id = 0)
+        public Spectrum(List<double> _wavelengths, List<double> _dataValues, bool update_id = true, string _name = "")
         {
-            Wavelengths = _wavelengths;
+            wavelengths = _wavelengths;
             data_values = _dataValues;
-            Name = _name;
-            Id = _id;
-            Enabled = true;
-            Peaks = new List<Peak>();
+
+            id = last_spectrum_id;
+            if (update_id) { last_spectrum_id++; }
+            name = (_name != "") ? _name : "Spectrum " + id.ToString();
+            enabled = true;
+            peaks = new List<Peak>();
         }
 
         /// <summary>
@@ -110,18 +166,22 @@ namespace DiplomaMB.Models
         /// 
         /// Note: The given file should conform to the expected CSV or JSON format. Otherwise, the behavior is undefined.
         /// </remarks>
-        public Spectrum(string file_path, int _id)
+        public Spectrum(string file_path)
         {
+            data_values = new List<double>();
+            wavelengths = new List<double>();
+            name = "";
+
             string extension = Path.GetExtension(file_path);
             if (extension == ".csv")
             {
-                LoadCsvFile(file_path, _id);
+                LoadCsvFile(file_path);
             }
             else if (extension == ".json")
             {
                 LoadJsonFile(file_path);
             }
-            Peaks = new List<Peak>();
+            peaks = new List<Peak>();
         }
 
         /// <summary>
@@ -141,6 +201,7 @@ namespace DiplomaMB.Models
                 StrokeThickness = 2,
                 MarkerSize = 3,
                 Title = Name,
+                Color = colors[(Id - 1) % colors.Count],
                 //MarkerStroke = colors[data.Key],
                 //MarkerType = markerTypes[data.Key],
                 //CanTrackerInterpolatePoints = false,
@@ -406,6 +467,153 @@ namespace DiplomaMB.Models
             return result;
         }
 
+        /// <summary>
+        /// Averages the data values of two Spectrum objects element-wise.
+        /// </summary>
+        /// <param name="spectrum1">The first Spectrum object whose data values are to be averaged.</param>
+        /// <param name="spectrum2">The second Spectrum object whose data values are to be averaged.</param>
+        /// <returns>A new Spectrum object where each data value is the average of the corresponding data values in the input Spectrums.</returns>
+        /// <remarks>
+        /// This function allows for easy averaging of data values from two Spectrum objects.
+        /// It creates a new Spectrum object that contains the averaged data values.
+        /// 
+        /// Note: This operation does not alter the original Spectrum objects.
+        /// 
+        /// Caution: The function assumes that both Spectrum objects have the same length of data values.
+        /// If they do not, this will result in an index out-of-range exception.
+        /// </remarks>
+        public static Spectrum AverageSpectrums(Spectrum spectrum1, Spectrum spectrum2)
+        {
+            List<double> dataValues = new List<double>();
+
+            for (int i = 0; i < spectrum1.DataValues.Count; i++)
+            {
+                dataValues.Add((spectrum1.DataValues[i] + spectrum2.DataValues[i]) / 2);
+            }
+            Spectrum result = new Spectrum(spectrum1.wavelengths, dataValues);
+            return result;
+        }
+
+        public static Spectrum MergeSpectrums(Spectrum spectrum1, Spectrum spectrum2, int threshold, int spectrum_max_value)
+        {
+            bool[] in_merged_region = spectrum2.GetMergingRegions(threshold);
+            // Initialize new signal array
+            List<double> newsignal = new List<double>();
+
+            // Loop through all data and write true when in a merged region
+            bool in_region = false;
+            double[] arith_seq = null;
+            double OldMax = 0;
+            double OldMin = 0;
+            int next_false_idx = 0;
+
+            for (int i = 0; i < spectrum2.DataValues.Count; i++)
+            {
+                if (in_merged_region[i])
+                {
+                    if (!in_region)
+                    {
+                        next_false_idx = Array.FindIndex(in_merged_region, i, x => !x);
+                        double ratio_begin = spectrum2.DataValues[i] / spectrum1.DataValues[i];
+                        double ratio_end = spectrum2.DataValues[next_false_idx] / spectrum1.DataValues[next_false_idx];
+
+                        arith_seq = Enumerable.Range(0, next_false_idx - i)
+                                              .Select(n => ratio_begin + n * (ratio_end - ratio_begin) / (next_false_idx - i - 1))
+                                              .ToArray();
+
+                        var data_series = spectrum1.DataValues.GetRange(i, next_false_idx - i)
+                                             .Select((val, idx) => val * arith_seq[idx])
+                                             .ToList();
+
+                        OldMax = data_series.Max();
+                        OldMin = data_series.Min();
+
+                        in_region = true;
+                    }
+                    double normalized_data = ((spectrum1.DataValues[i] * arith_seq[next_false_idx - i - 1] - OldMin) / (OldMax - OldMin)) * (spectrum_max_value - OldMin) + OldMin;
+                    newsignal.Add(normalized_data);
+                }
+                else
+                {
+                    in_region = false;
+                    newsignal.Add(spectrum2.DataValues[i]);
+                }
+            }
+
+            Spectrum result = new Spectrum(spectrum1.wavelengths, newsignal);
+            return result;
+        }
+
+        private bool[] GetMergingRegions(int threshold)
+        {
+            List<Tuple<int, int>> above_threshold_regions = new List<Tuple<int, int>>();
+            int? start_idx = null;
+
+            // Loop through the data series
+            for (int i = 0; i < DataValues.Count; i++)
+            {
+                double value = DataValues[i];
+
+                if (value > threshold)
+                {
+                    if (start_idx == null)
+                    {
+                        start_idx = i;
+                    }
+                }
+                else
+                {
+                    if (start_idx != null)
+                    {
+                        above_threshold_regions.Add(new Tuple<int, int>((int)start_idx, i - 1));
+                        start_idx = null;
+                    }
+                }
+            }
+
+            // Capture trailing regions
+            if (start_idx != null)
+            {
+                above_threshold_regions.Add(new Tuple<int, int>((int)start_idx, DataValues.Count - 1));
+            }
+
+            // Merging regions
+            List<Tuple<int, int>> merged_regions = new List<Tuple<int, int>>();
+            int current_start = above_threshold_regions[0].Item1;
+            int current_end = above_threshold_regions[0].Item2;
+
+            for (int i = 1; i < above_threshold_regions.Count; i++)
+            {
+                if (above_threshold_regions[i].Item1 - current_end <= 5)
+                {
+                    // Merge the region with the previous one
+                    current_end = above_threshold_regions[i].Item2;
+                }
+                else
+                {
+                    // Add the current merged region to the list and reset
+                    merged_regions.Add(new Tuple<int, int>(current_start, current_end));
+                    current_start = above_threshold_regions[i].Item1;
+                    current_end = above_threshold_regions[i].Item2;
+                }
+            }
+
+            merged_regions.Add(new Tuple<int, int>(current_start, current_end));
+
+            bool[] in_merged_region = new bool[DataValues.Count];
+
+            // Loop through each merged region and set corresponding indices to true
+            foreach (var region in merged_regions)
+            {
+                for (int i = region.Item1; i <= region.Item2; i++)
+                {
+                    in_merged_region[i] = true;
+                }
+            }
+
+            return in_merged_region;
+        }
+
 
         /// <summary>
         /// Performs baseline correction on a given Spectrum object using the AirPLS algorithm.
@@ -439,8 +647,16 @@ namespace DiplomaMB.Models
             List<double> wavelengths = spectrum.wavelengths;
             List<double> dataValues = output.ToList();
 
-            Spectrum result = new Spectrum(wavelengths, dataValues, name);
+            Spectrum result = new Spectrum(wavelengths, dataValues, true, name);
             return result;
+        }
+
+        /// <summary>
+        /// Increments last_spectrum_id value.
+        /// </summary>
+        public static void IncrementLastId()
+        {
+            last_spectrum_id++;
         }
 
         /// <summary>
@@ -528,13 +744,12 @@ namespace DiplomaMB.Models
         /// 
         /// Parameters:
         /// file_path - The path to the CSV file to read.
-        /// id - The identifier to assign to the loaded data.
         /// 
         /// The CSV file should have two columns separated by a comma. The first column is interpreted as wavelengths (in double format), and the second column is interpreted as data values (also in double format).
         /// 
-        /// The method also sets the Id and Name properties based on the input parameters and the file name.
+        /// The method also sets the Name property based on the input parameters and the file name.
         /// </remarks>
-        private void LoadCsvFile(string file_path, int id)
+        private void LoadCsvFile(string file_path)
         {
             using var reader = new StreamReader(file_path);
             Wavelengths = new List<double>();
@@ -542,13 +757,13 @@ namespace DiplomaMB.Models
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
-                var values = line.Split(',');
+                var values = (line ?? string.Empty).Split(',');
 
                 Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
                 DataValues.Add(Convert.ToDouble(values[1], CultureInfo.InvariantCulture));
             }
-            Id = id;
             Name = Path.GetFileNameWithoutExtension(file_path);
+            Id = last_spectrum_id++;
             Enabled = true;
         }
 
@@ -570,15 +785,12 @@ namespace DiplomaMB.Models
             string json_content = File.ReadAllText(file_path);
             Debug.WriteLine(json_content);
 
-            Spectrum spectrum = JsonSerializer.Deserialize<Spectrum?>(json_content);
-            if (spectrum != null)
-            {
-                Wavelengths = spectrum.Wavelengths;
-                DataValues = spectrum.DataValues;
-                Id = spectrum.Id;
-                Name = spectrum.Name;
-                Enabled = spectrum.Enabled;
-            }
+            JsonElement json_root = JsonDocument.Parse(json_content).RootElement;
+            Wavelengths = json_root.GetProperty(nameof(Wavelengths)).EnumerateArray().Select(e => e.GetDouble()).ToList();
+            DataValues = json_root.GetProperty(nameof(DataValues)).EnumerateArray().Select(e => e.GetDouble()).ToList();
+            Name = json_root.GetProperty(nameof(Name)).GetString() ?? "";
+            Enabled = json_root.GetProperty(nameof(Enabled)).GetBoolean();
+            Id = last_spectrum_id++;
         }
     }
 }

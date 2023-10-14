@@ -1,4 +1,11 @@
-﻿using System;
+﻿/**
+ * @file BwtekAPIWrapper.cs
+ * @author Mateusz Braszczok
+ * @date 2023-08-25
+ * @brief BwtekAPIWrapper class for interfacing with Bwtek's spectrometer API.
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 class BwtekAPIWrapper
