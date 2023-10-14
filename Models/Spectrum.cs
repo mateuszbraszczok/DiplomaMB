@@ -545,7 +545,7 @@ namespace DiplomaMB.Models
                 var values = line.Split(',');
 
                 Wavelengths.Add(double.Parse(values[0], CultureInfo.InvariantCulture));
-                DataValues.Add(Convert.ToDouble(values[1]));
+                DataValues.Add(Convert.ToDouble(values[1], CultureInfo.InvariantCulture));
             }
             Id = id;
             Name = Path.GetFileNameWithoutExtension(file_path);
