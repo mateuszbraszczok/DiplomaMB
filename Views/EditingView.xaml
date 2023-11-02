@@ -89,12 +89,12 @@
                     <xctk:IntegerUpDown Width="100" Minimum="1" Maximum="1000000" Value="{Binding MergingThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="5" Visibility="{Binding MergingWindowVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Vertical" Margin="2" Visibility="{Binding MergingWindowVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Label Content="New Max Value:"/>
                     <xctk:IntegerUpDown Width="100" Minimum="1" Maximum="1000000" Value="{Binding NewMaxValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 </StackPanel>
-                <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='invert'}" Margin="5" >
+                <StackPanel Visibility="{Binding IsSpectrums2ComboBoxEnabled, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='invert'}" Margin="2" >
                     <Label Content="Baseline Removal Lambda:"/>
                     <xctk:LongUpDown Width="100" Minimum="1" Maximum="10000000000" Value="{Binding BaselineRemovalLambda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
