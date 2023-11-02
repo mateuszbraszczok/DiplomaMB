@@ -49,8 +49,8 @@
                         <Setter Property="Margin" Value="2"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button x:Name="ConnectSpectrometer">Connect Spectrometer</Button>
-                <Button x:Name="ResetSpectrometer">Reset Device</Button>
+                <Button x:Name="ConnectSpectrometer">Connect spectrometer</Button>
+                <Button x:Name="ResetSpectrometer">Reset device</Button>
                 <StackPanel Orientation="Horizontal">
                     <xctk:IntegerUpDown Width="100" Minimum="1" Value="{Binding IntegrationTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label x:Name="Spectrometer_IntegrationTimeUnitStr"/>
@@ -74,12 +74,12 @@
                 </StackPanel.Resources>
                 <StackPanel Orientation="Horizontal">
                     <xctk:IntegerUpDown Width="50" Minimum="0" Maximum="255" Value="{Binding FramesToAcquire, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Spectrometer.Connected}"/>
-                    <Label Content="Number of frames of data to acquire"/>
+                    <Label Content="Number of spectrums to acquire"/>
                 </StackPanel>
-                <Button x:Name="GetSpectrum">Get Spectrum</Button>
-                <Button x:Name="GetDarkScan">Get Dark Scan</Button>
-                <Button x:Name="StartAcquire">Start Acquire Continuously</Button>
-                <Button x:Name="StopAcquire">Stop Acquire</Button>
+                <Button x:Name="GetSpectrum">Get spectrum</Button>
+                <Button x:Name="GetDarkScan">Get dark scan</Button>
+                <Button x:Name="StartAcquire">Start acquire continuously</Button>
+                <Button x:Name="StopAcquire">Stop acquire</Button>
             </StackPanel>
         </Border>
 
@@ -102,11 +102,11 @@
 
                 <CheckBox IsChecked="{Binding SmartRead.Smoothing}" IsEnabled="{Binding Spectrometer.Connected}">Smoothing enabled</CheckBox>
                 <CheckBox IsChecked="{Binding SmartRead.DarkCompensation}" IsEnabled="{Binding Spectrometer.Connected}">Dark compensate enabled</CheckBox>
-                <Button x:Name="GetSpectrumSmart">Get Spectrum</Button>
+                <Button x:Name="GetSpectrumSmart">Get spectrum</Button>
             </StackPanel>
         </Border>
 
-        <Label Content="Spectrums management" Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <Label Content="Spectrums Management" Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="1" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
         <Border BorderBrush="Black" BorderThickness="1" Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2" Margin="10">
             <StackPanel Margin="5" Orientation="Horizontal">
                 <StackPanel.Resources>

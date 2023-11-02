@@ -9,6 +9,7 @@ using Caliburn.Micro;
 using DiplomaMB.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DiplomaMB.ViewModels
@@ -90,6 +91,7 @@ namespace DiplomaMB.ViewModels
         /// </summary>
         public void DetectPeaks()
         {
+            
             DerivativeConfig derivative_config = new DerivativeConfig
             {
                 DerivativeOrder = 2,
@@ -138,7 +140,7 @@ namespace DiplomaMB.ViewModels
 
                         if (spectrum.DataValues[indexx] > min_peak_height)
                         {
-                            if (indexx - 4 > 0 && indexx + 4 < spectrum.DataValues.Count && spectrum.DataValues[indexx] >= spectrum.DataValues.GetRange(indexx - 4, 9).Max())
+                            if (indexx - 2 > 0 && indexx + 2 < spectrum.DataValues.Count && spectrum.DataValues[indexx] >= spectrum.DataValues.GetRange(indexx - 2, 5).Max())
                             {
                                 peakCount++;
                                 double fwhm = Math.Sqrt(2 * Math.Log(2)) * distance;
